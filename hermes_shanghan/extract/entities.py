@@ -93,7 +93,7 @@ class EntityExtractor:
         names.update(lexicon.FORMULA_ALIASES.keys())
         if formula_names:
             names.update(formula_names)
-        self.formula_terms = sorted(names, key=len, reverse=True)
+        self.formula_terms = sorted(names, key=lambda t: (-len(t), t))
 
     # -- formulas with prescription strength ------------------------------
     def extract_formula_mentions(self, text: str) -> List[Dict]:

@@ -88,7 +88,7 @@ class RelationBuilder:
     def build_contraindication(self):
         for c in self.canonical:
             ctext = c.clean_text
-            for f in set(c.formula_names):
+            for f in dict.fromkeys(c.formula_names):
                 if f"不可與{f}" in ctext or f"{f}不中與" in ctext or f"不可服{f}" in ctext:
                     anchor = self._formula_anchor(f)
                     if anchor and anchor.clause_id != c.clause_id:
@@ -152,7 +152,9 @@ class RelationBuilder:
                     counts[pi] += 1
             if not counts:
                 continue
-            best = sorted(counts.items(), key=lambda kv: -kv[1])[:5]
+            # tie-break by paragraph index: counts' insertion order follows
+            # bigram-set iteration, which varies across runs
+            best = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:5]
             best_pi, best_sim = -1, 0.0
             for pi, _ in best:
                 sim = similarity(c.clean_text, paragraphs[pi][1])
@@ -216,7 +218,7 @@ class RelationBuilder:
             for bg in bigram_set(c.clean_text):
                 for pi in index.get(bg, ()):
                     counts[pi] += 1
-            best = sorted(counts.items(), key=lambda kv: -kv[1])[:5]
+            best = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:5]
             for pi, _ in best:
                 sim = similarity(c.clean_text, paragraphs[pi][1])
                 if sim >= COMMENT_SIM_THRESHOLD and \

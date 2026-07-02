@@ -256,10 +256,10 @@
  },
  {
   "mistreatment": "火逆",
-  "resulting_pattern": "煩躁、吐逆、譫語",
+  "resulting_pattern": "吐逆、煩躁、譫語",
   "manifestations": [
-   "煩躁",
    "吐逆",
+   "煩躁",
    "譫語",
    "厥"
   ],
@@ -288,13 +288,13 @@
  },
  {
   "mistreatment": "火逆",
-  "resulting_pattern": "客氣動膈、胃中空虛、心中懊憹",
+  "resulting_pattern": "客氣動膈、心中懊憹、胃中空虛",
   "manifestations": [
    "客氣動膈",
-   "胃中空虛",
    "心中懊憹",
-   "煩躁",
+   "胃中空虛",
    "懊憹",
+   "煩躁",
    "譫語"
   ],
   "rescue_formulas": [
