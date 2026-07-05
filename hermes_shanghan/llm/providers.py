@@ -358,6 +358,28 @@ class LocalProvider:
                          f"以 {p.get('mistreatment')}→{p.get('resulting_pattern')}→"
                          f"{'、'.join((p.get('rescue_formulas') or [])[:1])} 最為典型"
                          f"（{cl}），構成誤治—變證—救逆的閉環法度。")
+        bm = d.get("benchmark") or {}
+        cz = bm.get("cloze_attainable") or {}
+        if cz.get("n"):
+            lines.append(f"遮方預測基準（留一條文）在 {cz['n']} 個可達折上"
+                         f"Top-1 {cz.get('top1')}、Top-3 {cz.get('top3')}、"
+                         f"MRR {cz.get('mrr')}、藥物級F1 {cz.get('herb_f1')}，"
+                         "表明條文級規則具備可量化的跨條泛化能力，"
+                         f"另有 {bm.get('cloze_singleton_n', 0)} 個孤證方"
+                         "在留一設置下結構性不可達。")
+        cr = bm.get("case_replay") or {}
+        if cr.get("n_scored"):
+            lines.append(f"醫案回放基準（{cr.get('source','')}）實評 "
+                         f"{cr['n_scored']} 案，Top-1 {cr.get('top1')}、"
+                         f"Top-5 {cr.get('top5')}，量化了純條文規則對"
+                         "真實臨證決策的解釋上限，也給增益層留下了明確的改進空間。")
+        gd = bm.get("grounding") or {}
+        if gd.get("n_questions"):
+            lines.append(f"證據接地基準（{gd.get('backend','')} 後端）"
+                         f"{gd['n_questions']} 問全部通過引用核驗：完全接地率 "
+                         f"{gd.get('grounded_answer_rate')}、未核實引用率 "
+                         f"{gd.get('unsupported_citation_rate')}，"
+                         "為接入任意大模型提供了可對比的幻覺引用標尺。")
         quant = "\n".join(f"（{i+1}）{s}" for i, s in enumerate(lines)) or \
             "（計量摘要不足，未生成解讀。）"
 

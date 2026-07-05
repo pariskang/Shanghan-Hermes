@@ -40,7 +40,13 @@ def _contradicts(finding: str, pattern_terms: List[str]) -> Optional[str]:
 
 class FormulaMatcher:
     def __init__(self, formula_rules: List[FormulaPatternRule],
-                 clause_store: Dict[str, ShanghanClause]):
+                 clause_store: Dict[str, ShanghanClause],
+                 use_outline_boost: bool = True,
+                 use_near_match: bool = True):
+        # feature flags exist so the evaluation harness can ablate each
+        # scoring component and quantify its contribution
+        self.use_outline_boost = use_outline_boost
+        self.use_near_match = use_near_match
         self.rules = [r for r in formula_rules if r.release_level != "rejected"]
         self.clauses = clause_store
         # channel → the 提綱 clause's extracted symptoms (e.g. 少陽: 口苦/咽乾/目眩)
@@ -82,7 +88,7 @@ class FormulaMatcher:
                             hits.append(f"兼證：{asym}")
                             matched = True
                             break
-                if not matched:
+                if not matched and self.use_near_match:
                     # near-match: 胸脅苦滿 vs pattern's 胸脅滿 — same clinical
                     # sign written with/without a qualifier character
                     for cs in r.core_symptoms:
@@ -91,7 +97,7 @@ class FormulaMatcher:
                             hits.append(f"近似核心證：{cs}≈{s}")
                             matched = True
                             break
-                if not matched:
+                if not matched and self.use_outline_boost:
                     ch = self._outline_hit(s, r.six_channel_scope)
                     if ch:
                         score += 1.0

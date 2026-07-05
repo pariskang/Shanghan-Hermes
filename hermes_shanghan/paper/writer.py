@@ -33,6 +33,7 @@ PAPER_TYPES = {
     "network_pharmacology": "《傷寒論》方劑網絡藥理學前置研究",
     "commentary_compare": "《傷寒論》方劑歷代注釋比較",
     "methodology": "《傷寒論》古籍數據挖掘與智能體方法學研究",
+    "benchmark": "《傷寒論》規則系統客觀評測（遮方預測/醫案回放/證據接地）",
 }
 
 
@@ -153,7 +154,27 @@ class PaperWriter:
                 "core_pulse": f.core_pulse[:2],
                 "supporting_clauses": f.supporting_clauses[:3],
             } for f in sample_rules],
+            "benchmark": self._benchmark_digest(),
         }
+
+    def _benchmark_digest(self) -> Dict:
+        """Compact evaluation metrics for the drafting layer ({} if not run)."""
+        ev = self._load_eval()
+        out: Dict = {}
+        cz = ev.get("cloze", {}).get("metrics", {})
+        if cz.get("attainable"):
+            out["cloze_attainable"] = cz["attainable"]
+            out["cloze_singleton_n"] = cz.get("singleton_unattainable", {}).get("n", 0)
+        cs = ev.get("cases", {})
+        if cs:
+            out["case_replay"] = {**cs.get("metrics", {}),
+                                  "n_out_of_scope": cs.get("n_out_of_scope", 0),
+                                  "source": cs.get("source", "")}
+        gr = ev.get("grounding", {})
+        if gr:
+            out["grounding"] = {**gr.get("metrics", {}),
+                                "backend": gr.get("backend", "")}
+        return out
 
     def _draft_sections(self, paper_type: str, title_root: str, topic: str,
                         digest: Dict) -> Dict:
@@ -188,7 +209,8 @@ class PaperWriter:
                           "mistreatment": "誤治傳變路徑",
                           "network_pharmacology": "經方藥物網絡",
                           "commentary_compare": "桂枝湯歷代注釋",
-                          "methodology": "Hermes自主審核框架"}[paper_type]
+                          "methodology": "Hermes自主審核框架",
+                          "benchmark": "遮方預測與醫案回放基準"}[paper_type]
         slug = f"{paper_type}_{time.strftime('%Y%m%d')}"
         out = out_dir or (config.PAPER_DIR / slug)
         out.mkdir(parents=True, exist_ok=True)
@@ -402,6 +424,10 @@ MistreatmentTransformationRule → MergedShanghanRule；另建 ClauseRelation
             n_sub += 1
             lines.append(f"### 4.{n_sub} 審核閘門通過情況\n" + self._audit_table(s))
 
+        if paper_type == "benchmark":
+            n_sub += 1
+            lines.append(f"### 4.{n_sub} 客觀評測結果\n" + self._benchmark_tables())
+
         if paper_type in ("formula_pattern", "six_channel_kg", "mistreatment"):
             n_sub += 1
             fprs = [f for f in self.formula_rules if topic and (f.formula in topic or
@@ -434,6 +460,69 @@ MistreatmentTransformationRule → MergedShanghanRule；另建 ClauseRelation
                         f"{r.commentary_text[:40]}… | {r.alignment_similarity:.2f} |")
         return ("| 條文 | 原文（A層） | 成無己注（C層） | 對齊相似度 |\n|---|---|---|---|\n"
                 + "\n".join(rows))
+
+    @staticmethod
+    def _load_eval() -> Dict:
+        """Persisted evaluation results (run `evaluate` first); {} if absent."""
+        out: Dict = {}
+        d = config.SHANGHAN_DIR / "eval"
+        for key, name in (("cloze", "cloze_results.json"),
+                          ("ablations", "cloze_ablations.json"),
+                          ("cases", "case_results.json"),
+                          ("grounding", "grounding_results.json")):
+            p = d / name
+            if p.exists():
+                try:
+                    out[key] = json.loads(p.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+        return out
+
+    def _benchmark_tables(self) -> str:
+        ev = self._load_eval()
+        if not ev:
+            return "（尚未運行評測：請先執行 `python3 -m hermes_shanghan evaluate`。）"
+        parts: List[str] = []
+        cz = ev.get("cloze", {}).get("metrics", {})
+        if cz:
+            rows = []
+            for split, label in (("all", "全部折"), ("attainable", "可達折（金方仍在庫）"),
+                                 ("singleton_unattainable", "孤證折（不可達）"),
+                                 ("attainable_zhuzhi_only", "可達·僅主之條")):
+                m = cz.get(split, {})
+                if m.get("n"):
+                    rows.append(f"| {label} | {m['n']} | {m.get('top1','—')} | "
+                                f"{m.get('top3','—')} | {m.get('top5','—')} | "
+                                f"{m.get('mrr','—')} | {m.get('herb_f1','—')} |")
+            parts.append("**遮方預測（留一條文，自監督）**\n\n"
+                         "| 子集 | n | Top-1 | Top-3 | Top-5 | MRR | 藥物F1 |\n"
+                         "|---|---|---|---|---|---|---|\n" + "\n".join(rows))
+        ab = ev.get("ablations", {})
+        if ab:
+            rows = [f"| {k} | {v.get('top1','—')} | {v.get('top3','—')} | {v.get('mrr','—')} |"
+                    for k, v in ab.items()]
+            parts.append("**匹配器消融（可達折）**\n\n| 配置 | Top-1 | Top-3 | MRR |\n"
+                         "|---|---|---|---|\n" + "\n".join(rows))
+        cs = ev.get("cases", {})
+        if cs:
+            m = cs.get("metrics", {})
+            parts.append(f"**醫案回放（{cs.get('source','')}，1937 曹穎甫實案）**\n\n"
+                         f"解析 {cs.get('n_cases_parsed', 0)} 案（另有病名案 "
+                         f"{cs.get('n_non_formula_titles', 0)}）；界外方（多屬金匱）"
+                         f"{cs.get('n_out_of_scope', 0)}、證候不足 "
+                         f"{cs.get('n_insufficient_findings', 0)}，實評 "
+                         f"{m.get('n_scored', 0)} 案：Top-1 {m.get('top1','—')} / "
+                         f"Top-3 {m.get('top3','—')} / Top-5 {m.get('top5','—')} / "
+                         f"MRR {m.get('mrr','—')}。")
+        gr = ev.get("grounding", {})
+        if gr:
+            m = gr.get("metrics", {})
+            parts.append(f"**證據接地（後端：{gr.get('backend','—')}）**\n\n"
+                         f"{m.get('n_questions', 0)} 問：完全接地率 "
+                         f"{m.get('grounded_answer_rate','—')}、未核實引用率 "
+                         f"{m.get('unsupported_citation_rate','—')}、"
+                         f"篇均已核實引用 {m.get('mean_verified_per_answer','—')} 條。")
+        return "\n\n".join(parts)
 
     def _audit_table(self, s: Dict) -> str:
         stage: Counter = Counter()

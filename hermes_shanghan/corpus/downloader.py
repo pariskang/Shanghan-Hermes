@@ -151,8 +151,10 @@ def read_book_text(book_dir_name: str) -> str:
     index = path / "index.txt"
     if index.exists():
         parts.append(index.read_text(encoding="utf-8", errors="replace"))
-    nums = sorted((int(p.stem), p) for p in path.glob("*.txt")
-                  if p.stem.isdigit())
+    # stems may be plain ("3") or volume-chapter ("2-15") — order numerically
+    nums = sorted((tuple(int(x) for x in p.stem.split("-")), p)
+                  for p in path.glob("*.txt")
+                  if p.stem.replace("-", "").isdigit())
     for _, p in nums:
         parts.append(p.read_text(encoding="utf-8", errors="replace"))
     return "\n".join(parts)

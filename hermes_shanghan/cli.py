@@ -138,6 +138,16 @@ def cmd_ingest(args):
             print(f"  [{b['hermes_layer']}] {b['title']} ({b['book_dir']})")
 
 
+def cmd_evaluate(args):
+    _need_pipeline()
+    from .eval.runner import run_suites
+    suites = tuple(args.suite.split(",")) if args.suite != "all" \
+        else ("cloze", "cases", "grounding")
+    summary = run_suites(suites=suites, ablations=args.ablations,
+                         limit=args.limit)
+    _print(summary)
+
+
 def cmd_stats(args):
     _need_pipeline()
     from collections import Counter
@@ -420,6 +430,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp = sub.add_parser("ingest", help="語料導入與 manifest")
     sp.set_defaults(func=cmd_ingest)
 
+    sp = sub.add_parser("evaluate", help="客觀評測：遮方預測/醫案回放/證據接地率")
+    sp.add_argument("--suite", default="all",
+                    help="all 或逗號分隔：cloze,cases,grounding")
+    sp.add_argument("--ablations", action="store_true",
+                    help="對匹配器各評分組件做消融實驗")
+    sp.add_argument("--limit", type=int, default=None)
+    sp.set_defaults(func=cmd_evaluate)
+
     sp = sub.add_parser("stats", help="規則庫統計")
     sp.set_defaults(func=cmd_stats)
 
@@ -471,7 +489,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp = sub.add_parser("paper", help="自動論文生成")
     sp.add_argument("--type", default="formula_pattern",
                     choices=["formula_pattern", "six_channel_kg", "mistreatment",
-                             "network_pharmacology", "commentary_compare", "methodology"])
+                             "network_pharmacology", "commentary_compare",
+                             "methodology", "benchmark"])
     sp.add_argument("--topic", default="")
     sp.add_argument("--no-llm", action="store_true",
                     help="跳過增益層起草，只輸出確定性模板與數據表格")
