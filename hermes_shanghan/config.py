@@ -13,7 +13,9 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(os.environ.get("HERMES_SHANGHAN_ROOT", Path(__file__).resolve().parent.parent))
 
-DATA_DIR = REPO_ROOT / "data"
+# data root: HERMES_SHANGHAN_DATA overrides directly (pip-installed deployments
+# where the package no longer sits next to data/), else <repo>/data
+DATA_DIR = Path(os.environ.get("HERMES_SHANGHAN_DATA", REPO_ROOT / "data"))
 CORPUS_RAW_DIR = DATA_DIR / "corpus_raw"
 SHANGHAN_DIR = DATA_DIR / "shanghan"
 

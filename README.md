@@ -30,6 +30,8 @@ Anthropic/OpenAI/Azure/Poe/MiniMax。
 ```bash
 python3 -m hermes_shanghan pipeline     # 首次生成規則庫
 python3 -m hermes_shanghan serve        # 打開 http://127.0.0.1:8765/
+# 非本機部署：設 HERMES_SERVER_TOKEN=… 開啟 Bearer 鑒權（同時關閉開放 CORS）；
+# 請求體上限 256KB，異常只回錯誤類型不回內部細節
 ```
 
 純標準庫實現（`http.server` + 原生 JS 單頁應用，無構建、無 CDN、離線可用）。
@@ -107,7 +109,8 @@ python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --rol
 python3 -m hermes_shanghan solve "桂枝湯與麻黃湯如何鑒別？各自劑量比是多少？注家有何分歧？"
 python3 -m hermes_shanghan llm-status            # 查看 LLM 後端
 
-# 測試（164 項：對抗性審核 + 智能體架構 + 19 工具 + 評測 + 六維研究循環 + 全庫接入 + Colab守衛）
+# 測試（183 項：對抗性審核 + 智能體架構 + 19 工具 + 評測 + 六維研究循環 + 全庫接入
+#       + 可復現性/證據鏈硬化 + Colab守衛）
 python3 -m unittest discover -s tests
 
 # 中醫笈成全庫（800+ 部醫籍）：配置完成後一條命令自動下載（69MB，
@@ -171,8 +174,10 @@ python3 -m hermes_shanghan export-tools --out tools.json
 **優雅降級**（無 litellm/key 自動用 local 後端）。詳見 [`docs/LLM_AGENT.md`](docs/LLM_AGENT.md)。
 
 **智能體架構四層**（在線/離線同構，全部可測）：
-- **反思自糾環**：引用核驗不通過（偽造編號/無引用）→ 裁決回饋給模型、
-  允許補充取證後重答（有界輪數）——核驗器從標注器升級為閉環控制器；
+- **反思自糾環**：引用核驗不通過（偽造編號/無引用/**引用未綁定本輪證據**）
+  → 裁決回饋給模型、允許補充取證後重答（有界輪數）——核驗器從標注器升級為
+  閉環控制器。嚴格 RAG 接地：所引 clause_id 必須出現在**本輪工具證據**中，
+  「庫裡存在但本輪未檢索到」會被標記 `outside_evidence` 並觸發重答；
 - **複合任務編排**（`solve` / `POST /api/complex`）：分解複合問題→按類型
   派遣**工具域受限**（ScopedRegistry 最小權限）的子代理→綜合後整體再核驗；
   research 型子任務自動派遣深度研究循環；
@@ -231,7 +236,18 @@ SchemaValidator → EvidenceVerifier → SemanticReviewer → ShanghanCritic
 ShanghanCritic 專門攔截協議列舉的錯誤類型：後世術語（營衛不和等）混入規則主體、
 忽略同條禁忌、「可與」誇大為「主之」、「主之」擴域、太陽中風/傷寒混淆、
 少陰寒化/熱化混淆、陽明經證/腑證混淆、否定陷阱（「不惡寒」誤標「惡寒」）。
-全部 7,569 條審計記錄落盤於 `data/shanghan/audit/`。
+全部 7,569 條審計記錄落盤於 `data/shanghan/audit/`。語義閘另含兩條硬約束：
+禁忌類規則所在條文若無「不可/勿/禁/忌」禁例標記即硬性失敗（防 LLM 抽取虛構）；
+長條文（>120 字）中證據跨度覆蓋全條 90% 以上者不得評 gold（過寬證據看似有據、
+實不能證明「條件→結論」的具體綁定，一律降級）。
+
+**可復現性防線**：`ingest`/`pipeline` 帶前置校驗——語料發現為空或缺少
+傷寒論_條文版/宋本等關鍵書目時直接報錯拒絕覆蓋現有 manifest（不靜默清零）；
+正文切分必須恰為 398 條，否則中止；manifest 原子寫入（tmp+replace）。
+語料目錄名兼容 `#Uxxxx` 轉義（p7zip/unzip 在 C locale 下解壓會轉義中文名，
+發現與讀取均按解碼名匹配）。pip 安裝等數據不隨包場景可用
+`HERMES_SHANGHAN_DATA=/path/to/data` 直接指定數據根（或 `HERMES_SHANGHAN_ROOT`
+指定倉庫根）。
 
 **字節級可復現**：所有集合派生字段落盤前均按確定性次序排序（最長優先、同長按
 字典序；對齊候選同分按段落序），任意 `PYTHONHASHSEED` 下重跑
@@ -357,7 +373,7 @@ hermes_shanghan/
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          164 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
+tests/          183 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
 data/library/      中醫笈成全庫（803 部，`library fetch` 自動下載，不入庫）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/論文）

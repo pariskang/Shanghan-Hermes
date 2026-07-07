@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import os
 import re
 import sys
 import traceback
@@ -18,12 +19,18 @@ from urllib.parse import parse_qs, urlparse
 from .service import ServiceContext, get_service
 
 STATIC_DIR = Path(__file__).parent / "static"
+MAX_BODY_BYTES = 256 * 1024        # JSON request bodies are tiny; cap hard
+# optional bearer-token auth for non-localhost deployments:
+#   HERMES_SERVER_TOKEN=... python3 -m hermes_shanghan serve --host 0.0.0.0
+AUTH_TOKEN = os.environ.get("HERMES_SERVER_TOKEN", "")
 
 
 def _json_body(handler: BaseHTTPRequestHandler) -> Dict:
     length = int(handler.headers.get("Content-Length", 0) or 0)
     if length <= 0:
         return {}
+    if length > MAX_BODY_BYTES:
+        raise ValueError("body_too_large")
     raw = handler.rfile.read(length)
     try:
         return json.loads(raw.decode("utf-8"))
@@ -187,9 +194,10 @@ def make_handler(service: ServiceContext):
             self.send_header("Content-Type", ctype + ("; charset=utf-8"
                              if ctype.startswith(("text", "application/json")) else ""))
             self.send_header("Content-Length", str(len(data)))
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type")
-            self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+            if not AUTH_TOKEN:      # open CORS only in tokenless local mode
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type")
+                self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
             self.end_headers()
             self.wfile.write(data)
 
@@ -215,7 +223,18 @@ def make_handler(service: ServiceContext):
                 else:
                     self._send(404, {"error": "not found"})
                 return
-            body = _json_body(self) if method == "POST" else {}
+            if AUTH_TOKEN and path != "/api/health":
+                supplied = (self.headers.get("Authorization", "")
+                            .removeprefix("Bearer ").strip()
+                            or self.headers.get("X-Auth-Token", ""))
+                if supplied != AUTH_TOKEN:
+                    self._send(401, {"error": "unauthorized"})
+                    return
+            try:
+                body = _json_body(self) if method == "POST" else {}
+            except ValueError:
+                self._send(413, {"error": "request body too large"})
+                return
             for rmethod, rx, fn in ROUTES:
                 if rmethod != method:
                     continue
@@ -225,8 +244,8 @@ def make_handler(service: ServiceContext):
                         result = fn(service, body, mt, query)
                         self._send(200, result)
                     except Exception as exc:
-                        traceback.print_exc()
-                        self._send(500, {"error": f"{type(exc).__name__}: {exc}"})
+                        traceback.print_exc()   # full detail server-side only
+                        self._send(500, {"error": type(exc).__name__})
                     return
             self._send(404, {"error": f"no route: {method} {path}"})
 

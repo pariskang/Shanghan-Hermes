@@ -451,39 +451,39 @@
 {"audit_id": "AUD_000451", "target_id": "IR_SHL_0028_008", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.917}}
 {"audit_id": "AUD_000452", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000453", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000454", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000454", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000455", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000456", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.893}}
+{"audit_id": "AUD_000456", "target_id": "IR_SHL_0029_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.833}}
 {"audit_id": "AUD_000457", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000458", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000459", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000459", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000460", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000461", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.896}}
+{"audit_id": "AUD_000461", "target_id": "IR_SHL_0029_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.836}}
 {"audit_id": "AUD_000462", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000463", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000464", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000464", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000465", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000466", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.874}}
+{"audit_id": "AUD_000466", "target_id": "IR_SHL_0029_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.814}}
 {"audit_id": "AUD_000467", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000468", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000469", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000469", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000470", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000471", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000471", "target_id": "IR_SHL_0029_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000472", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000473", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000474", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000474", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000475", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000476", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000476", "target_id": "IR_SHL_0029_005", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000477", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000478", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000479", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000479", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000480", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000481", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000481", "target_id": "IR_SHL_0029_006", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000482", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000483", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000484", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000484", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000485", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000486", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.873}}
+{"audit_id": "AUD_000486", "target_id": "IR_SHL_0029_007", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.813}}
 {"audit_id": "AUD_000487", "target_id": "IR_SHL_0029_008", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000488", "target_id": "IR_SHL_0029_008", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000489", "target_id": "IR_SHL_0029_008", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -546,24 +546,24 @@
 {"audit_id": "AUD_000546", "target_id": "IR_SHL_0029_019", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.917}}
 {"audit_id": "AUD_000547", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000548", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000549", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000549", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000550", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000551", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.893}}
+{"audit_id": "AUD_000551", "target_id": "IR_SHL_0030_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.833}}
 {"audit_id": "AUD_000552", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000553", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000554", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000554", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000555", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000556", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000556", "target_id": "IR_SHL_0030_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000557", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000558", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000559", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000559", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000560", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000561", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000561", "target_id": "IR_SHL_0030_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000562", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000563", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000564", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000564", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000565", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000566", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000566", "target_id": "IR_SHL_0030_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000567", "target_id": "IR_SHL_0031_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000568", "target_id": "IR_SHL_0031_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000569", "target_id": "IR_SHL_0031_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -887,24 +887,24 @@
 {"audit_id": "AUD_000887", "target_id": "IR_SHL_0047_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
 {"audit_id": "AUD_000888", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000889", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000890", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000890", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000891", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000892", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.935}}
+{"audit_id": "AUD_000892", "target_id": "IR_SHL_0048_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.875}}
 {"audit_id": "AUD_000893", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000894", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000895", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000895", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000896", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000897", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.874}}
+{"audit_id": "AUD_000897", "target_id": "IR_SHL_0048_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.814}}
 {"audit_id": "AUD_000898", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000899", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000900", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000900", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000901", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000902", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000902", "target_id": "IR_SHL_0048_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000903", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000904", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000905", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_000905", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_000906", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_000907", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_000907", "target_id": "IR_SHL_0048_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_000908", "target_id": "IR_SHL_0049_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000909", "target_id": "IR_SHL_0049_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_000910", "target_id": "IR_SHL_0049_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -2094,9 +2094,9 @@
 {"audit_id": "AUD_002094", "target_id": "IR_SHL_0109_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
 {"audit_id": "AUD_002095", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002096", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002097", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002097", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002098", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002099", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_002099", "target_id": "IR_SHL_0110_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_002100", "target_id": "IR_SHL_0111_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002101", "target_id": "IR_SHL_0111_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002102", "target_id": "IR_SHL_0111_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -2440,29 +2440,29 @@
 {"audit_id": "AUD_002440", "target_id": "IR_SHL_0133_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.852}}
 {"audit_id": "AUD_002441", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002442", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002443", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002443", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002444", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002445", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.936}}
+{"audit_id": "AUD_002445", "target_id": "IR_SHL_0134_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.876}}
 {"audit_id": "AUD_002446", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002447", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002448", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002448", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002449", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002450", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.956}}
+{"audit_id": "AUD_002450", "target_id": "IR_SHL_0134_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.896}}
 {"audit_id": "AUD_002451", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002452", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002453", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002453", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002454", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002455", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.874}}
+{"audit_id": "AUD_002455", "target_id": "IR_SHL_0134_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.814}}
 {"audit_id": "AUD_002456", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002457", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002458", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002458", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002459", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002460", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_002460", "target_id": "IR_SHL_0134_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_002461", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002462", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002463", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002463", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002464", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002465", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_002465", "target_id": "IR_SHL_0134_005", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_002466", "target_id": "IR_SHL_0134_006", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002467", "target_id": "IR_SHL_0134_006", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002468", "target_id": "IR_SHL_0134_006", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -2720,19 +2720,19 @@
 {"audit_id": "AUD_002720", "target_id": "IR_SHL_0147_007", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.917}}
 {"audit_id": "AUD_002721", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002722", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002723", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002723", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002724", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002725", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.936}}
+{"audit_id": "AUD_002725", "target_id": "IR_SHL_0148_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.876}}
 {"audit_id": "AUD_002726", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002727", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002728", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002728", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002729", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002730", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.893}}
+{"audit_id": "AUD_002730", "target_id": "IR_SHL_0148_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.833}}
 {"audit_id": "AUD_002731", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002732", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002733", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_002733", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_002734", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_002735", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_002735", "target_id": "IR_SHL_0148_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_002736", "target_id": "IR_SHL_0149_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002737", "target_id": "IR_SHL_0149_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_002738", "target_id": "IR_SHL_0149_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -3627,33 +3627,33 @@
 {"audit_id": "AUD_003627", "target_id": "IR_SHL_0208_011", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.917}}
 {"audit_id": "AUD_003628", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003629", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003630", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_003630", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_003631", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "critic", "result": "warn", "flags": ["critic:contraindication_ignored:不可與"], "details": {}}
 {"audit_id": "AUD_003632", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "repair", "result": "repaired", "flags": ["repair:contraindication_annotated:不可與"], "details": {}}
-{"audit_id": "AUD_003633", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "reverify", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003634", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.873}}
+{"audit_id": "AUD_003633", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "reverify", "result": "pass", "flags": ["semantic:span_too_broad"], "details": {}}
+{"audit_id": "AUD_003634", "target_id": "IR_SHL_0209_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.813}}
 {"audit_id": "AUD_003635", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003636", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003637", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_003637", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_003638", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "critic", "result": "warn", "flags": ["critic:contraindication_ignored:不可與"], "details": {}}
 {"audit_id": "AUD_003639", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "repair", "result": "repaired", "flags": ["repair:contraindication_annotated:不可與"], "details": {}}
-{"audit_id": "AUD_003640", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "reverify", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003641", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.893}}
+{"audit_id": "AUD_003640", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "reverify", "result": "pass", "flags": ["semantic:span_too_broad"], "details": {}}
+{"audit_id": "AUD_003641", "target_id": "IR_SHL_0209_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.833}}
 {"audit_id": "AUD_003642", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003643", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003644", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_003644", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_003645", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003646", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.935}}
+{"audit_id": "AUD_003646", "target_id": "IR_SHL_0209_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.875}}
 {"audit_id": "AUD_003647", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003648", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003649", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_003649", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_003650", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003651", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_003651", "target_id": "IR_SHL_0209_004", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_003652", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003653", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003654", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_003654", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_003655", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_003656", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_003656", "target_id": "IR_SHL_0209_005", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_003657", "target_id": "IR_SHL_0210_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003658", "target_id": "IR_SHL_0210_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_003659", "target_id": "IR_SHL_0210_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -5194,14 +5194,14 @@
 {"audit_id": "AUD_005194", "target_id": "IR_SHL_0330_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.852}}
 {"audit_id": "AUD_005195", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005196", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005197", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_005197", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_005198", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005199", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.936}}
+{"audit_id": "AUD_005199", "target_id": "IR_SHL_0332_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.876}}
 {"audit_id": "AUD_005200", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005201", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005202", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_005202", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_005203", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005204", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_005204", "target_id": "IR_SHL_0332_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_005205", "target_id": "IR_SHL_0333_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005206", "target_id": "IR_SHL_0333_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005207", "target_id": "IR_SHL_0333_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -5654,14 +5654,14 @@
 {"audit_id": "AUD_005654", "target_id": "IR_SHL_0383_001", "target_kind": "initial_rule", "stage": "release", "result": "gold", "flags": [], "details": {"consensus_score": 0.936}}
 {"audit_id": "AUD_005655", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005656", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005657", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_005657", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_005658", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005659", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_005659", "target_id": "IR_SHL_0384_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_005660", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005661", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005662", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_005662", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_005663", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_005664", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.872}}
+{"audit_id": "AUD_005664", "target_id": "IR_SHL_0384_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_005665", "target_id": "IR_SHL_0385_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005666", "target_id": "IR_SHL_0385_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_005667", "target_id": "IR_SHL_0385_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6065,29 +6065,29 @@
 {"audit_id": "AUD_006065", "target_id": "IR_SHL_AUX_0029_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
 {"audit_id": "AUD_006066", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006067", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006068", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006068", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006069", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006070", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006070", "target_id": "IR_SHL_AUX_0030_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006071", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006072", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006073", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006073", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006074", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006075", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006075", "target_id": "IR_SHL_AUX_0030_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006076", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006077", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006078", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006078", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006079", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006080", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.896}}
+{"audit_id": "AUD_006080", "target_id": "IR_SHL_AUX_0031_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.836}}
 {"audit_id": "AUD_006081", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006082", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006083", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006083", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006084", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006085", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.83}}
+{"audit_id": "AUD_006085", "target_id": "IR_SHL_AUX_0031_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.77}}
 {"audit_id": "AUD_006086", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006087", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006088", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006088", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006089", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006090", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006090", "target_id": "IR_SHL_AUX_0031_003", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006091", "target_id": "IR_SHL_AUX_0032_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006092", "target_id": "IR_SHL_AUX_0032_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006093", "target_id": "IR_SHL_AUX_0032_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6100,9 +6100,9 @@
 {"audit_id": "AUD_006100", "target_id": "IR_SHL_AUX_0032_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
 {"audit_id": "AUD_006101", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006102", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006103", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006103", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006104", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006105", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.81}}
+{"audit_id": "AUD_006105", "target_id": "IR_SHL_AUX_0033_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.75}}
 {"audit_id": "AUD_006106", "target_id": "IR_SHL_AUX_0034_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006107", "target_id": "IR_SHL_AUX_0034_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006108", "target_id": "IR_SHL_AUX_0034_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6110,19 +6110,19 @@
 {"audit_id": "AUD_006110", "target_id": "IR_SHL_AUX_0034_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006111", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006112", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006113", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006113", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006114", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006115", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.794}}
+{"audit_id": "AUD_006115", "target_id": "IR_SHL_AUX_0035_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.734}}
 {"audit_id": "AUD_006116", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006117", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006118", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006118", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006119", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006120", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.83}}
+{"audit_id": "AUD_006120", "target_id": "IR_SHL_AUX_0035_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.77}}
 {"audit_id": "AUD_006121", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006122", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006123", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006123", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006124", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006125", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006125", "target_id": "IR_SHL_AUX_0035_003", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006126", "target_id": "IR_SHL_AUX_0036_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006127", "target_id": "IR_SHL_AUX_0036_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006128", "target_id": "IR_SHL_AUX_0036_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6130,9 +6130,9 @@
 {"audit_id": "AUD_006130", "target_id": "IR_SHL_AUX_0036_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
 {"audit_id": "AUD_006131", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006132", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006133", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006133", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006134", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006135", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006135", "target_id": "IR_SHL_AUX_0037_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006136", "target_id": "IR_SHL_AUX_0038_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006137", "target_id": "IR_SHL_AUX_0038_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006138", "target_id": "IR_SHL_AUX_0038_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6165,9 +6165,9 @@
 {"audit_id": "AUD_006165", "target_id": "IR_SHL_AUX_0043_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
 {"audit_id": "AUD_006166", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006167", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006168", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006168", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006169", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006170", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
+{"audit_id": "AUD_006170", "target_id": "IR_SHL_AUX_0045_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.712}}
 {"audit_id": "AUD_006171", "target_id": "IR_SHL_AUX_0047_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006172", "target_id": "IR_SHL_AUX_0047_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006173", "target_id": "IR_SHL_AUX_0047_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6355,9 +6355,9 @@
 {"audit_id": "AUD_006355", "target_id": "IR_SHL_AUX_0088_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.81}}
 {"audit_id": "AUD_006356", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006357", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006358", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006358", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006359", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006360", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.876}}
+{"audit_id": "AUD_006360", "target_id": "IR_SHL_AUX_0092_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.816}}
 {"audit_id": "AUD_006361", "target_id": "IR_SHL_AUX_0093_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006362", "target_id": "IR_SHL_AUX_0093_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006363", "target_id": "IR_SHL_AUX_0093_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6385,19 +6385,19 @@
 {"audit_id": "AUD_006385", "target_id": "IR_SHL_AUX_0110_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006386", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006387", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006388", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006388", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006389", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006390", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006390", "target_id": "IR_SHL_AUX_0111_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006391", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006392", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006393", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006393", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006394", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006395", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006395", "target_id": "IR_SHL_AUX_0112_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006396", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006397", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006398", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006398", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006399", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006400", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006400", "target_id": "IR_SHL_AUX_0112_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006401", "target_id": "IR_SHL_AUX_0116_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006402", "target_id": "IR_SHL_AUX_0116_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006403", "target_id": "IR_SHL_AUX_0116_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6440,19 +6440,19 @@
 {"audit_id": "AUD_006440", "target_id": "IR_SHL_AUX_0120_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006441", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006442", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006443", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006443", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006444", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006445", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.834}}
+{"audit_id": "AUD_006445", "target_id": "IR_SHL_AUX_0121_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.774}}
 {"audit_id": "AUD_006446", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006447", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006448", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006448", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006449", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006450", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006450", "target_id": "IR_SHL_AUX_0121_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006451", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006452", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006453", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006453", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006454", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006455", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006455", "target_id": "IR_SHL_AUX_0121_003", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006456", "target_id": "IR_SHL_AUX_0122_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006457", "target_id": "IR_SHL_AUX_0122_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006458", "target_id": "IR_SHL_AUX_0122_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6475,14 +6475,14 @@
 {"audit_id": "AUD_006475", "target_id": "IR_SHL_AUX_0123_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006476", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006477", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006478", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006478", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006479", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006480", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
+{"audit_id": "AUD_006480", "target_id": "IR_SHL_AUX_0124_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.712}}
 {"audit_id": "AUD_006481", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006482", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006483", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006483", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006484", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006485", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
+{"audit_id": "AUD_006485", "target_id": "IR_SHL_AUX_0124_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.712}}
 {"audit_id": "AUD_006486", "target_id": "IR_SHL_AUX_0125_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006487", "target_id": "IR_SHL_AUX_0125_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006488", "target_id": "IR_SHL_AUX_0125_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -6495,14 +6495,14 @@
 {"audit_id": "AUD_006495", "target_id": "IR_SHL_AUX_0125_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.812}}
 {"audit_id": "AUD_006496", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006497", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006498", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006498", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006499", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006500", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.895}}
+{"audit_id": "AUD_006500", "target_id": "IR_SHL_AUX_0126_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.835}}
 {"audit_id": "AUD_006501", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006502", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006503", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_006503", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_006504", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_006505", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_006505", "target_id": "IR_SHL_AUX_0126_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_006506", "target_id": "IR_SHL_AUX_0127_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006507", "target_id": "IR_SHL_AUX_0127_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_006508", "target_id": "IR_SHL_AUX_0127_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -7047,29 +7047,29 @@
 {"audit_id": "AUD_007047", "target_id": "IR_SHL_AUX_0193_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
 {"audit_id": "AUD_007048", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007049", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007050", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007050", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007051", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007052", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.814}}
+{"audit_id": "AUD_007052", "target_id": "IR_SHL_AUX_0194_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.754}}
 {"audit_id": "AUD_007053", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007054", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007055", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007055", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007056", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007057", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.83}}
+{"audit_id": "AUD_007057", "target_id": "IR_SHL_AUX_0194_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.77}}
 {"audit_id": "AUD_007058", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007059", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007060", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007060", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007061", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007062", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_007062", "target_id": "IR_SHL_AUX_0194_003", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_007063", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007064", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007065", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007065", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007066", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007067", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_007067", "target_id": "IR_SHL_AUX_0195_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_007068", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007069", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007070", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007070", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007071", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007072", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_007072", "target_id": "IR_SHL_AUX_0195_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_007073", "target_id": "IR_SHL_AUX_0196_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007074", "target_id": "IR_SHL_AUX_0196_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007075", "target_id": "IR_SHL_AUX_0196_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
@@ -7147,34 +7147,34 @@
 {"audit_id": "AUD_007147", "target_id": "IR_SHL_AUX_0203_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
 {"audit_id": "AUD_007148", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007149", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007150", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007150", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007151", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007152", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.814}}
+{"audit_id": "AUD_007152", "target_id": "IR_SHL_AUX_0204_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.754}}
 {"audit_id": "AUD_007153", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007154", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007155", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007155", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007156", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007157", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.83}}
+{"audit_id": "AUD_007157", "target_id": "IR_SHL_AUX_0204_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.77}}
 {"audit_id": "AUD_007158", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007159", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007160", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007160", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007161", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007162", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_007162", "target_id": "IR_SHL_AUX_0204_003", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_007163", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007164", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007165", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007165", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007166", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007167", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.814}}
+{"audit_id": "AUD_007167", "target_id": "IR_SHL_AUX_0205_001", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.754}}
 {"audit_id": "AUD_007168", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007169", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007170", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007170", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007171", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007172", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.83}}
+{"audit_id": "AUD_007172", "target_id": "IR_SHL_AUX_0205_002", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.77}}
 {"audit_id": "AUD_007173", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007174", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007175", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}
+{"audit_id": "AUD_007175", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "semantic", "result": "warn", "flags": ["semantic:span_too_broad"], "details": {}}
 {"audit_id": "AUD_007176", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "critic", "result": "pass", "flags": [], "details": {}}
-{"audit_id": "AUD_007177", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "release", "result": "silver", "flags": [], "details": {"consensus_score": 0.832}}
+{"audit_id": "AUD_007177", "target_id": "IR_SHL_AUX_0205_003", "target_kind": "initial_rule", "stage": "release", "result": "bronze", "flags": [], "details": {"consensus_score": 0.772}}
 {"audit_id": "AUD_007178", "target_id": "IR_SHL_AUX_0206_001", "target_kind": "initial_rule", "stage": "schema", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007179", "target_id": "IR_SHL_AUX_0206_001", "target_kind": "initial_rule", "stage": "evidence", "result": "pass", "flags": [], "details": {}}
 {"audit_id": "AUD_007180", "target_id": "IR_SHL_AUX_0206_001", "target_kind": "initial_rule", "stage": "semantic", "result": "pass", "flags": [], "details": {}}

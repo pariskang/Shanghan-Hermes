@@ -32,16 +32,25 @@ ROLE_NOTICE = {
 # —— patient-side intent guard ————————————————————————————————
 RE_DIAGNOSIS_INTENT = re.compile(
     r"(我是不是|我得了|我患了|我這是|我这是|幫我診斷|帮我诊断|診斷一下|诊断一下|"
-    r"我有沒有|我有没有|是什麼病|是什么病|我該吃|我该吃)")
+    r"我有沒有|我有没有|是什麼病|是什么病|我該吃|我该吃|"
+    r"(我|我這|我这)[^。？?]{0,12}是不是[^。？?]{0,8}(證|证|湯證|汤证))")
 RE_PRESCRIPTION_INTENT = re.compile(
     r"(給我開|给我开|開個方|开个方|吃什麼藥|吃什么药|用什麼方|用什么方|"
-    r"怎麼治|怎么治|怎麼用藥|怎么用药|喝什麼湯|喝什么汤|推薦.{0,4}(方|藥|药))")
+    r"怎麼治|怎么治|怎麼用藥|怎么用药|喝什麼湯|喝什么汤|推薦.{0,4}(方|藥|药)|"
+    r"能不能(喝|吃|用|服)|可不可以(喝|吃|用|服)|(適|适)不(適|适)合我|"
+    r"我能.{0,4}(喝|吃|用|服))")
 RE_DOSAGE_INTENT = re.compile(
-    r"(劑量|剂量|用量|幾克|几克|多少克|多少錢|吃幾|吃几|喝幾|喝几|一天.{0,3}次)")
+    r"(劑量|剂量|用量|幾克|几克|多少克|多少錢|吃幾|吃几|喝幾|喝几|一天.{0,3}次|"
+    r"每日.{0,3}次|加量|減量|减量|停藥|停药)")
 
-# dose expressions to redact in patient-facing text
+# dose expressions to redact in patient-facing text — covers classical units
+# (三兩/半升), arabic-numeral doses (3克/10g/5 ml), and frequency schedules
+# (每日三次/一天2次/bid/tid)
 RE_DOSE_TEXT = re.compile(
-    r"[一二三四五六七八九十百半]+(兩|两|錢|钱|銖|铢|升|合|枚|個|个|片|斤|克|分(?!類))")
+    r"[一二三四五六七八九十百半]+(兩|两|錢|钱|銖|铢|升|合|枚|個|个|片|斤|克|分(?!類))"
+    r"|\d+(?:\.\d+)?\s*(克|毫克|毫升|兩|两|錢|钱|[gG]|mg|ml|mL)(?![a-zA-Z])"
+    r"|(每日|每天|一天|一日)\s*[一二三四五六七八九十\d]+\s*次"
+    r"|\b[bt]id\b")
 
 
 def patient_intent_guard(question: str) -> Optional[Dict]:
@@ -85,9 +94,12 @@ def governed(payload: Dict, role: str) -> Dict:
         for key in ("answer", "explanation", "message"):
             if isinstance(payload.get(key), str):
                 payload[key] = redact_for_patient(payload[key])
-        # patient answers must not carry actionable prescriptions
-        payload.pop("matched_formula_patterns", None)
-        payload.pop("recommended_formulas", None)
+        # patient answers must not carry actionable prescriptions —
+        # composition/administration blocks are dropped wholesale
+        for key in ("matched_formula_patterns", "recommended_formulas",
+                    "formula_blocks", "composition", "dose_processing",
+                    "administration"):
+            payload.pop(key, None)
     if role == "doctor":
         payload["assistive_only"] = True
     return payload

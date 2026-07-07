@@ -2,7 +2,7 @@
  "paper_type": "mistreatment",
  "title": "基於條文級規則挖掘與自主審核的《傷寒論》誤治傳變規則研究：以誤治路徑為例",
  "topic": "誤治路徑",
- "generated_at": "2026-07-07T09:34:17",
+ "generated_at": "2026-07-07T12:36:36",
  "figures": [
   "Fig.1 六經-方劑分佈圖 (fig1_channel_formula.mmd.md)",
   "Fig.2 誤治-變證路徑圖 (fig2_mistreatment_paths.dot)",
@@ -36,6 +36,7 @@
    "SHL_SONGBEN_0134"
   ],
   "unsupported": [],
+  "outside_evidence": [],
   "quote_mismatches": [],
   "has_any_citation": true,
   "ok": true
@@ -44,9 +45,9 @@
   "n_clauses": 398,
   "n_initial_rules": 1501,
   "levels": {
-   "gold": 585,
-   "silver": 882,
-   "bronze": 34
+   "gold": 579,
+   "silver": 861,
+   "bronze": 61
   },
   "rule_types": {
    "six_channel_definition_rule": 6,
