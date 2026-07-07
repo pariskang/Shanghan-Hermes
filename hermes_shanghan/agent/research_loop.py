@@ -10,8 +10,8 @@ Plan → dispatch subagents → critique coverage → iterate until converged:
              then write a short evidence-cited finding (LLM prose when
              available, deterministic formatting otherwise — the same
              trusted-base/augmentation split as everywhere else)
-  Critic     checks the five provenance dimensions (原文源流/異文注家/方證
-             計量/劑量計量/客觀評測) for gaps; uncovered dimensions become
+  Critic     checks the six provenance dimensions (原文源流/異文注家/方證
+             計量/劑量計量/客觀評測/醫案例證) for gaps; uncovered dimensions become
              next round's plan; convergence = full coverage or max_rounds
   Ledger     every finding passes the CitationGuard; the dossier carries
              verified clause_ids per finding — 無證據鏈，不成回答 holds for
@@ -43,8 +43,12 @@ MODULES = {
     "shanghan_divergence_atlas": ("異文注家", "9 注本對齊/分歧榜/一致度矩陣"),
     "shanghan_dose": ("劑量計量", "藥量比/三家折算/家族劑量演化"),
     "shanghan_eval_metrics": ("客觀評測", "遮方/醫案回放/接地率基準指標"),
+    "shanghan_variants": ("異文注家", "某條文的桂本/千金翼異文對勘"),
+    "shanghan_relations": ("原文源流", "條文關係圖譜鄰接邊"),
+    "shanghan_therapy": ("方證計量", "治法法度：適應/禁例/誤施"),
+    "shanghan_case_search": ("醫案例證", "經方實驗錄真實診案（旁證+經文錨點）"),
 }
-DIMENSIONS = ["原文源流", "異文注家", "方證計量", "劑量計量", "客觀評測"]
+DIMENSIONS = ["原文源流", "異文注家", "方證計量", "劑量計量", "客觀評測", "醫案例證"]
 
 
 class DeepResearcher:
@@ -111,7 +115,7 @@ class DeepResearcher:
             try:
                 plan = self.client.json_complete(
                     EVIDENCE_CONTRACT + "\n\n任務：為《傷寒論》學術溯源研究規劃下一輪"
-                    "模塊調用。五個溯源維度都應覆蓋；不要重複已調用的組合。"
+                    "模塊調用。六個溯源維度都應覆蓋；不要重複已調用的組合。"
                     "嚴格輸出 JSON：{\"tasks\":[{\"module\":\"…\",\"args\":{…},"
                     "\"reason\":\"…\"}]}，tasks 為空表示研究已完備。",
                     f"研究主題：{topic}\n可用模塊：\n{catalog}\n\n已完成調用：\n{done}\n"
@@ -149,7 +153,11 @@ class DeepResearcher:
         if "客觀評測" in gaps:
             tasks.append({"module": "shanghan_eval_metrics", "args": {},
                           "reason": "方法可信度基準"})
-        return tasks[:5]
+        if "醫案例證" in gaps:
+            tasks.append({"module": "shanghan_case_search",
+                          "args": {"formula": f0} if f0 else {},
+                          "reason": "歷史醫案旁證"})
+        return tasks[:6]
 
     # ------------------------------------------------------------------
     def _subagent(self, topic: str, task: Dict) -> Dict:
@@ -220,6 +228,12 @@ class DeepResearcher:
             return (f"誤治路徑 {len(r.get('paths', []))} 條，典型如 "
                     f"{p.get('mistreatment', '')}→{p.get('resulting_pattern', '')}"
                     f"（{'、'.join(p.get('clauses', [])[:2])}）。")
+        if module == "shanghan_case_search":
+            c0 = (r.get("cases") or [{}])[0]
+            return (f"醫案旁證 {r.get('n_matched', 0)} 案（{r.get('source', '')}），"
+                    f"如「{c0.get('title', '')[:16]}」證見 "
+                    f"{'、'.join(c0.get('symptoms', [])[:3])}，經文錨點 "
+                    f"{'、'.join(c0.get('canonical_support', [])[:2])}。")
         if module in ("shanghan_six_channel", "shanghan_differential"):
             d = r.get("differential") or {}
             if d:

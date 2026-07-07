@@ -114,6 +114,10 @@ def run_pipeline(verbose: bool = True, use_llm_extractor: bool = False,
 
     log("[2/8] 條文切分（條文版 398 條 + 宋本輔助篇章）…")
     canonical = segmenter.segment_canonical()
+    if len(canonical) != 398:
+        raise RuntimeError(
+            f"正文切分異常：得到 {len(canonical)} 條，應為 398 條。"
+            "語料可能損壞或路徑錯誤，已中止以免覆蓋現有規則庫。")
     aux = segmenter.segment_auxiliary()
     clauses = canonical + aux
     formula_names = segmenter.harvest_formula_names(canonical)

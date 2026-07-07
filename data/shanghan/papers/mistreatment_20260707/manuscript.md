@@ -4,7 +4,7 @@
 
 目的：將《傷寒論》宋本條文轉化為可回源、可審核的結構化規則體系，並以誤治路徑為例驗證方法可行性。
 方法：以宋本（趙開美本）現代編號398條為唯一原文證據層（A層），桂林古本等為異文層（B層），成無己注為注釋層（C層）；經條文切分、否定感知實體抽取、條文級初始規則抽取，再通過 Schema 校驗、證據回源驗證、語義審查、對抗式批評（ShanghanCritic）、自動修復與共識評級六道閘門完成自主審核。
-結果：共獲得初始規則1501條（gold 585、silver 882、bronze 34），方證規則113個，誤治傳變路徑60條，鑒別規則64組；高頻方劑為桂枝湯、小柴胡湯、大承氣湯、四逆湯、麻黃湯。每條結論均可追溯至條文編號。
+結果：共獲得初始規則1501條（gold 579、silver 861、bronze 61），方證規則113個，誤治傳變路徑60條，鑒別規則64組；高頻方劑為桂枝湯、小柴胡湯、大承氣湯、四逆湯、麻黃湯。每條結論均可追溯至條文編號。
 結論：條文級證據回源 + 模型自主審核可在不犧牲可追溯性的前提下規模化提取《傷寒論》知識，為方證研究、知識圖譜與臨床輔助提供可驗證的數據底座。
 關鍵詞：傷寒論；方證對應；六經辨證；知識圖譜；規則挖掘；證據回源
 
@@ -61,7 +61,7 @@ MistreatmentTransformationRule → MergedShanghanRule；另建 ClauseRelation
 
 
 ### 4.1 規則庫總體
-共 1501 條初始規則：formula_pattern_rule 303條、therapy_selection_rule 236條、prognosis_rule 212條、mistreatment_rule 134條、administration_rule 113條、formula_composition_rule 112條、dosage_processing_rule 112條、pulse_symptom_rule 89條。分級：gold 585 / silver 882 / bronze 34。
+共 1501 條初始規則：formula_pattern_rule 303條、therapy_selection_rule 236條、prognosis_rule 212條、mistreatment_rule 134條、administration_rule 113條、formula_composition_rule 112條、dosage_processing_rule 112條、pulse_symptom_rule 89條。分級：gold 579 / silver 861 / bronze 61。
 
 ### 4.2 高頻方劑
 | 方劑 | 條文數 |

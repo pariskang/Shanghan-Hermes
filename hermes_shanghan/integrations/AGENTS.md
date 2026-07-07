@@ -6,7 +6,7 @@ or a custom function-calling loop) can drive it. Every tool result carries
 `clause_id` references; every agent answer is verified against clause text
 before it is returned.
 
-## Capability surface (8 read-only tools + 1 agent tool)
+## Capability surface (19 read-only tools + 1 agent tool)
 
 | Tool | Purpose |
 |---|---|
@@ -18,7 +18,23 @@ before it is returned.
 | `shanghan_formula_rule` | formula → 核心證/組成/加減/禁忌 + clauses |
 | `shanghan_mistreatment` | 誤治→變證→救治方 paths |
 | `shanghan_list_formulas` | enumerate formulas in the rule base |
+| `shanghan_divergence_atlas` | 9-commentator alignment coverage / divergence / agreement |
+| `shanghan_dose` | 銖-equivalent dose ratios, 3-school conversions, family evolution |
+| `shanghan_corpus_stats` | whole-base quantitative statistics |
+| `shanghan_eval_metrics` | cloze / case-replay / grounding benchmark metrics |
+| `shanghan_variants` | B-layer version variants for a clause |
+| `shanghan_relations` | clause relation-graph traversal (multi-hop) |
+| `shanghan_therapy` | therapy-method rules (汗吐下和溫補…禁例) |
+| `shanghan_contraindication_check` | formula + presentation → conflicts / bans |
+| `shanghan_dose_convert` | deterministic 漢制 dose calculator |
+| `shanghan_case_search` | 經方實驗錄 case records + canonical anchors |
+| `shanghan_library` | full jicheng.tw library (800+ books): catalog / full-text / read |
 | `shanghan_ask` (agent) | full agent: auto-retrieve, cite, safety-govern |
+
+The full library behind `shanghan_library` is fetched on demand
+(`python3 -m hermes_shanghan library fetch`, 69MB, sha256-pinned) and is a
+literature side-evidence layer — excerpts carry 書·章節 locators but never
+enter the canonical evidence gates.
 
 ## 1. Claude Code (MCP)
 

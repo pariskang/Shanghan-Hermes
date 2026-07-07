@@ -69,11 +69,20 @@ class ClauseRAG:
         return out
 
     # ------------------------------------------------------------------
+    def _query_entities(self, query: str):
+        """Extract symptom/pulse terms from the query for coverage scoring."""
+        if not hasattr(self, "_extractor"):
+            from ..extract.entities import EntityExtractor
+            self._extractor = EntityExtractor()
+        found = self._extractor.extract(query)
+        return found.symptoms, found.pulse
+
     def search(self, query: str, top_k: int = 8,
                six_channel: Optional[str] = None,
                formula: Optional[str] = None,
                field: Optional[str] = None,
-               expand_relations: bool = False) -> List[Dict]:
+               expand_relations: bool = False,
+               min_score: float = 0.0) -> List[Dict]:
         query = normalize_query(query)
 
         # direct clause-number reference
@@ -105,27 +114,50 @@ class ClauseRAG:
                     return False
             return True
 
+        q_syms, q_pulse = self._query_entities(query)
         scored = self.index.search(query, top_k=top_k * 5)
+        bm_max = scored[0][1] if scored else 1.0
         results = []
-        for cid, score in scored:
+        for cid, bm in scored:
             c = self.by_id[cid]
             if not passes(c):
                 continue
-            boost = 0.0
-            # structured boosting
+            # raw BM25 favours short auxiliary paragraphs; normalize it so the
+            # structured signals below can actually reorder the pool
+            score = 10.0 * bm / (bm_max or 1.0)
+            if c.text_type != "original_clause":
+                score *= 0.7            # auxiliary chapters rank below 正文
             fq = lexicon.canonical_formula(query)
             if fq in c.formula_names:
-                boost += 3.0
-            if any(s in query for s in c.symptoms):
-                boost += 0.6
-            if any(p in query for p in c.pulse):
-                boost += 0.6
-            if c.text_type == "original_clause":
-                boost += 0.4
-            results.append(self._hit(c, score + boost, "bm25"))
-            if len(results) >= top_k:
-                break
-        results.sort(key=lambda h: -h["score"])
+                score += 3.0
+            # symptom/pulse *coverage* of the query (組合覆蓋，而非單點命中):
+            # a clause matching all queried findings outranks one matching a
+            # fragment, so 惡寒+發熱+無汗+身疼痛 lands on the 麻黃湯 clause,
+            # not an auxiliary clause sharing two of the four terms
+            if q_syms:
+                matched = sum(1 for s in q_syms
+                              if any(s == cs or s in cs or cs in s
+                                     for cs in c.symptoms))
+                cov = matched / len(q_syms)
+                if cov == 1.0:
+                    score += 3.0
+                elif cov >= 0.6:
+                    score += 1.5
+                elif cov > 0:
+                    score += 0.5
+            if q_pulse:
+                pm = sum(1 for p in q_pulse
+                         if any(p in cp or cp in p for cp in c.pulse))
+                score += 1.0 * pm / len(q_pulse)
+            if c.formula_names:
+                score += 0.5            # 方證條文優先於無方敘述
+            results.append(self._hit(c, score, "bm25"))
+        # score the whole candidate pool BEFORE cutting to top_k — a clause
+        # ranked low by raw BM25 but with full finding coverage must survive
+        results.sort(key=lambda h: (-h["score"], h["clause_id"]))
+        if min_score > 0:
+            results = [h for h in results if h["score"] >= min_score]
+        results = results[:top_k]
 
         if expand_relations and results:
             seen = {h["clause_id"] for h in results}

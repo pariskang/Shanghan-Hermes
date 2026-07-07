@@ -116,7 +116,14 @@ def review_semantics(rule: InitialRule, clause_store: Dict[str, ShanghanClause])
         flags.append("semantic:not_an_outline_clause")
     if rt == "contraindication_rule" and not (clause.contraindication_terms or
                                               rule.then_conclusions.get("contraindicated_formulas")):
+        # a contraindication claim with no 不可/勿/禁/忌 marker anywhere in
+        # the clause is a fabrication risk (LLM 抽取路徑) — hard fail
         flags.append("semantic:contraindication_without_marker")
+    # over-broad evidence: a span that is basically the whole of a long
+    # clause proves nothing about the specific condition→action link
+    if rule.evidence_span and len(clause.clean_text) > 120 and \
+            len(rule.evidence_span) > 0.9 * len(clause.clean_text):
+        flags.append("semantic:span_too_broad")
     if rt == "mistreatment_rule" and not clause.mistreatment_terms:
         flags.append("semantic:mistreatment_without_marker")
     if rt == "formula_pattern_rule":
@@ -141,5 +148,6 @@ def review_semantics(rule: InitialRule, clause_store: Dict[str, ShanghanClause])
 
     if not flags:
         return "pass", flags
-    hard = [f for f in flags if "without_formula" in f or "no_clause" in f]
+    hard = [f for f in flags if "without_formula" in f or "no_clause" in f
+            or "contraindication_without_marker" in f]
     return ("fail" if hard else "warn"), flags

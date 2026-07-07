@@ -13,7 +13,9 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(os.environ.get("HERMES_SHANGHAN_ROOT", Path(__file__).resolve().parent.parent))
 
-DATA_DIR = REPO_ROOT / "data"
+# data root: HERMES_SHANGHAN_DATA overrides directly (pip-installed deployments
+# where the package no longer sits next to data/), else <repo>/data
+DATA_DIR = Path(os.environ.get("HERMES_SHANGHAN_DATA", REPO_ROOT / "data"))
 CORPUS_RAW_DIR = DATA_DIR / "corpus_raw"
 SHANGHAN_DIR = DATA_DIR / "shanghan"
 
@@ -37,6 +39,11 @@ RESEARCH_DIR = SHANGHAN_DIR / "research"
 PAPER_DIR = SHANGHAN_DIR / "papers"
 
 SKILLS_DIR = DATA_DIR / "skills" / "shanghanlun"
+
+# 中醫笈成全庫（文獻旁證層，不隨倉庫分發；`library fetch` 自動下載）
+LIBRARY_DIR = Path(os.environ.get("HERMES_LIBRARY_DIR", DATA_DIR / "library"))
+LIBRARY_URL = "https://jicheng.tw/files/jcw/book-20180111.7z"
+LIBRARY_SHA256 = "6ac6da6d6b1f9f8442ead7ebc6f7d8971d9ac972c889fd0f72d9e0fd355d7ade"
 
 ALL_OUTPUT_DIRS = [
     MANIFEST_DIR, CLAUSE_DIR, RELATION_DIR, RULES_INITIAL_DIR, AUDIT_DIR,

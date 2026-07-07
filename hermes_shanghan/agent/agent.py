@@ -82,19 +82,26 @@ class ShanghanAgent:
         # unverifiable clause_ids (or none at all despite gathered evidence)
         # is sent back with the verdict for another bounded attempt
         guard = CitationGuard(self.registry.art.clause_store())
-        report = guard.check(final)
+        # strict grounding: citations must come from THIS round's tool
+        # evidence, not merely exist somewhere in the corpus
+        allowed = self._clause_ids_from(tool_results)
+        report = guard.check(final, allowed_ids=allowed if tool_results else None)
         rounds = 0
         while rounds < self.max_repair_rounds and \
-                (report.unsupported_ids or
+                (report.unsupported_ids or report.outside_evidence_ids or
                  (not report.has_any_citation and tool_results)):
             rounds += 1
             trace.add("reflection", round=rounds,
                       unsupported=report.unsupported_ids,
+                      outside_evidence=report.outside_evidence_ids,
                       has_citation=report.has_any_citation)
             feedback = "⚠️ 引用核驗未通過："
             if report.unsupported_ids:
                 feedback += ("以下條文編號無法核實："
                              + "、".join(report.unsupported_ids) + "。")
+            if report.outside_evidence_ids:
+                feedback += ("以下條文未出現在本輪工具證據中，須先檢索取證再引用："
+                             + "、".join(report.outside_evidence_ids) + "。")
             if not report.has_any_citation:
                 feedback += "回答未附任何條文編號。"
             feedback += ("請重新作答：只可引用已檢索工具結果中出現的 clause_id，"
@@ -105,7 +112,8 @@ class ShanghanAgent:
             if not retry:
                 break
             final = retry
-            report = guard.check(final)
+            allowed = self._clause_ids_from(tool_results)
+            report = guard.check(final, allowed_ids=allowed if tool_results else None)
         final = guard.annotate(final, report)
         trace.add("citation_check", **report.to_dict())
 
@@ -147,6 +155,15 @@ class ShanghanAgent:
             trace.add("final", backend=res.backend)
             return res.content
         return ""
+
+    @staticmethod
+    def _clause_ids_from(tool_results: List[Dict]) -> List[str]:
+        """Every clause_id present anywhere in this round's tool results —
+        the only ids an answer is allowed to cite."""
+        from .citation_guard import RE_CLAUSE_ID
+        blob = json.dumps([t.get("result", {}) for t in tool_results],
+                          ensure_ascii=False)
+        return list(dict.fromkeys(RE_CLAUSE_ID.findall(blob)))
 
     @staticmethod
     def _evidence_from(tool_results: List[Dict]) -> List[Dict]:

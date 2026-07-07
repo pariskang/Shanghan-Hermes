@@ -24,8 +24,8 @@ class TestResearchModules(unittest.TestCase):
         from hermes_shanghan.agent.tools import get_registry
         cls.reg = get_registry()
 
-    def test_registry_has_twelve_tools(self):
-        self.assertEqual(len(self.reg.specs()), 12)
+    def test_registry_tool_count(self):
+        self.assertEqual(len(self.reg.specs()), 19)
         names = self.reg.names()
         for t in ("shanghan_divergence_atlas", "shanghan_dose",
                   "shanghan_corpus_stats", "shanghan_eval_metrics"):

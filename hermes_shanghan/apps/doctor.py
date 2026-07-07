@@ -64,7 +64,8 @@ class FormulaMatcher:
 
     def match(self, symptoms: List[str], pulse: Optional[List[str]] = None,
               six_channel: Optional[str] = None, top_k: int = 5,
-              need_original_evidence: bool = True) -> Dict:
+              need_original_evidence: bool = True,
+              min_score: float = 0.0) -> Dict:
         symptoms = _normalize_findings(symptoms or [])
         pulse = _normalize_findings(pulse or [])
         results = []
@@ -132,6 +133,8 @@ class FormulaMatcher:
             results.append((norm, score, r, hits, conflicts))
 
         results.sort(key=lambda t: (-t[0], -t[1], -len(t[2].supporting_clauses)))
+        if min_score > 0:      # 弱相關候選不展示，避免 top-k 被誤讀為處方清單
+            results = [t for t in results if t[0] >= min_score]
         matches = []
         for norm, raw, r, hits, conflicts in results[:top_k]:
             evidence = []

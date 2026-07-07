@@ -148,6 +148,74 @@ class ToolRegistry:
             "客觀評測結果：遮方預測(LOCO)、醫案回放、證據接地率三大基準的當前指標與消融。",
             {"type": "object", "properties": {}},
             self._t_eval_metrics)
+        self._add(
+            "shanghan_variants",
+            "版本異文（B層）：某條文在桂林古本/千金翼方版的對齊異文與用字差異。",
+            {"type": "object", "properties": {
+                "ref": {"type": "string", "description": "條文號或 clause_id"}},
+             "required": ["ref"]},
+            self._t_variants)
+        self._add(
+            "shanghan_relations",
+            "條文關係圖譜遍歷：某條文的鄰接邊（同方族/鑒別/誤治傳變/禁忌/傳變/次序），"
+            "支持按關係類型過濾——用於多跳推理與傳變鏈追蹤。",
+            {"type": "object", "properties": {
+                "ref": {"type": "string", "description": "條文號或 clause_id"},
+                "relation_type": {"type": "string",
+                                  "description": "可選：same_formula_family/differential/"
+                                                 "mistreatment_transformation/transmission/"
+                                                 "contraindication/sequence"}},
+             "required": ["ref"]},
+            self._t_relations)
+        self._add(
+            "shanghan_therapy",
+            "治法規則：汗/吐/下/和/溫/補/救逆/利水的適應指徵、代表方、禁例與誤施之變。",
+            {"type": "object", "properties": {
+                "method": {"type": "string",
+                           "description": "可選，如 汗法/下法/禁汗/誤下；不填返回總覽"}}},
+            self._t_therapy)
+        self._add(
+            "shanghan_contraindication_check",
+            "禁忌檢查（複合推理）：給定方劑與病人證候，返回該方原文禁忌、證候與方證的"
+            "衝突（如無汗 vs 桂枝湯）及相關治法禁例——輔助性質，不替代臨床判斷。",
+            {"type": "object", "properties": {
+                "formula": {"type": "string"},
+                "symptoms": {"type": "array", "items": {"type": "string"}}},
+             "required": ["formula"]},
+            self._t_contra_check)
+        self._add(
+            "shanghan_dose_convert",
+            "漢制劑量換算計算器（確定性）：解析「三兩」「一兩十六銖」「半升」等劑量，"
+            "返回銖當量與三家折算克數/毫升——避免模型心算錯誤。",
+            {"type": "object", "properties": {
+                "dose": {"type": "string", "description": "如 三兩 / 一兩半 / 半升 / 十二枚"}},
+             "required": ["dose"]},
+            self._t_dose_convert)
+        self._add(
+            "shanghan_case_search",
+            "醫案檢索：《經方實驗錄》(1937 曹穎甫) 真實診案，按方名或關鍵詞查找；"
+            "醫案屬旁證（非經文層），結果自動附該方的經文支持條文作錨點。",
+            {"type": "object", "properties": {
+                "formula": {"type": "string", "description": "可選方名"},
+                "keyword": {"type": "string", "description": "可選關鍵詞（症狀/敘述）"},
+                "top_k": {"type": "integer", "default": 3}},
+             "required": []},
+            self._t_case_search)
+        self._add(
+            "shanghan_library",
+            "中醫笈成全庫快速查閱（800+ 部醫籍，文獻旁證層/非經文層）：按書名/作者/"
+            "朝代/分類檢索編目；按原文詞句全文檢索（返回書·章節定位的摘錄）；"
+            "或按書名+章節閱讀原書。庫未下載時提示 `library fetch`。",
+            {"type": "object", "properties": {
+                "query": {"type": "string",
+                          "description": "檢索詞：書名/作者（編目）或原文詞句（全文）"},
+                "book": {"type": "string", "description": "可選書名——直接閱讀該書"},
+                "section": {"type": "string", "description": "可選章節名（配合 book）"},
+                "category": {"type": "string",
+                             "description": "可選分類過濾：醫案/方書/本草/溫病/傷寒…"},
+                "top_k": {"type": "integer", "default": 5}},
+             "required": []},
+            self._t_library)
 
     # -- research-layer helpers -----------------------------------------
     @staticmethod
@@ -227,6 +295,189 @@ class ToolRegistry:
                     "error": "評測未運行：請先執行 evaluate"}
         return {"tool": "shanghan_eval_metrics",
                 **json.loads(p.read_text(encoding="utf-8"))}
+
+    def _t_variants(self, ref):
+        c = self.clause_rag.get_clause(ref)
+        if c is None:
+            return {"tool": "shanghan_variants", "error": f"未找到條文 {ref}"}
+        rows = [{"book": v.variant_book, "similarity": v.similarity,
+                 "variant_text": v.variant_text[:200],
+                 "notable_differences": v.notable_differences}
+                for v in self.art.variant_rules if v.clause_id == c.clause_id]
+        return {"tool": "shanghan_variants", "clause_id": c.clause_id,
+                "base_text": c.clean_text, "n_variants": len(rows),
+                "variants": rows}
+
+    def _relations_all(self):
+        if not hasattr(self, "_rel_cache"):
+            self._rel_cache = read_jsonl(config.RELATION_DIR / "clause_relations.jsonl")
+        return self._rel_cache
+
+    def _t_relations(self, ref, relation_type=None):
+        c = self.clause_rag.get_clause(ref)
+        if c is None:
+            return {"tool": "shanghan_relations", "error": f"未找到條文 {ref}"}
+        edges = []
+        for r in self._relations_all():
+            if r["relation_type"] in ("variant", "commentary_support"):
+                continue        # B/C 層各有專用工具
+            if relation_type and r["relation_type"] != relation_type:
+                continue
+            if c.clause_id in (r["source_clause_id"], r["target_clause_id"]):
+                other = r["target_clause_id"] if r["source_clause_id"] == c.clause_id \
+                    else r["source_clause_id"]
+                oc = self.art.clause_store().get(other)
+                edges.append({"relation_type": r["relation_type"],
+                              "other_clause_id": other,
+                              "other_text": oc.clean_text[:60] if oc else "",
+                              "description": r["description"]})
+        return {"tool": "shanghan_relations", "clause_id": c.clause_id,
+                "n_edges": len(edges), "edges": edges[:15]}
+
+    def _t_therapy(self, method=None):
+        rules = self.art.therapy_rules
+        if method:
+            rows = [t for t in rules if method in t.therapy_method]
+            if not rows:
+                return {"tool": "shanghan_therapy",
+                        "error": f"無此治法：{method}",
+                        "available": sorted({t.therapy_method for t in rules})}
+        else:
+            rows = rules
+        return {"tool": "shanghan_therapy", "n_rules": len(rows),
+                "rules": [{"method": t.therapy_method, "polarity": t.polarity,
+                           "summary": t.summary,
+                           "indications": t.indications[:8],
+                           "representative_formulas": t.representative_formulas[:6],
+                           "supporting_clauses": t.supporting_clauses[:6]}
+                          for t in rows[:12]]}
+
+    def _t_contra_check(self, formula, symptoms=None):
+        from .. import lexicon
+        from ..textutil import normalize_query
+        formula = lexicon.canonical_formula(normalize_query(formula))
+        rule = next((r for r in self.art.formula_rules if r.formula == formula), None)
+        if rule is None:
+            return {"tool": "shanghan_contraindication_check",
+                    "error": f"無方證規則：{formula}"}
+        symptoms = [normalize_query(s) for s in (symptoms or []) if s.strip()]
+        pattern = rule.core_symptoms + rule.associated_symptoms
+        conflicts = []
+        for s in symptoms:
+            for a, b in lexicon.CONTRADICTORY_SYMPTOMS:
+                if (s == a and b in pattern) or (s == b and a in pattern):
+                    conflicts.append({"presented": s,
+                                      "pattern_expects": b if s == a else a})
+        therapy_bans, seen_methods = [], set()
+        for t in self.art.therapy_rules:
+            if t.polarity != "contraindicated" or t.therapy_method in seen_methods:
+                continue
+            base = t.therapy_method.lstrip("禁")          # 禁汗 → 汗
+            indicated = next((x for x in self.art.therapy_rules
+                              if x.therapy_method.startswith(base)
+                              and x.polarity == "indicated"), None)
+            if indicated and formula in indicated.representative_formulas:
+                seen_methods.add(t.therapy_method)
+                therapy_bans.append({"method": t.therapy_method,
+                                     "summary": t.summary,
+                                     "supporting_clauses": t.supporting_clauses[:4]})
+        return {"tool": "shanghan_contraindication_check",
+                "formula": formula,
+                "formula_contraindications": rule.contraindications[:5],
+                "symptom_conflicts": conflicts,
+                "therapy_law_bans": therapy_bans,
+                "notice": "僅為古籍禁忌法度輔助檢查，不能替代醫師臨床判斷。"}
+
+    def _t_dose_convert(self, dose):
+        from ..apps.dosimetry import SCHOOLS, SHENG_ML, parse_dose
+        p = parse_dose(dose)
+        if p["kind"] == "none":
+            return {"tool": "shanghan_dose_convert", "raw": dose,
+                    "error": "無法解析劑量表達式（支持 兩/銖/分/斤/升/合/枚/個 等漢制單位）"}
+        out = {"tool": "shanghan_dose_convert", "raw": dose, "kind": p["kind"]}
+        if p["kind"] == "weight":
+            out["zhu"] = p["zhu"]
+            out["liang"] = round(p["zhu"] / 24, 4)
+            out["grams_by_school"] = p["grams"]
+            out["schools"] = {k: v["label"] for k, v in SCHOOLS.items()}
+        elif p["kind"] == "volume":
+            out["ge"] = p["ge"]
+            out["ml"] = p["ml"]
+            out["note"] = f"1升≈{SHENG_ML}mL（漢代量器實測）"
+        elif p["kind"] == "count":
+            out["count"] = p["count"]
+            out["count_unit"] = p.get("count_unit", "")
+            out["note"] = "計數類不經未考證的單枚質量假設換算"
+        return out
+
+    def _cases_all(self):
+        if not hasattr(self, "_case_cache"):
+            from ..eval.cases import parse_cases
+            from ..extract.entities import EntityExtractor
+            try:
+                self._case_cache, _ = parse_cases(EntityExtractor())
+            except FileNotFoundError:
+                self._case_cache = []
+        return self._case_cache
+
+    def _t_case_search(self, formula=None, keyword=None, top_k=3):
+        from .. import lexicon
+        from ..textutil import normalize_query
+        cases = self._cases_all()
+        if not cases:
+            return {"tool": "shanghan_case_search", "error": "醫案語料不可用"}
+        if formula:
+            formula = lexicon.canonical_formula(normalize_query(formula))
+            cases = [c for c in cases if c["gold"] == formula]
+        if keyword:
+            kw = normalize_query(keyword)
+            cases = [c for c in cases
+                     if kw in normalize_query(c["title"])
+                     or kw in "、".join(c["symptoms"])]
+        rows = []
+        for c in cases[:top_k]:
+            anchor = next((r.supporting_clauses[:3] for r in self.art.formula_rules
+                           if r.formula == c["gold"]), [])
+            rows.append({"title": c["title"], "formula": c["gold"],
+                         "symptoms": c["symptoms"][:8], "pulse": c["pulse"][:3],
+                         "canonical_support": anchor})
+        return {"tool": "shanghan_case_search",
+                "source": "經方實驗錄（1937，曹穎甫）",
+                "evidence_layer": "醫案旁證（非經文層；經文錨點見 canonical_support）",
+                "n_matched": len(cases), "cases": rows}
+
+    def _t_library(self, query=None, book=None, section=None,
+                   category=None, top_k=5):
+        from ..corpus import library
+        if not library.ensure_available(verbose=False):
+            return {"tool": "shanghan_library", "available": False,
+                    "hint": "全庫未下載：運行 `python3 -m hermes_shanghan "
+                            "library fetch`（約 69MB，自動校驗/解壓/建索引），"
+                            "或設 HERMES_LIBRARY_AUTOFETCH=1 由首次調用自動獲取"}
+        lib = library.Library()
+        note = "文獻旁證層（非經文層）：出處僅供文獻查閱，不進入證據閘門"
+        if book:
+            out = lib.read(book, section=section or "", max_chars=2400)
+            if "error" in out:
+                return {"tool": "shanghan_library", "available": True,
+                        "evidence_layer": note, **out}
+            return {"tool": "shanghan_library", "available": True,
+                    "evidence_layer": note, "mode": "read", **out,
+                    "toc": [t["title"] for t in lib.toc(book)][:30]}
+        q = (query or "").strip()
+        if not q:
+            return {"tool": "shanghan_library", "available": True,
+                    "mode": "overview", "categories": lib.categories(),
+                    "n_books": lib.catalog["n_books"]}
+        catalog_hits = lib.search(q, category=category or "", limit=top_k)
+        text = lib.grep(q, category=category or "", limit=top_k) \
+            if len("".join(q.split())) >= 2 else {}
+        return {"tool": "shanghan_library", "available": True,
+                "evidence_layer": note, "mode": "search", "query": q,
+                "catalog_hits": catalog_hits,
+                "text_hits": text.get("hits", []),
+                "n_text_hits": text.get("n_hits", 0),
+                "scan_capped": text.get("scan_capped", False)}
 
     # -- tool implementations ------------------------------------------
     def _t_search(self, query, top_k=6, six_channel=None, formula=None, expand=False):
