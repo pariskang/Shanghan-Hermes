@@ -225,6 +225,27 @@ class ServiceContext:
                 "manuscript": path.read_text(encoding="utf-8"),
                 "meta": meta}
 
+    def complex(self, question: str, role: str = None) -> Dict:
+        from ..agent.complex_agent import ComplexAgent
+        return ComplexAgent(client=self.llm,
+                            registry=self.registry).solve(question, role=role)
+
+    def chat(self, question: str, session_id: str = "default",
+             role: str = None) -> Dict:
+        from ..agent.session import AgentSession
+        if not hasattr(self, "_sessions"):
+            self._sessions = {}
+        sess = self._sessions.setdefault(
+            session_id, AgentSession(client=self.llm, registry=self.registry))
+        return sess.ask(question, role=role)
+
+    def deep_research(self, topic: str, rounds: int = 3) -> Dict:
+        from ..agent.research_loop import DeepResearcher
+        from .. import safety
+        d = DeepResearcher(client=self.llm, registry=self.registry,
+                           max_rounds=rounds).run(topic)
+        return safety.governed(d, "researcher")
+
     # -- agent / council -----------------------------------------------
     def agent(self, question: str, role: str = None, max_steps: int = 5) -> Dict:
         from ..agent.agent import ShanghanAgent
