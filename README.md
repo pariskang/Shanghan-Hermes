@@ -107,7 +107,7 @@ python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --rol
 python3 -m hermes_shanghan solve "桂枝湯與麻黃湯如何鑒別？各自劑量比是多少？注家有何分歧？"
 python3 -m hermes_shanghan llm-status            # 查看 LLM 後端
 
-# 測試（142 項：對抗性審核 + 智能體架構 + 評測 + 圖譜/劑量 + 研究循環 + Colab守衛）
+# 測試（151 項：對抗性審核 + 智能體架構 + 18 工具 + 評測 + 六維研究循環 + Colab守衛）
 python3 -m unittest discover -s tests
 ```
 
@@ -146,8 +146,11 @@ python3 -m hermes_shanghan tool-call shanghan_differential --args '{"formulas":[
 python3 -m hermes_shanghan export-tools --out tools.json
 ```
 
-**接入智能體框架**（12 個只讀回源工具 + 1 個智能體工具，三種 harness 共用同一能力面；
-含分歧圖譜/劑量/全庫統計/評測指標四個研究模塊——模型經 function-calling **自主選擇調用**）：
+**接入智能體框架**（18 個只讀回源工具 + 1 個智能體工具，三種 harness 共用同一能力面；
+模型經 function-calling **自主選擇調用**）。除檢索/匹配/鑒別/六經/誤治外，還包括：
+分歧圖譜 · 劑量計量 · 全庫統計 · 評測指標 · **異文對勘**（B層）· **關係圖譜遍歷**
+（多跳推理）· **治法法度** · **禁忌檢查**（複合推理：方+證候→衝突/法度禁例）·
+**劑量換算計算器**（確定性，免模型心算）· **醫案檢索**（實驗錄旁證+經文錨點）：
 
 | Harness | 接入方式 |
 |---|---|
@@ -329,13 +332,13 @@ hermes_shanghan/
 ├─ paper/       writer（8 類論文 + LLM 增益層）· charts（純標準庫 SVG 統計圖）
 ├─ memory/      store（7 個記憶模塊）
 ├─ llm/         config · cache · prompts · providers(litellm/local/scripted) · client
-├─ agent/       tools(12 工具+ScopedRegistry) · citation_guard · agent(ReAct+反思自糾)
+├─ agent/       tools(18 工具+ScopedRegistry) · citation_guard · agent(ReAct+反思自糾)
 │               · complex_agent(任務分解編排) · session(會話記憶) · multi_agent(議會)
 │               · research_loop（深度研究循環：規劃→子代理→批評家）
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          142 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
+tests/          151 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/論文）
 data/skills/       139 個編譯後 Skill

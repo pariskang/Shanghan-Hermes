@@ -198,6 +198,32 @@ class LocalProvider:
         m_num = re.search(r"(\d{1,3})", q)
         channel = next((c for c in _SIX_CHANNELS if c in q or c[:-1] in q), None)
 
+        if re.search(r"(異文|桂本|桂林古本|千金翼|版本差)", q) and \
+                "shanghan_variants" in available and m_num:
+            return call("shanghan_variants", {"ref": m_num.group(1)})
+        if re.search(r"(相關條文|關聯|傳變鏈|關係邊|鄰接)", q) and \
+                "shanghan_relations" in available and m_num:
+            return call("shanghan_relations", {"ref": m_num.group(1)})
+        if re.search(r"(醫案|案例|實驗錄|診案)", q) and \
+                "shanghan_case_search" in available:
+            args = {"formula": formulas[0]} if formulas else {"keyword": q_raw[:12]}
+            return call("shanghan_case_search", args)
+        if re.search(r"(折合|換算|等於幾克|合多少克|是幾克)", q) and \
+                "shanghan_dose_convert" in available:
+            m_dose = re.search(r"([一二三四五六七八九十百半]+[銖分兩斤升合枚個][半]?)", q)
+            if m_dose:
+                return call("shanghan_dose_convert", {"dose": m_dose.group(1)})
+        if re.search(r"(能不能用|可不可以用|禁忌嗎|有何禁忌|犯不犯禁)", q) and \
+                formulas and "shanghan_contraindication_check" in available:
+            from ..extract.entities import EntityExtractor
+            found = EntityExtractor().extract(q)
+            return call("shanghan_contraindication_check",
+                        {"formula": formulas[0], "symptoms": found.symptoms})
+        if re.search(r"(汗法|下法|吐法|和法|溫法|補法|利水|救逆|治法|法度|禁[汗下吐]|誤[汗下吐])", q) and \
+                "shanghan_therapy" in available:
+            m_th = re.search(r"(禁[汗下吐]|誤[汗下吐]|[汗下吐和溫清補]法|利水|救逆)", q)
+            return call("shanghan_therapy",
+                        {"method": m_th.group(1)} if m_th else {})
         if re.search(r"(注家|注本|分歧|詮釋|成無己|柯琴|尤怡|方有執|錢潢|黃元御)", q) and \
                 "shanghan_divergence_atlas" in available:
             m_cl = re.search(r"(\d{2,4})\s*條|SHL_SONGBEN_(\d{4})", q)
@@ -330,6 +356,53 @@ class LocalProvider:
                     lines.append(f"- {e['base']}→{e['modified']}（{e['edge_kind']}"
                                  + (f"：{d0.get('herb')}×{d0.get('factor')}" if d0 else "")
                                  + "）")
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_variants":
+                lines.append(f"[{p.get('clause_id')}] 異文對勘（B層，{p.get('n_variants', 0)} 本）：")
+                for v in (p.get("variants") or [])[:2]:
+                    diff = "；".join(v.get("notable_differences", [])[:2]) or "用字基本一致"
+                    lines.append(f"- {v['book']}（相似度{v['similarity']}）：{diff}")
+                cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_relations":
+                lines.append(f"[{p.get('clause_id')}] 關係圖譜（{p.get('n_edges', 0)} 條邊）：")
+                for e in (p.get("edges") or [])[:5]:
+                    lines.append(f"- {e['relation_type']} → {e['other_clause_id']}："
+                                 f"{e['description'][:36]}")
+                    cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_therapy":
+                for t in (p.get("rules") or [])[:4]:
+                    lines.append(f"【{t['method']}】{t['summary'][:50]}"
+                                 f"（{'、'.join(t['supporting_clauses'][:3])}）")
+                    cited += len(t["supporting_clauses"][:3])
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_contraindication_check":
+                lines.append(f"{p.get('formula')} 禁忌檢查（輔助性質）：")
+                for c0 in (p.get("formula_contraindications") or [])[:2]:
+                    lines.append(f"- 原文禁例 [{c0.get('clause_id')}] {c0.get('condition', '')[:40]}")
+                    cited += 1
+                for c0 in (p.get("symptom_conflicts") or [])[:3]:
+                    lines.append(f"- ⚠️ 證候衝突：所述「{c0['presented']}」與本方證之"
+                                 f"「{c0['pattern_expects']}」相反")
+                for b in (p.get("therapy_law_bans") or [])[:2]:
+                    lines.append(f"- 法度禁例【{b['method']}】{b['summary'][:36]}"
+                                 f"（{'、'.join(b['supporting_clauses'][:2])}）")
+                    cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_dose_convert":
+                if p.get("kind") == "weight":
+                    lines.append(f"「{p['raw']}」= {p['zhu']} 銖 = {p['liang']} 兩；"
+                                 f"折算：考古 {p['grams_by_school']['kaogu']}g / "
+                                 f"度量衡史 {p['grams_by_school']['duliangheng']}g / "
+                                 f"明清 {p['grams_by_school']['zhezhuan']}g")
+                elif p.get("kind") == "volume":
+                    lines.append(f"「{p['raw']}」= {p['ml']} mL（{p.get('note', '')}）")
+                else:
+                    lines.append(f"「{p.get('raw')}」：{p.get('count', '')}"
+                                 f"{p.get('count_unit', '')}（{p.get('note', '')}）")
+                cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_case_search":
+                lines.append(f"醫案旁證（{p.get('source', '')}，非經文層）：")
+                for cse in (p.get("cases") or [])[:2]:
+                    lines.append(f"- {cse['title']}：證見 {'、'.join(cse['symptoms'][:4])}；"
+                                 f"經文錨點 {'、'.join(cse['canonical_support'][:2])}")
+                    cited += len(cse["canonical_support"][:2])
             elif isinstance(p, dict) and p.get("tool") == "shanghan_corpus_stats":
                 tops = "、".join(f"{f}({n})" for f, n in (p.get("top_formulas") or [])[:5])
                 lines.append(f"全庫計量：初始規則 {p.get('initial_rules', 0)} 條；"

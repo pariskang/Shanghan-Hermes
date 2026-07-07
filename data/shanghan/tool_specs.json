@@ -229,6 +229,132 @@
      "properties": {}
     }
    }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "shanghan_variants",
+    "description": "版本異文（B層）：某條文在桂林古本/千金翼方版的對齊異文與用字差異。",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "ref": {
+       "type": "string",
+       "description": "條文號或 clause_id"
+      }
+     },
+     "required": [
+      "ref"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "shanghan_relations",
+    "description": "條文關係圖譜遍歷：某條文的鄰接邊（同方族/鑒別/誤治傳變/禁忌/傳變/次序），支持按關係類型過濾——用於多跳推理與傳變鏈追蹤。",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "ref": {
+       "type": "string",
+       "description": "條文號或 clause_id"
+      },
+      "relation_type": {
+       "type": "string",
+       "description": "可選：same_formula_family/differential/mistreatment_transformation/transmission/contraindication/sequence"
+      }
+     },
+     "required": [
+      "ref"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "shanghan_therapy",
+    "description": "治法規則：汗/吐/下/和/溫/補/救逆/利水的適應指徵、代表方、禁例與誤施之變。",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "method": {
+       "type": "string",
+       "description": "可選，如 汗法/下法/禁汗/誤下；不填返回總覽"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "shanghan_contraindication_check",
+    "description": "禁忌檢查（複合推理）：給定方劑與病人證候，返回該方原文禁忌、證候與方證的衝突（如無汗 vs 桂枝湯）及相關治法禁例——輔助性質，不替代臨床判斷。",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "formula": {
+       "type": "string"
+      },
+      "symptoms": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     },
+     "required": [
+      "formula"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "shanghan_dose_convert",
+    "description": "漢制劑量換算計算器（確定性）：解析「三兩」「一兩十六銖」「半升」等劑量，返回銖當量與三家折算克數/毫升——避免模型心算錯誤。",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "dose": {
+       "type": "string",
+       "description": "如 三兩 / 一兩半 / 半升 / 十二枚"
+      }
+     },
+     "required": [
+      "dose"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "shanghan_case_search",
+    "description": "醫案檢索：《經方實驗錄》(1937 曹穎甫) 真實診案，按方名或關鍵詞查找；醫案屬旁證（非經文層），結果自動附該方的經文支持條文作錨點。",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "formula": {
+       "type": "string",
+       "description": "可選方名"
+      },
+      "keyword": {
+       "type": "string",
+       "description": "可選關鍵詞（症狀/敘述）"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 3
+      }
+     },
+     "required": []
+    }
+   }
   }
  ],
  "anthropic_tools": [
@@ -422,6 +548,114 @@
    "input_schema": {
     "type": "object",
     "properties": {}
+   }
+  },
+  {
+   "name": "shanghan_variants",
+   "description": "版本異文（B層）：某條文在桂林古本/千金翼方版的對齊異文與用字差異。",
+   "input_schema": {
+    "type": "object",
+    "properties": {
+     "ref": {
+      "type": "string",
+      "description": "條文號或 clause_id"
+     }
+    },
+    "required": [
+     "ref"
+    ]
+   }
+  },
+  {
+   "name": "shanghan_relations",
+   "description": "條文關係圖譜遍歷：某條文的鄰接邊（同方族/鑒別/誤治傳變/禁忌/傳變/次序），支持按關係類型過濾——用於多跳推理與傳變鏈追蹤。",
+   "input_schema": {
+    "type": "object",
+    "properties": {
+     "ref": {
+      "type": "string",
+      "description": "條文號或 clause_id"
+     },
+     "relation_type": {
+      "type": "string",
+      "description": "可選：same_formula_family/differential/mistreatment_transformation/transmission/contraindication/sequence"
+     }
+    },
+    "required": [
+     "ref"
+    ]
+   }
+  },
+  {
+   "name": "shanghan_therapy",
+   "description": "治法規則：汗/吐/下/和/溫/補/救逆/利水的適應指徵、代表方、禁例與誤施之變。",
+   "input_schema": {
+    "type": "object",
+    "properties": {
+     "method": {
+      "type": "string",
+      "description": "可選，如 汗法/下法/禁汗/誤下；不填返回總覽"
+     }
+    }
+   }
+  },
+  {
+   "name": "shanghan_contraindication_check",
+   "description": "禁忌檢查（複合推理）：給定方劑與病人證候，返回該方原文禁忌、證候與方證的衝突（如無汗 vs 桂枝湯）及相關治法禁例——輔助性質，不替代臨床判斷。",
+   "input_schema": {
+    "type": "object",
+    "properties": {
+     "formula": {
+      "type": "string"
+     },
+     "symptoms": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "formula"
+    ]
+   }
+  },
+  {
+   "name": "shanghan_dose_convert",
+   "description": "漢制劑量換算計算器（確定性）：解析「三兩」「一兩十六銖」「半升」等劑量，返回銖當量與三家折算克數/毫升——避免模型心算錯誤。",
+   "input_schema": {
+    "type": "object",
+    "properties": {
+     "dose": {
+      "type": "string",
+      "description": "如 三兩 / 一兩半 / 半升 / 十二枚"
+     }
+    },
+    "required": [
+     "dose"
+    ]
+   }
+  },
+  {
+   "name": "shanghan_case_search",
+   "description": "醫案檢索：《經方實驗錄》(1937 曹穎甫) 真實診案，按方名或關鍵詞查找；醫案屬旁證（非經文層），結果自動附該方的經文支持條文作錨點。",
+   "input_schema": {
+    "type": "object",
+    "properties": {
+     "formula": {
+      "type": "string",
+      "description": "可選方名"
+     },
+     "keyword": {
+      "type": "string",
+      "description": "可選關鍵詞（症狀/敘述）"
+     },
+     "top_k": {
+      "type": "integer",
+      "default": 3
+     }
+    },
+    "required": []
    }
   }
  ],
