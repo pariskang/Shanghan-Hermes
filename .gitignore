@@ -5,3 +5,6 @@ __pycache__/
 .venv/
 build/
 dist/
+
+# full jicheng library (69MB archive / 311MB extracted) — fetched on demand
+data/library/

@@ -198,6 +198,28 @@ class LocalProvider:
         m_num = re.search(r"(\d{1,3})", q)
         channel = next((c for c in _SIX_CHANNELS if c in q or c[:-1] in q), None)
 
+        m_title = re.search(r"《([^》]{2,14})》", q_raw)
+        if "shanghan_library" in available and \
+                not re.search(r"(統計|多少條|頻次|計量概況|評測|接地率)", q) and \
+                (re.search(r"(笈成|全庫|文獻|古籍|醫籍|歷代醫書|後世醫[家書]|哪些書|哪部書|查書|書目)", q)
+                 or (m_title and m_title.group(1) not in
+                     ("傷寒論", "傷寒雜病論", "金匱要略"))):
+            if m_title and re.search(r"(目錄|章節|原文|讀|內容|講什麼)", q):
+                return call("shanghan_library", {"book": m_title.group(1)})
+            term = (m_title.group(1) if m_title
+                    else (formulas[0] if formulas else ""))
+            if not term:
+                from ..extract.entities import EntityExtractor
+                found = EntityExtractor().extract(q)
+                cands = found.symptoms + found.disease_patterns
+                term = max(cands, key=len) if cands else ""
+            if not term:
+                stripped = re.sub(r"(在|的|有|了|嗎|呢|？|\?|哪些書|哪部書|全庫|笈成|"
+                                  r"文獻|古籍|醫籍|歷代醫書|後世醫[家書]|查書|書目|裡|中|"
+                                  r"檢索|查閱|怎麼論述|如何論述|記載|提到|請|一下)", "",
+                                  q_raw)
+                term = stripped.strip()[:12]
+            return call("shanghan_library", {"query": term})
         if re.search(r"(異文|桂本|桂林古本|千金翼|版本差)", q) and \
                 "shanghan_variants" in available and m_num:
             return call("shanghan_variants", {"ref": m_num.group(1)})
@@ -403,6 +425,31 @@ class LocalProvider:
                     lines.append(f"- {cse['title']}：證見 {'、'.join(cse['symptoms'][:4])}；"
                                  f"經文錨點 {'、'.join(cse['canonical_support'][:2])}")
                     cited += len(cse["canonical_support"][:2])
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_library":
+                if not p.get("available", True):
+                    lines.append(f"全庫未就緒：{p.get('hint', '')}")
+                elif p.get("mode") == "read":
+                    b = p.get("book", {})
+                    lines.append(f"文獻查閱（非經文層）：《{b.get('title')}》"
+                                 f"{b.get('author')}·{b.get('dynasty')}"
+                                 f"（{b.get('category')}類）——"
+                                 f"{(p.get('text') or '')[:120]}…")
+                elif p.get("mode") == "overview":
+                    cats = "、".join(f"{k}{v}部" for k, v in
+                                    list((p.get("categories") or {}).items())[:6])
+                    lines.append(f"全庫共 {p.get('n_books')} 部醫籍：{cats}……")
+                else:
+                    for h in (p.get("catalog_hits") or [])[:3]:
+                        lines.append(f"- 《{h['title']}》{h['author']}·{h['dynasty']}"
+                                     f"（{h['category']}類，約{h['approx_chars']}字）")
+                    for h in (p.get("text_hits") or [])[:3]:
+                        lines.append(f"- 《{h['title']}》§{h['section'][:14]}："
+                                     f"…{h['excerpt'][:56]}…")
+                    if not (p.get("catalog_hits") or p.get("text_hits")):
+                        lines.append(f"全庫未檢得「{p.get('query', '')}」"
+                                     + ("（掃描達上限，可縮小分類重試）"
+                                        if p.get("scan_capped") else ""))
+                lines.append("（以上屬文獻旁證層，僅供查閱，不作經文層證據）")
             elif isinstance(p, dict) and p.get("tool") == "shanghan_corpus_stats":
                 tops = "、".join(f"{f}({n})" for f, n in (p.get("top_formulas") or [])[:5])
                 lines.append(f"全庫計量：初始規則 {p.get('initial_rules', 0)} 條；"
@@ -423,7 +470,12 @@ class LocalProvider:
                                  f"→{'、'.join(path.get('rescue_formulas', [])[:2])}"
                                  f"（{'、'.join(path.get('clauses', [])[:2])}）")
                     cited += len(path.get("clauses", []))
-        if cited == 0:
+        library_answered = any(isinstance(p, dict)
+                               and p.get("tool") == "shanghan_library"
+                               and (p.get("text_hits") or p.get("catalog_hits")
+                                    or p.get("mode") in ("read", "overview"))
+                               for p in payloads)
+        if cited == 0 and not library_answered:
             lines.append("（未檢索到充分的條文證據，無法作答。）")
         return "\n".join(lines)
 

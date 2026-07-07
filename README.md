@@ -107,8 +107,15 @@ python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --rol
 python3 -m hermes_shanghan solve "桂枝湯與麻黃湯如何鑒別？各自劑量比是多少？注家有何分歧？"
 python3 -m hermes_shanghan llm-status            # 查看 LLM 後端
 
-# 測試（151 項：對抗性審核 + 智能體架構 + 18 工具 + 評測 + 六維研究循環 + Colab守衛）
+# 測試（164 項：對抗性審核 + 智能體架構 + 19 工具 + 評測 + 六維研究循環 + 全庫接入 + Colab守衛）
 python3 -m unittest discover -s tests
+
+# 中醫笈成全庫（800+ 部醫籍）：配置完成後一條命令自動下載（69MB，
+# sha256 校驗 → 解壓 → 編目 → 字符索引），落於 data/library/（不入庫）
+python3 -m hermes_shanghan library fetch
+python3 -m hermes_shanghan library search 金匱          # 編目檢索（書名/作者/朝代/分類）
+python3 -m hermes_shanghan library grep 奔豚 --category 醫案   # 全文檢索（書·章節定位）
+python3 -m hermes_shanghan library read 傷寒來蘇集 --section 傷寒總論
 ```
 
 ## LLM 接入與智能體（神經符號增益層）
@@ -146,11 +153,12 @@ python3 -m hermes_shanghan tool-call shanghan_differential --args '{"formulas":[
 python3 -m hermes_shanghan export-tools --out tools.json
 ```
 
-**接入智能體框架**（18 個只讀回源工具 + 1 個智能體工具，三種 harness 共用同一能力面；
+**接入智能體框架**（19 個只讀回源工具 + 1 個智能體工具，三種 harness 共用同一能力面；
 模型經 function-calling **自主選擇調用**）。除檢索/匹配/鑒別/六經/誤治外，還包括：
 分歧圖譜 · 劑量計量 · 全庫統計 · 評測指標 · **異文對勘**（B層）· **關係圖譜遍歷**
 （多跳推理）· **治法法度** · **禁忌檢查**（複合推理：方+證候→衝突/法度禁例）·
-**劑量換算計算器**（確定性，免模型心算）· **醫案檢索**（實驗錄旁證+經文錨點）：
+**劑量換算計算器**（確定性，免模型心算）· **醫案檢索**（實驗錄旁證+經文錨點）·
+**全庫文獻查閱**（中醫笈成 800+ 部：編目/全文/按章閱讀，文獻旁證層）：
 
 | Harness | 接入方式 |
 |---|---|
@@ -187,6 +195,16 @@ python3 -m hermes_shanghan export-tools --out tools.json
 類證活人書×2）未隨倉庫提交；差額在 `corpus_manifest.json` 的
 `vendor_missing_books` 中逐一記錄並由測試核驗（缺失書目均不參與任何流水線層），
 不做靜默計數。
+
+**全庫擴展（文獻旁證層）**：`library fetch` 可自動下載中醫笈成全庫歸檔
+（[jicheng.tw](https://jicheng.tw)，book-20180111.7z，803 部醫籍 / 843 個文本單元，
+sha256 固定校驗）。解析器完整覆蓋其全部版式：`<book>` 元數據（含分類/參本/備考等
+全字段）、單檔書、多卷書（`2-15`、`2-0.3` 卷-章-節混合編號）、嵌套子書
+（如《醫宗金鑑》15 部子書）與 menu 導航頁排除。快速調用機制：毫秒級編目檢索 +
+字符倒排索引剪枝的全文檢索（候選集可證完備，掃描達上限時顯式標記 `scan_capped`）+
+章節目錄/按節閱讀；經 CLI（`library`）、智能體工具（`shanghan_library`）與 MCP
+三種入口共用。全庫屬**文獻旁證層**：出處（書·作者·朝代·章節）僅供查閱，
+不進入經文層證據閘門。設 `HERMES_LIBRARY_AUTOFETCH=1` 可由首次調用自動獲取。
 
 ## 規則層級（合併規則永不覆蓋初始規則）
 
@@ -319,7 +337,8 @@ Skill RAG（`hermes_shanghan/rag/skill_rag.py`）按
 ```text
 hermes_shanghan/
 ├─ config.py / lexicon.py / textutil.py / schemas.py / safety.py
-├─ corpus/      downloader（版本manifest）· catalog（篇章）· segmenter（條文切分）
+├─ corpus/      downloader（版本manifest）· library（笈成全庫：自動下載+編目+全文索引）
+│               · catalog（篇章）· segmenter（條文切分）
 ├─ extract/     entities（否定感知實體抽取）· initial_rules（條文級規則）
 ├─ review/      validators · critic（對抗審核）· repair · pipeline（六道閘門）
 ├─ induce/      relations · formula_patterns · six_channels · therapy
@@ -332,14 +351,15 @@ hermes_shanghan/
 ├─ paper/       writer（8 類論文 + LLM 增益層）· charts（純標準庫 SVG 統計圖）
 ├─ memory/      store（7 個記憶模塊）
 ├─ llm/         config · cache · prompts · providers(litellm/local/scripted) · client
-├─ agent/       tools(18 工具+ScopedRegistry) · citation_guard · agent(ReAct+反思自糾)
+├─ agent/       tools(19 工具+ScopedRegistry) · citation_guard · agent(ReAct+反思自糾)
 │               · complex_agent(任務分解編排) · session(會話記憶) · multi_agent(議會)
 │               · research_loop（深度研究循環：規劃→子代理→批評家）
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          151 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
+tests/          164 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
+data/library/      中醫笈成全庫（803 部，`library fetch` 自動下載，不入庫）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/論文）
 data/skills/       139 個編譯後 Skill
 docs/PROTOCOL.md   完整協議文本

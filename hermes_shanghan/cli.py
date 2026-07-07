@@ -138,6 +138,57 @@ def cmd_ingest(args):
             print(f"  [{b['hermes_layer']}] {b['title']} ({b['book_dir']})")
 
 
+def cmd_library(args):
+    from .corpus import library
+    act = args.action
+    if act == "fetch":
+        library.fetch(url=args.url or None, force=args.force)
+        print(json.dumps(library.status(), ensure_ascii=False, indent=1))
+        return
+    if act == "status":
+        print(json.dumps(library.status(), ensure_ascii=False, indent=1))
+        return
+    if not library.is_available():
+        print("全庫未就緒：請先運行 `python3 -m hermes_shanghan library fetch`",
+              file=sys.stderr)
+        sys.exit(1)
+    lib = library.Library()
+    if act == "categories":
+        for cat, n in lib.categories().items():
+            print(f"{cat or '(未分類)'}\t{n}")
+    elif act == "search":
+        for h in lib.search(args.query, category=args.category, limit=args.limit):
+            subs = f" ⊃{len(h['sub_books'])}子書" if h["sub_books"] else ""
+            print(f"{h['id']}\t{h['author']}·{h['dynasty']}\t"
+                  f"[{h['category']}] ~{h['approx_chars']}字{subs}")
+    elif act == "grep":
+        out = lib.grep(args.query, category=args.category, limit=args.limit)
+        if "error" in out:
+            print(out["error"], file=sys.stderr)
+            sys.exit(1)
+        for h in out["hits"]:
+            print(f"《{h['title']}》{h['author']}·{h['dynasty']} "
+                  f"§{h['section']}\n  …{h['excerpt']}…")
+        note = "（掃描達上限，命中未必完整）" if out["scan_capped"] else ""
+        print(f"-- {out['n_hits']} 命中 / 候選 {out['n_candidate_books']} 部 / "
+              f"實掃 {out['n_books_scanned']} 部{note}")
+    elif act == "toc":
+        for t in lib.toc(args.query):
+            print("  " * (t["level"] - 1) + t["title"] + f"  ({t['file']})")
+    elif act == "read":
+        out = lib.read(args.query, section=args.section,
+                       max_chars=args.limit if args.limit > 100 else 4000)
+        if "error" in out:
+            print(out["error"], file=sys.stderr)
+            sys.exit(1)
+        b = out["book"]
+        print(f"《{b['title']}》{b['author']}·{b['dynasty']}"
+              + (f" §{out['section']}" if out["section"] else ""))
+        print(out["text"])
+        if out["truncated"]:
+            print(f"…（截斷，全文 {out['total_chars']} 字）")
+
+
 def _load_research_or_exit(name: str):
     import json as _json
     p = config.RESEARCH_DIR / name
@@ -488,6 +539,19 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     sp = sub.add_parser("ingest", help="語料導入與 manifest")
     sp.set_defaults(func=cmd_ingest)
+
+    sp = sub.add_parser("library",
+                        help="中醫笈成全庫（800+ 部）：自動下載/編目檢索/全文查閱")
+    sp.add_argument("action", choices=["fetch", "status", "search", "grep",
+                                       "toc", "read", "categories"])
+    sp.add_argument("query", nargs="?", default="",
+                    help="檢索詞（search/grep）或書名（toc/read）")
+    sp.add_argument("--category", default="", help="按分類過濾，如 醫案/本草/溫病")
+    sp.add_argument("--section", default="", help="read：只讀某一章節")
+    sp.add_argument("--limit", type=int, default=12)
+    sp.add_argument("--url", default="", help="fetch：覆蓋默認庫源 URL")
+    sp.add_argument("--force", action="store_true", help="fetch：強制重建")
+    sp.set_defaults(func=cmd_library)
 
     sp = sub.add_parser("dose", help="劑量計量層：藥量比/折算/家族劑量演化")
     sp.add_argument("formula", nargs="?", default="")

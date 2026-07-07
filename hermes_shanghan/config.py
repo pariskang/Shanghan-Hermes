@@ -38,6 +38,11 @@ PAPER_DIR = SHANGHAN_DIR / "papers"
 
 SKILLS_DIR = DATA_DIR / "skills" / "shanghanlun"
 
+# 中醫笈成全庫（文獻旁證層，不隨倉庫分發；`library fetch` 自動下載）
+LIBRARY_DIR = Path(os.environ.get("HERMES_LIBRARY_DIR", DATA_DIR / "library"))
+LIBRARY_URL = "https://jicheng.tw/files/jcw/book-20180111.7z"
+LIBRARY_SHA256 = "6ac6da6d6b1f9f8442ead7ebc6f7d8971d9ac972c889fd0f72d9e0fd355d7ade"
+
 ALL_OUTPUT_DIRS = [
     MANIFEST_DIR, CLAUSE_DIR, RELATION_DIR, RULES_INITIAL_DIR, AUDIT_DIR,
     REJECTED_DIR, RULES_FORMULA_DIR, RULES_SIX_CHANNEL_DIR, RULES_THERAPY_DIR,

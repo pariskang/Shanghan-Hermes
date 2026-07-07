@@ -201,6 +201,21 @@ class ToolRegistry:
                 "top_k": {"type": "integer", "default": 3}},
              "required": []},
             self._t_case_search)
+        self._add(
+            "shanghan_library",
+            "中醫笈成全庫快速查閱（800+ 部醫籍，文獻旁證層/非經文層）：按書名/作者/"
+            "朝代/分類檢索編目；按原文詞句全文檢索（返回書·章節定位的摘錄）；"
+            "或按書名+章節閱讀原書。庫未下載時提示 `library fetch`。",
+            {"type": "object", "properties": {
+                "query": {"type": "string",
+                          "description": "檢索詞：書名/作者（編目）或原文詞句（全文）"},
+                "book": {"type": "string", "description": "可選書名——直接閱讀該書"},
+                "section": {"type": "string", "description": "可選章節名（配合 book）"},
+                "category": {"type": "string",
+                             "description": "可選分類過濾：醫案/方書/本草/溫病/傷寒…"},
+                "top_k": {"type": "integer", "default": 5}},
+             "required": []},
+            self._t_library)
 
     # -- research-layer helpers -----------------------------------------
     @staticmethod
@@ -430,6 +445,39 @@ class ToolRegistry:
                 "source": "經方實驗錄（1937，曹穎甫）",
                 "evidence_layer": "醫案旁證（非經文層；經文錨點見 canonical_support）",
                 "n_matched": len(cases), "cases": rows}
+
+    def _t_library(self, query=None, book=None, section=None,
+                   category=None, top_k=5):
+        from ..corpus import library
+        if not library.ensure_available(verbose=False):
+            return {"tool": "shanghan_library", "available": False,
+                    "hint": "全庫未下載：運行 `python3 -m hermes_shanghan "
+                            "library fetch`（約 69MB，自動校驗/解壓/建索引），"
+                            "或設 HERMES_LIBRARY_AUTOFETCH=1 由首次調用自動獲取"}
+        lib = library.Library()
+        note = "文獻旁證層（非經文層）：出處僅供文獻查閱，不進入證據閘門"
+        if book:
+            out = lib.read(book, section=section or "", max_chars=2400)
+            if "error" in out:
+                return {"tool": "shanghan_library", "available": True,
+                        "evidence_layer": note, **out}
+            return {"tool": "shanghan_library", "available": True,
+                    "evidence_layer": note, "mode": "read", **out,
+                    "toc": [t["title"] for t in lib.toc(book)][:30]}
+        q = (query or "").strip()
+        if not q:
+            return {"tool": "shanghan_library", "available": True,
+                    "mode": "overview", "categories": lib.categories(),
+                    "n_books": lib.catalog["n_books"]}
+        catalog_hits = lib.search(q, category=category or "", limit=top_k)
+        text = lib.grep(q, category=category or "", limit=top_k) \
+            if len("".join(q.split())) >= 2 else {}
+        return {"tool": "shanghan_library", "available": True,
+                "evidence_layer": note, "mode": "search", "query": q,
+                "catalog_hits": catalog_hits,
+                "text_hits": text.get("hits", []),
+                "n_text_hits": text.get("n_hits", 0),
+                "scan_capped": text.get("scan_capped", False)}
 
     # -- tool implementations ------------------------------------------
     def _t_search(self, query, top_k=6, six_channel=None, formula=None, expand=False):

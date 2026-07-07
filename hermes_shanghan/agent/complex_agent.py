@@ -55,6 +55,8 @@ TASK_TYPES: Dict[str, Dict] = {
     "stats": {"desc": "全庫統計/頻次/評測指標",
               "tools": ["shanghan_corpus_stats", "shanghan_eval_metrics"]},
     "research": {"desc": "跨維度學術溯源（派遣深度研究循環）", "tools": []},
+    "literature": {"desc": "全庫文獻查閱（中醫笈成 800+ 部，旁證層）",
+                   "tools": ["shanghan_library", "shanghan_search"]},
     "general": {"desc": "一般查證",
                 "tools": ["shanghan_search", "shanghan_get_clause",
                           "shanghan_formula_rule"]},
@@ -70,6 +72,7 @@ _KIND_PATTERNS = [
     ("mistreatment", r"誤治|誤下|誤汗|誤吐|傳變|壞病|變證|救逆"),
     ("six_channel", r"提綱|六經|經證|欲解時"),
     ("stats", r"統計|頻次|多少條|基準|評測|接地率"),
+    ("literature", r"笈成|全庫文獻|古籍|醫籍|歷代醫書|後世醫[家書]|哪些書|哪部書|書目"),
     ("research", r"溯源|源流|演化史|全面研究|綜述"),
 ]
 RE_SPLIT = re.compile(r"[？?；;。]\s*")
