@@ -2,6 +2,12 @@
 
 **《傷寒論》自主規則挖掘與 Skill 生成系統** —— 把《傷寒論》轉化為一個可回源、可推理、可比較、可教學、可寫作、可調用的規則系統。
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/pariskang/Shanghan-Hermes/blob/main/notebooks/Hermes_Shanghanlun_Colab.ipynb)
+一鍵 Colab 全功能演示（[`notebooks/Hermes_Shanghanlun_Colab.ipynb`](notebooks/Hermes_Shanghanlun_Colab.ipynb)）：
+流水線→檢索/匹配/鑒別/教學→注家圖譜/劑量層→三大評測→反思/編排/會話/研究循環
+智能體→溯源論文+SVG圖表→Web控制台 iframe——全程離線可跑，可選接入
+Anthropic/OpenAI/Azure/Poe/MiniMax。
+
 ```text
 《傷寒論》原文自動解析 → 條文級規則挖掘 → 六經體系歸納 → 方證規則生成
 → 誤治傳變規則生成 → 禁忌法度規則生成 → 多版本/注本比較
@@ -101,7 +107,7 @@ python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --rol
 python3 -m hermes_shanghan solve "桂枝湯與麻黃湯如何鑒別？各自劑量比是多少？注家有何分歧？"
 python3 -m hermes_shanghan llm-status            # 查看 LLM 後端
 
-# 測試（138 項：對抗性審核 + 反思/編排/會話智能體 + 評測套件 + 圖譜/劑量 + 研究循環）
+# 測試（142 項：對抗性審核 + 智能體架構 + 評測 + 圖譜/劑量 + 研究循環 + Colab守衛）
 python3 -m unittest discover -s tests
 ```
 
@@ -329,7 +335,7 @@ hermes_shanghan/
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          138 項測試（對抗性審核 + 智能體架構 + 評測/圖譜/劑量 + 研究循環等）
+tests/          142 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/論文）
 data/skills/       139 個編譯後 Skill
