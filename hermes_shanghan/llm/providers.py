@@ -318,6 +318,13 @@ class LocalProvider:
         if formulas and "shanghan_formula_rule" in available and \
                 re.search(r"(方證|組成|加減|主治|要點|" + formulas[0] + ")", q):
             return call("shanghan_formula_rule", {"formula": formulas[0]})
+        if re.search(r"(方證對應|辨證分析|病機(結構|分析)|屬何證|是什麼證|什麼證候)", q) and \
+                "shanghan_correspondence" in available:
+            from ..extract.entities import EntityExtractor
+            found = EntityExtractor().extract(q)
+            if found.symptoms or found.pulse:
+                return call("shanghan_correspondence",
+                            {"symptoms": found.symptoms, "pulse": found.pulse})
         if re.search(r"(惡寒|發熱|無汗|汗出|脈|身疼|嘔|下利|口苦)", q) and \
                 "shanghan_match_formula" in available:
             from ..extract.entities import EntityExtractor
@@ -359,7 +366,8 @@ class LocalProvider:
                     lines.append(f"- {m['formula']}（{m.get('six_channel','')}，匹配度"
                                  f"{m.get('match_score')}）：{m.get('core_reason','')} 證據：{ev}")
                     cited += len(m.get("evidence", []))
-            elif isinstance(p, dict) and p.get("differential") is not None:
+            elif isinstance(p, dict) and p.get("differential") is not None \
+                    and p.get("tool") != "shanghan_correspondence":
                 d = p["differential"]
                 lines.append(f"鑒別：{' vs '.join(d.get('formulas', []))}")
                 for disc in d.get("key_discriminators", [])[:5]:
@@ -506,6 +514,35 @@ class LocalProvider:
                              f"{cz.get('mrr', '—')}；接地率 "
                              f"{gr.get('grounded_answer_rate', '—')}。")
                 cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_correspondence":
+                qa = p.get("query_analysis", {})
+                lines.append("【方證對應分析（八段式）】")
+                for s0 in p.get("candidate_syndromes", [])[:2]:
+                    m0 = s0.get("matched", {})
+                    lines.append(f"病機候選：{s0['pathogenesis']}（信度 "
+                                 f"{s0['confidence']}，命中 "
+                                 f"{'、'.join((m0.get('required') or []) + (m0.get('supporting') or [])[:2]) or '—'}"
+                                 f"；{s0['layer']}）")
+                if p.get("derived_methods"):
+                    lines.append(f"治法方向：{'、'.join(p['derived_methods'])}（規則層歸納）")
+                for c in p.get("candidate_formulas", [])[:3]:
+                    d0 = c["score_breakdown"]
+                    lines.append(f"- {c['formula']} 總分{c['total_score']}"
+                                 f"（症狀{d0['symptom']}/病機{d0['pathogenesis']}/"
+                                 f"治法{d0['method']}/證據{d0['evidence']}"
+                                 f"{'/禁忌-' + str(d0['contraindication_penalty']) if d0['contraindication_penalty'] else ''}）"
+                                 f"｜{c['relation']['grade']}級·{c['relation']['relation'][:12]}"
+                                 f"｜證據 {'、'.join(c['evidence_clauses'][:3])}")
+                    cited += len(c["evidence_clauses"][:3])
+                diff0 = p.get("differential")
+                if diff0:
+                    lines.append(f"類方鑒別 {' vs '.join(diff0['pair'])}：" +
+                                 "；".join(diff0.get("key_discriminators", [])[:2]))
+                for q0 in p.get("clarifying_questions", [])[:3]:
+                    lines.append(f"  追問：{q0}")
+                if p.get("coverage_note"):
+                    lines.append(f"⚠️ {p['coverage_note'][:80]}")
+                lines.append(f"（{p.get('safety_boundary', '')[:60]}）")
             elif isinstance(p, dict) and p.get("tool") == "shanghan_omni_search":
                 u0 = p.get("understanding", {})
                 lines.append(f"【全景多路檢索】意圖：{u0.get('intent', '')}；"

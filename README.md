@@ -377,7 +377,7 @@ hermes_shanghan/
 ├─ review/      validators · critic（對抗審核）· repair · pipeline（六道閘門）
 ├─ induce/      relations · formula_patterns · six_channels · therapy
 │               · mistreatment · differential · merged · pharmacology(藥解/方解)
-│               · decoction(煎服法方後原文解析)
+│               · decoction(煎服法方後原文解析) · correspondence(方證對應引擎)
 ├─ rag/         bm25 · clause_rag（原文RAG）· omni_search（全景多路檢索）
 │               · vector_channel（語義向量：嵌入增益/TF-IDF兜底）
 │               · skill_rag（技能路由）
@@ -389,7 +389,7 @@ hermes_shanghan/
 ├─ paper/       writer（8 類論文 + LLM 增益層）· charts（純標準庫 SVG 統計圖）
 ├─ memory/      store（9 個記憶模塊，含 correction/project）
 ├─ llm/         config · cache · prompts · providers(litellm/local/scripted) · client
-├─ agent/       tools(24 工具+ScopedRegistry+患者白名單+結果緩存) · citation_guard
+├─ agent/       tools(25 工具+ScopedRegistry+患者白名單+結果緩存) · citation_guard
 │               · agent(ReAct+反思自糾+工具預算) · planner(任務圖規劃)
 │               · evidence_binder(句級 claim→證據綁定) · hypothesis(多假設+鑒別追問)
 │               · complex_agent(任務圖編排) · session(會話記憶+糾錯記憶)
@@ -398,7 +398,7 @@ hermes_shanghan/
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          261 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
+tests/          274 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
 data/library/      中醫笈成全庫（803 部，`library fetch` 自動下載，不入庫）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/論文）

@@ -69,6 +69,11 @@ TOOL_META: Dict[str, Dict] = {
         "limitations": ["多路召回逐條標注 evidence_type（直接原文/本體擴展/圖譜"
                         "關聯/現代映射/文獻旁證）；現代映射為候選（帶等級與免責），"
                         "不作病名等同"]},
+    "shanghan_correspondence": {
+        "evidence_level": "D",
+        "limitations": ["病機/治法屬後世歸納（D/E層，推理依據逐項可見）；"
+                        "方證關係分級由宋本處方語式（主之/宜/與）確定性推導；"
+                        "宋本無舌診主證體系，不設舌象維度；不作處方建議"]},
     "shanghan_herb": {
         "evidence_level": "D",
         "limitations": ["性味功效屬本草學通識（D層）；內證統計錨定 A 層條文；"
@@ -287,6 +292,22 @@ class ToolRegistry:
                                     "description": "同時檢索 800+ 部全庫（旁證層）"}},
              "required": ["query"]},
             self._t_omni_search)
+        self._add(
+            "shanghan_correspondence",
+            "方證對應綜合推理（八段式）：症狀→病機結構(D/E,依據可見)→治法→"
+            "候選方多維評分（症狀/病機/治法/脈/證據−禁忌，分解透明）→"
+            "方證關係分級（主之→A直接方證等，原文標記推導）→類方鑒別+追問→"
+            "證據鏈→適用邊界。支持現代疾病入口（經表型映射，不作病名等同）。",
+            {"type": "object", "properties": {
+                "symptoms": {"type": "array", "items": {"type": "string"}},
+                "pulse": {"type": "array", "items": {"type": "string"}},
+                "six_channel": {"type": "string"},
+                "modern": {"type": "string",
+                           "description": "可選現代疾病名（如 骨質疏鬆），"
+                                          "經映射鏈轉譯後推理"},
+                "top_k": {"type": "integer", "default": 4}},
+             "required": []},
+            self._t_correspondence)
         self._add(
             "shanghan_herb",
             "藥解（單味藥知識卡）：本草通識（性味/功效/類別，D層標注）＋傷寒論"
@@ -757,6 +778,16 @@ class ToolRegistry:
                                 include_library=include_library)
         out["tool"] = "shanghan_omni_search"
         return out
+
+    def _t_correspondence(self, symptoms=None, pulse=None, six_channel=None,
+                          modern=None, top_k=4):
+        if not (symptoms or modern):
+            return {"tool": "shanghan_correspondence",
+                    "error": "請提供 symptoms（症狀列表）或 modern（現代疾病名）"}
+        from ..induce.correspondence import CorrespondenceEngine
+        return CorrespondenceEngine(self).analyze(
+            symptoms=symptoms or [], pulse=pulse or [],
+            six_channel=six_channel, modern=modern, top_k=top_k)
 
     def _t_herb(self, herb):
         out = self.pharma["herb"].card(herb)

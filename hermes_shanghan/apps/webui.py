@@ -654,6 +654,78 @@ def tool_omni(query, top_k, include_library):
     return f'<div class="panel-scroll">{"".join(parts)}</div>'
 
 
+def tool_correspondence(symptoms, pulse, channel, modern):
+    if not ((symptoms or "").strip() or (modern or "").strip()):
+        return '<div class="section-note">輸入症狀（頓號/逗號分隔）或現代疾病名。</div>'
+    args = {"top_k": 4}
+    if (symptoms or "").strip():
+        args["symptoms"] = symptoms
+    if (pulse or "").strip():
+        args["pulse"] = pulse
+    if channel:
+        args["six_channel"] = channel
+    if (modern or "").strip():
+        args["modern"] = modern.strip()
+    out = _registry().call("shanghan_correspondence", args)
+    if out.get("error"):
+        return f'<div class="ask-box">⚠️ {_esc(out["error"])}</div>'
+    parts = []
+    mp = out.get("modern_mapping")
+    if mp:
+        parts.append(f'<div class="consensus-box"><h4>🌉 現代映射 · {_esc(mp["modern"])}'
+                     f'（{mp["grade"]} 級）</h4><div class="hyp-row">'
+                     f'{_esc("、".join(mp["classical_terms"]))}</div>'
+                     f'<div class="section-note">{_esc(mp["disclaimer"])}</div></div>')
+    syn = out.get("candidate_syndromes", [])
+    if syn:
+        rows = "".join(
+            f'<tr><td>{_esc(s0["pathogenesis"])}</td><td>{s0["confidence"]}</td>'
+            f'<td>{_esc("、".join((s0["matched"].get("required") or []) + (s0["matched"].get("supporting") or [])[:3]))}</td>'
+            f'<td>{_esc("、".join(s0.get("missing", [])) or "—")}</td>'
+            f'<td>{_esc(s0["method_label"])}</td></tr>' for s0 in syn[:3])
+        parts.append('<div class="consensus-box"><h4>🧬 病機結構候選'
+                     f'（{_layer_badge("D/E")}後世歸納，依據可見）</h4>'
+                     '<table class="diff-table"><tr><th>病機</th><th>信度</th>'
+                     '<th>命中線索</th><th>缺失</th><th>治法</th></tr>'
+                     + rows + '</table></div>')
+    for c in out.get("candidate_formulas", [])[:4]:
+        d0 = c["score_breakdown"]
+        rel = c["relation"]
+        ev = " ".join(f'<span class="cid">{e}</span>' for e in c["evidence_clauses"][:4])
+        dims = (f'症狀 {d0["symptom"]} · 病機 {d0["pathogenesis"]} · '
+                f'治法 {d0["method"]} · 脈 {d0["pulse"]} · 證據 {d0["evidence"]}'
+                + (f' · <span style="color:#A94E57">禁忌 −{d0["contraindication_penalty"]}</span>'
+                   if d0["contraindication_penalty"] else ""))
+        parts.append(
+            f'<div class="hyp-card"><span class="conf-chip">總分 {c["total_score"]}</span>'
+            f'<h4>{_esc(c["formula"])} · {_layer_badge(rel["grade"])}'
+            f'{_esc(rel["relation"])}</h4>'
+            f'<div class="hyp-row"><b>評分分解</b>：{dims}</div>'
+            f'<div class="hyp-row"><b>分級依據</b>：{_esc(rel["basis"])}</div>'
+            + (f'<div class="hyp-row"><b>命中病機</b>：'
+               f'{_esc("、".join(c["matched_pathogenesis"]))}</div>'
+               if c.get("matched_pathogenesis") else "")
+            + (f'<div class="hyp-row" style="color:#A94E57"><b>反證/排除</b>：'
+               f'{_esc("；".join(c.get("conflicts", []) + c.get("excluded_patterns_present", [])))}</div>'
+               if c.get("conflicts") or c.get("excluded_patterns_present") else "")
+            + f'<div class="hyp-row"><b>證據</b>：{ev}</div></div>')
+    diff0 = out.get("differential")
+    if diff0:
+        parts.append(f'<div class="consensus-box"><h4>⚗️ 類方鑒別 · '
+                     f'{" vs ".join(diff0["pair"])}</h4><div class="hyp-row">'
+                     + "<br>".join(_esc(x) for x in diff0.get("key_discriminators", []))
+                     + '</div></div>')
+    qs = out.get("clarifying_questions", [])
+    if qs:
+        parts.append('<div class="ask-box"><b>🩺 鑒別追問</b><br>'
+                     + "".join(f"· {_esc(q)}<br>" for q in qs) + '</div>')
+    if out.get("coverage_note"):
+        parts.append(f'<div class="ask-box">⚠️ {_esc(out["coverage_note"])}</div>')
+    parts.append(f'<div class="section-note">{_esc(out.get("tongue_note", ""))}<br>'
+                 f'{_esc(out.get("safety_boundary", ""))}</div>')
+    return f'<div class="panel-scroll">{"".join(parts)}</div>'
+
+
 def tool_herb(name):
     if not (name or "").strip():
         return '<div class="section-note">輸入藥名，如 桂枝 / 附子 / 阿膠。</div>'
@@ -968,6 +1040,22 @@ def build_app():
                     h_btn = gr.Button("查閱", variant="primary", scale=1)
                 h_out = gr.HTML()
                 h_btn.click(tool_holo, [h_ref], [h_out])
+            with gr.Tab("方證對應"):
+                gr.Markdown('<div class="section-note">八段式對應推理：症狀→'
+                            '病機結構(D/E,依據可見)→治法→候選方多維評分（分解'
+                            '透明）→關係分級（主之→A級,原文標記推導）→類方鑒別'
+                            '→追問→邊界。支持現代疾病入口。</div>')
+                with gr.Row():
+                    co_sym = gr.Textbox(label="症狀", scale=4,
+                                        placeholder="發熱、汗出、惡風")
+                    co_pul = gr.Textbox(label="脈象", scale=2, placeholder="脈浮緩")
+                    co_ch = gr.Dropdown(channels, label="六經", scale=2)
+                    co_mod = gr.Textbox(label="或現代疾病", scale=2,
+                                        placeholder="骨質疏鬆")
+                    co_btn = gr.Button("對應分析 ✦", variant="primary", scale=1)
+                co_out = gr.HTML()
+                co_btn.click(tool_correspondence,
+                             [co_sym, co_pul, co_ch, co_mod], [co_out])
             with gr.Tab("多假設匹配"):
                 with gr.Row():
                     m_sym = gr.Textbox(label="症狀（頓號/逗號分隔）", scale=4,
