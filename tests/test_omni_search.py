@@ -140,3 +140,119 @@ class TestToolAndRouting(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestStandardCodes(unittest.TestCase):
+    """HPO/ICD-11 種子交叉映射：只收高置信，未確證顯式 verify。"""
+
+    def test_curated_codes(self):
+        c = phenotype_map.standard_codes("骨质疏松")
+        self.assertEqual(c["icd11"]["code"], "FB83")
+        self.assertIn("HP:0000939", [h["id"] for h in c["hpo"]])
+        self.assertIn("TM1", c["note"])            # ICD-11 第26章橋接說明
+
+    def test_verify_status_never_fabricates(self):
+        c = phenotype_map.standard_codes("血栓")
+        self.assertEqual(c["icd11"]["status"], "verify")
+        self.assertEqual(c["icd11"]["code"], "")   # 寧缺毋錯
+        c2 = phenotype_map.standard_codes("炎症")
+        self.assertEqual(c2["icd11"]["status"], "not_applicable")
+
+    def test_mapping_payload_carries_codes(self):
+        m = phenotype_map.map_modern("糖尿病")
+        self.assertEqual(m["codes"]["icd11"]["code"], "5A11")
+        self.assertIsNone(phenotype_map.standard_codes("往來寒熱"))
+
+
+class TestVectorChannel(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        _ensure_artifacts()
+
+    def test_tfidf_backend_deterministic(self):
+        from hermes_shanghan.rag.vector_channel import VectorChannel
+        vc = VectorChannel()
+        self.assertEqual(vc.backend, "char-tfidf")   # 無 HERMES_EMBED_MODEL
+        a = vc.search("往來寒熱，胸脅苦滿", top_k=5)
+        b = vc.search("往來寒熱，胸脅苦滿", top_k=5)
+        self.assertEqual(a["hits"], b["hits"])
+        self.assertEqual(a["hits"][0]["relevance"], 1.0)   # 組內歸一
+        self.assertIn("SHL_SONGBEN_0096",
+                      [h["clause_id"] for h in a["hits"]])  # 小柴胡湯主條
+
+    def test_injected_embeddings_with_cache_and_fallback(self):
+        import tempfile
+        from pathlib import Path
+        from hermes_shanghan.orchestrator import Artifacts
+        from hermes_shanghan.rag.vector_channel import VectorChannel
+        clauses = [c for c in Artifacts().clauses
+                   if c.text_type == "original_clause"][:40]
+
+        def fake_embed(texts):
+            keys = "寒熱汗下嘔利渴煩痛脈"
+            return [[float(t.count(k)) for k in keys] for t in texts]
+        fake_embed.model = "fake/embed"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            vc = VectorChannel(clauses=clauses, embed_fn=fake_embed,
+                               cache_dir=Path(tmp))
+            self.assertEqual(vc.backend, "embeddings")
+            out = vc.search("發熱汗出惡風", top_k=3)
+            self.assertEqual(out["backend"], "embeddings")
+            self.assertTrue(list(Path(tmp).glob("clause_embeddings_*.json")))
+            # 失敗自動回退，絕不斷流
+            def broken(texts):
+                raise RuntimeError("api down")
+            vc2 = VectorChannel(clauses=clauses, embed_fn=broken)
+            out2 = vc2.search("發熱", top_k=3)
+            self.assertEqual(out2["backend"], "char-tfidf")
+            self.assertIn("fallback_reason", out2)
+            self.assertTrue(out2["hits"])
+
+    def test_omni_runs_vector_channel(self):
+        from hermes_shanghan.rag.omni_search import get_omni
+        out = get_omni().search("虛煩不得眠", top_k=6)
+        tr = next(t for t in out["channel_trace"] if t["channel"] == "語義向量")
+        self.assertEqual(tr["backend"], "char-tfidf")
+        self.assertGreater(tr["hits"], 0)
+
+
+class TestPassageRetrieval(unittest.TestCase):
+    """笈成庫條文級多粒度切分（跨書籍段落檢索）。"""
+
+    def test_split_passages_deterministic(self):
+        from hermes_shanghan.corpus.library import Library
+        text = ("======卷一======\n第一段甲行，\n乙行接排。\n\n"
+                "第二段內容，足夠長度以通過最小長度過濾。\n\n"
+                "======卷二======\n" + "長句甚多。" * 200)
+        out = Library.split_passages(text, max_len=480)
+        self.assertEqual(out[0], ("卷一", "第一段甲行，乙行接排。"))
+        self.assertEqual(out[1][0], "卷一")
+        # 超長段按句群切且不丟章節
+        self.assertTrue(all(sec == "卷二" for sec, _ in out[2:]))
+        self.assertTrue(all(len(p) <= 480 for _, p in out[2:]))
+        self.assertEqual(out, Library.split_passages(text, max_len=480))
+
+    @unittest.skipUnless(_library_ready(), "全庫未下載")
+    def test_multi_term_passage_search(self):
+        from hermes_shanghan.corpus.library import Library
+        lib = Library()
+        # 顯式放寬預算：本測試驗證共現排序功能，不驗證默認預算截斷
+        out = lib.search_passages(["骨痿", "骨痹"], limit=5, budget_ms=3000)
+        self.assertIn("段落級", out["granularity"])
+        top = out["hits"][0]
+        # 同段共現優先（全詞齊備加成）
+        self.assertEqual(set(top["matched_terms"]), {"骨痿", "骨痹"})
+        self.assertIn("#", top["pid"])              # 穩定段落 id 可回源
+        self.assertIn("latency_ms", out)
+
+    @unittest.skipUnless(_library_ready(), "全庫未下載")
+    def test_omni_library_channel_passage_level(self):
+        from hermes_shanghan.rag.omni_search import get_omni
+        out = get_omni().search("骨質疏鬆在古籍中如何對應？", top_k=6,
+                                include_library=True)
+        tr = next(t for t in out["channel_trace"] if t["channel"] == "文獻旁證")
+        self.assertEqual(tr["granularity"], "段落級")
+        for h in out["library_hits"]:
+            self.assertIn("pid", h)
+        self.assertLess(out["latency_ms"], 2500)

@@ -26,6 +26,7 @@ from ..textutil import normalize_query
 CHANNEL_WEIGHT = {
     "直接原文": 1.0,
     "本體擴展": 0.65,
+    "語義向量": 0.6,
     "現代映射": 0.55,
     "圖譜關聯": 0.45,
     "文獻旁證": 0.4,
@@ -133,6 +134,18 @@ class OmniSearch:
             trace.append({"channel": "本體擴展", "queries": len(expanded),
                           "terms": expanded, "hits": n})
 
+        # 2b — 語義向量（embeddings 增益 / char-tfidf 確定性兜底） ————
+        if "語義向量" in enabled:
+            from .vector_channel import get_vector_channel
+            vc = get_vector_channel()
+            vout = vc.search(u["normalized"], top_k=min(top_k, 6))
+            for h in vout.get("hits", []):
+                if h["relevance"] >= 0.35:
+                    add(h, "語義向量", f"cos:{h['relevance']}", h["relevance"])
+            trace.append({"channel": "語義向量",
+                          "backend": vout.get("backend"),
+                          "hits": len(vout.get("hits", []))})
+
         # 3 — 現代映射（表型→病機→古籍詞） ————————————————————
         mapping = None
         if "現代映射" in enabled and u["modern"]:
@@ -165,33 +178,30 @@ class OmniSearch:
             lib = self._library()
             if lib is not None:
                 probe = ([u["modern"]] if u["modern"] else [])
-                probe += (mapping["classical_terms"][:1] if mapping else [])
+                probe += (mapping["classical_terms"][:2] if mapping else [])
                 probe += (u["concepts"][:2] if not mapping else [])
                 probe = list(dict.fromkeys(
-                    t for t in probe if t and len(t) >= 2))[:2] \
+                    t for t in probe if t and len(t) >= 2))[:4] \
                     or [u["normalized"][:8]]
-                # 旁證通道有硬時間預算：超時即截斷（truncated 顯式標注），
-                # 保證整體延遲不被大部頭掃描拖垮
-                lib_t0 = time.perf_counter()
-                truncated = False
-                probed = 0
-                for term in probe:
-                    if (time.perf_counter() - lib_t0) * 1000 > library_budget_ms:
-                        truncated = True
-                        break
-                    probed += 1
-                    out = lib.grep(term, limit=3, max_scan=24)
-                    for h in out.get("hits", []):
-                        library_hits.append(
-                            {"book": h["title"], "section": h["section"],
-                             "excerpt": h["excerpt"][:80],
-                             "matched_term": term,
-                             "evidence_type": "文獻旁證",
-                             "layer": "旁證（非經文層，不進入證據閘門）"})
-                trace.append({"channel": "文獻旁證", "queries": probed,
+                # 段落級多詞檢索（條文粒度，pid 可回源）：一次調用同時
+                # 檢索全部探針詞，同段共現優先；硬時間預算內完成，
+                # 超限顯式 truncated
+                out = lib.search_passages(probe, limit=8, per_book=2,
+                                          max_scan=24,
+                                          budget_ms=library_budget_ms)
+                for h in out.get("hits", []):
+                    library_hits.append(
+                        {"book": h["title"], "section": h["section"],
+                         "pid": h["pid"],
+                         "excerpt": h["excerpt"][:90],
+                         "matched_term": "、".join(h["matched_terms"]),
+                         "evidence_type": "文獻旁證",
+                         "layer": "旁證（非經文層，不進入證據閘門）"})
+                trace.append({"channel": "文獻旁證", "terms": probe,
+                              "granularity": "段落級",
                               "hits": len(library_hits),
                               "budget_ms": library_budget_ms,
-                              "truncated": truncated})
+                              "truncated": out.get("truncated", False)})
             else:
                 trace.append({"channel": "文獻旁證",
                               "hits": 0, "note": "全庫未下載（library fetch）"})

@@ -613,9 +613,17 @@ def tool_omni(query, top_k, include_library):
             f'<div class="hyp-row"><b>病機語義</b>：{_esc("、".join(mp["tcm_semantics"][:4]))}</div>'
             f'<div class="hyp-row"><b>古籍候選詞</b>：{_esc("、".join(mp["classical_terms"]))}</div>'
             f'<div class="hyp-row"><b>治法方向</b>：{_esc("、".join(mp["methods_hint"]))}</div>'
+            + (f'<div class="hyp-row"><b>標準詞表</b>：ICD-11 '
+               f'<span class="cid">{_esc(mp["codes"]["icd11"]["code"] or "待核")}</span> '
+               f'{_esc(mp["codes"]["icd11"]["title"])}'
+               + "".join(f' · HPO <span class="cid">{h["id"]}</span> {_esc(h["label"])}'
+                         for h in mp["codes"].get("hpo", [])[:2])
+               + '</div>' if mp.get("codes") else "")
             + (f'<div class="ask-box">⚠️ {_esc(mp["safety_note"])}</div>'
                if mp.get("safety_note") else "")
-            + f'<div class="section-note">{_esc(mp["disclaimer"])}</div></div>')
+            + f'<div class="section-note">{_esc(mp["disclaimer"])}'
+            + (f'<br>{_esc(mp["codes"]["note"])}' if mp.get("codes") else "")
+            + '</div></div>')
     if out.get("expanded_terms"):
         parts.append(f'<div class="section-note">本體擴展：'
                      f'{_esc("、".join(out["expanded_terms"][:8]))}</div>')
@@ -639,7 +647,9 @@ def tool_omni(query, top_k, include_library):
             f'<div class="meta"><span class="layer-badge" style="background:'
             f'#8A8F98">文獻旁證</span><span class="ctag">《{_esc(h["book"])}》'
             f'§{_esc(h["section"][:14])}</span>'
-            f'<span class="ctag">命中：{_esc(h["matched_term"])}</span></div>'
+            + (f'<span class="cid">{_esc(h["pid"][-22:])}</span>'
+               if h.get("pid") else "")
+            + f'<span class="ctag">命中：{_esc(h["matched_term"])}</span></div>'
             f'<div class="ctext" style="font-size:.88rem">…{_esc(h["excerpt"])}…</div></div>')
     return f'<div class="panel-scroll">{"".join(parts)}</div>'
 

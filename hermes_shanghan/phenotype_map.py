@@ -9,6 +9,13 @@
     絕不冒充直接原文證據。
 
 詞表為人工精選，覆蓋《傷寒論》與笈成全庫語境下最常被問到的現代問題。
+
+標準詞表對接（HPO / ICD-11）：CODES 表提供精選種子交叉映射——
+  * HPO（Human Phenotype Ontology，hpo.jax.org）：表型級標準詞條；
+  * ICD-11（WHO）：疾病編碼，部分僅到 block 級精度；ICD-11 第 26 章
+    傳統醫學模塊（TM1）收錄中醫病證分類，作為橋接錨點標注但不虛構碼值；
+  * 只收錄高置信條目；未確證的編碼顯式標 verify（待人工核對官方發布），
+    寧缺毋錯——科研使用前請對照 HPO/ICD-11 官方最新版本核驗。
 """
 from __future__ import annotations
 
@@ -162,6 +169,93 @@ PHENOTYPE_MAP: Dict[str, Dict] = {
              "methods_hint": ["清熱解毒", "涼血消腫"], "grade": "C"},
 }
 
+# —— 標準詞表交叉映射（精選種子；status: curated=高置信 / verify=待核） ——
+CODES: Dict[str, Dict] = {
+    "感冒": {"icd11": {"code": "CA00", "title": "Common cold", "status": "curated"},
+             "hpo": [{"id": "HP:0001945", "label": "Fever 發熱"},
+                     {"id": "HP:0012735", "label": "Cough 咳嗽"}]},
+    "骨質疏鬆": {"icd11": {"code": "FB83", "title": "Osteoporosis（block 級）",
+                           "status": "curated"},
+                 "hpo": [{"id": "HP:0000939", "label": "Osteoporosis 骨質疏鬆"},
+                         {"id": "HP:0002653", "label": "Bone pain 骨痛"}]},
+    "肌少症": {"icd11": {"code": "", "title": "Sarcopenia", "status": "verify"},
+               "hpo": [{"id": "HP:0003202", "label": "Skeletal muscle atrophy 骨骼肌萎縮"},
+                       {"id": "HP:0001324", "label": "Muscle weakness 肌無力"}]},
+    "糖尿病": {"icd11": {"code": "5A11", "title": "Type 2 diabetes mellitus",
+                         "status": "curated"},
+               "hpo": [{"id": "HP:0000819", "label": "Diabetes mellitus 糖尿病"}]},
+    "銀屑病": {"icd11": {"code": "EA90", "title": "Psoriasis", "status": "curated"},
+               "hpo": [{"id": "HP:0000989", "label": "Pruritus 瘙癢"}]},
+    "血栓": {"icd11": {"code": "", "title": "Venous thromboembolism",
+                       "status": "verify"}, "hpo": []},
+    "冠心病": {"icd11": {"code": "BA40", "title": "Angina pectoris",
+                         "status": "curated"},
+               "hpo": [{"id": "HP:0001681", "label": "Angina pectoris 心絞痛"}]},
+    "高血壓": {"icd11": {"code": "BA00", "title": "Essential hypertension",
+                         "status": "curated"},
+               "hpo": [{"id": "HP:0000822", "label": "Hypertension 高血壓"}]},
+    "失眠": {"icd11": {"code": "7A00", "title": "Insomnia disorders",
+                       "status": "curated"},
+             "hpo": [{"id": "HP:0100785", "label": "Insomnia 失眠"}]},
+    "焦慮抑鬱": {"icd11": {"code": "6A70 / 6B00",
+                           "title": "Depressive / Anxiety disorders",
+                           "status": "curated"},
+                 "hpo": [{"id": "HP:0000716", "label": "Depression 抑鬱"},
+                         {"id": "HP:0000739", "label": "Anxiety 焦慮"}]},
+    "類風濕關節炎": {"icd11": {"code": "FA20", "title": "Rheumatoid arthritis",
+                               "status": "curated"},
+                     "hpo": [{"id": "HP:0002829", "label": "Arthralgia 關節痛"}]},
+    "痛風": {"icd11": {"code": "FA25", "title": "Gout", "status": "curated"},
+             "hpo": [{"id": "HP:0001997", "label": "Gout 痛風"}]},
+    "哮喘": {"icd11": {"code": "CA23", "title": "Asthma", "status": "curated"},
+             "hpo": [{"id": "HP:0002099", "label": "Asthma 哮喘"}]},
+    "慢性胃炎": {"icd11": {"code": "DA42", "title": "Gastritis", "status": "curated"},
+                 "hpo": [{"id": "HP:0002018", "label": "Nausea 噁心"}]},
+    "便秘": {"icd11": {"code": "", "title": "Constipation", "status": "verify"},
+             "hpo": [{"id": "HP:0002019", "label": "Constipation 便秘"}]},
+    "腹瀉": {"icd11": {"code": "", "title": "Diarrhoea", "status": "verify"},
+             "hpo": [{"id": "HP:0002014", "label": "Diarrhea 腹瀉"}]},
+    "水腫": {"icd11": {"code": "", "title": "Oedema", "status": "verify"},
+             "hpo": [{"id": "HP:0000969", "label": "Edema 水腫"}]},
+    "尿路感染": {"icd11": {"code": "", "title": "Urinary tract infection",
+                           "status": "verify"},
+                 "hpo": [{"id": "HP:0000010",
+                          "label": "Recurrent urinary tract infections 反覆尿路感染"}]},
+    "偏頭痛": {"icd11": {"code": "8A80", "title": "Migraine", "status": "curated"},
+               "hpo": [{"id": "HP:0002076", "label": "Migraine 偏頭痛"}]},
+    "眩暈症": {"icd11": {"code": "AB31.0", "title": "Ménière disease",
+                         "status": "curated"},
+               "hpo": [{"id": "HP:0002321", "label": "Vertigo 眩暈"}]},
+    "心律失常": {"icd11": {"code": "", "title": "Cardiac arrhythmia",
+                           "status": "verify"},
+                 "hpo": [{"id": "HP:0011675", "label": "Arrhythmia 心律失常"}]},
+    "貧血": {"icd11": {"code": "", "title": "Anaemia", "status": "verify"},
+             "hpo": [{"id": "HP:0001903", "label": "Anemia 貧血"}]},
+    "痛經": {"icd11": {"code": "", "title": "Dysmenorrhoea", "status": "verify"},
+             "hpo": [{"id": "HP:0100607", "label": "Dysmenorrhea 痛經"}]},
+    "更年期綜合徵": {"icd11": {"code": "", "title": "Menopausal symptoms",
+                               "status": "verify"}, "hpo": []},
+    "濕疹": {"icd11": {"code": "EA80", "title": "Atopic eczema", "status": "curated"},
+             "hpo": [{"id": "HP:0000964", "label": "Eczema 濕疹"}]},
+    "慢性疲勞": {"icd11": {"code": "", "title": "Fatigue", "status": "verify"},
+                 "hpo": [{"id": "HP:0012378", "label": "Fatigue 疲勞"}]},
+    "炎症": {"icd11": {"code": "", "title": "（非單一病種，不設疾病編碼）",
+                       "status": "not_applicable"}, "hpo": []},
+}
+
+CODES_NOTE = ("HPO/ICD-11 為精選種子交叉映射（部分僅 block 級精度；"
+              "status=verify 者待對照官方發布核驗）；ICD-11 第 26 章傳統醫學"
+              "模塊（TM1）收錄中醫病證分類，可作古籍病證的現代編碼橋接錨點。")
+
+
+def standard_codes(name: str) -> Optional[Dict]:
+    """現代術語 → HPO/ICD-11 種子交叉映射（含 status 與核驗提示）。"""
+    key = _ALIAS_INDEX.get(normalize_query(name))
+    if key is None or key not in CODES:
+        return None
+    return {"modern": key, **CODES[key], "note": CODES_NOTE}
+
+
 _ALIAS_INDEX: Dict[str, str] = {}
 for name, entry in PHENOTYPE_MAP.items():
     _ALIAS_INDEX[normalize_query(name)] = name
@@ -194,5 +288,7 @@ def map_modern(name: str) -> Optional[Dict]:
                            "C": "機制相關但病名不等同",
                            "D": "僅為研究假設"}[e["grade"]],
             "safety_note": e.get("safety_note", ""),
+            "codes": ({**CODES[key], "note": CODES_NOTE}
+                      if key in CODES else None),
             "disclaimer": DISCLAIMER,
             "layer": "D 現代映射（候選，不作病名等同）"}

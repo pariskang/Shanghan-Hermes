@@ -511,6 +511,136 @@ class Library:
                     break
         return out
 
+    # -- passage-level retrieval（條文級多粒度切分） ------------------------
+    # 語料以空行分段（一段≈一條條文+注），段內存在硬換行；切分規則：
+    # 標題行界定章節 → 空行界定段落 → 展開硬換行 → 超長段落按句群再切。
+    # 段落有穩定 id（unit#file:段序），供證據追溯與下游分析復用。
+    _PASSAGE_CACHE_MAX = 48
+
+    @staticmethod
+    def split_passages(text: str, max_len: int = 480) -> List[Tuple[str, str]]:
+        """→ [(section, passage_text)]，確定性切分。"""
+        import re as _re
+        out: List[Tuple[str, str]] = []
+        section = ""
+        para: List[str] = []
+
+        def flush():
+            if not para:
+                return
+            flat = "".join(para)
+            para.clear()
+            if len(flat) < 8:
+                return
+            if len(flat) <= max_len:
+                out.append((section, flat))
+                return
+            # 超長段落：按句界聚組（句群級粒度）
+            sents = [s for s in _re.split(r"(?<=[。！？])", flat) if s]
+            buf = ""
+            for s in sents:
+                if buf and len(buf) + len(s) > max_len:
+                    out.append((section, buf))
+                    buf = s
+                else:
+                    buf += s
+            if buf:
+                out.append((section, buf))
+
+        for line in text.splitlines():
+            stripped = line.strip()
+            m = RE_HEADING.match(stripped)
+            if m:
+                flush()
+                section = m.group(2)
+            elif not stripped:
+                flush()
+            else:
+                para.append("".join(stripped.split()))
+        flush()
+        return out
+
+    def passages(self, u: Dict) -> List[Dict]:
+        """一書的全部段落（LRU 緩存）：[{pid, section, text}]。"""
+        if not hasattr(self, "_passage_cache"):
+            self._passage_cache: Dict[str, List[Dict]] = {}
+        cached = self._passage_cache.get(u["id"])
+        if cached is not None:
+            return cached
+        rows: List[Dict] = []
+        for name in u["files"]:
+            text = RE_BOOK_META.sub("", (books_dir(self.root) / u["id"] / name)
+                                    .read_text(encoding="utf-8",
+                                               errors="replace"))
+            for i, (section, passage) in enumerate(self.split_passages(text)):
+                rows.append({"pid": f"{u['id']}#{name}:{i}",
+                             "section": section, "text": passage})
+        if len(self._passage_cache) >= self._PASSAGE_CACHE_MAX:
+            self._passage_cache.pop(next(iter(self._passage_cache)))
+        self._passage_cache[u["id"]] = rows
+        return rows
+
+    def search_passages(self, terms: List[str], limit: int = 8,
+                        per_book: int = 3, max_scan: int = 24,
+                        budget_ms: int = 450, category: str = "") -> Dict:
+        """多詞條文級檢索：一次調用同時檢索多個（擴展）詞，段落級評分。
+
+        * 候選書 = 各詞字符倒排剪枝候選之並集，按「可能命中詞數」降序掃描；
+        * 段落分 = 命中詞數×3 + 全詞齊備加成 2（同段共現優先——語義組合查詢）；
+        * 硬時間預算 + 掃描上限，超限顯式 truncated。
+        """
+        import time as _time
+        t0 = _time.perf_counter()
+        qs = list(dict.fromkeys(
+            fold_variants("".join(t.split())) for t in terms
+            if t and len("".join(t.split())) >= 2))[:6]
+        if not qs:
+            return {"error": "檢索詞至少 2 字", "hits": []}
+        vote: Dict[int, int] = {}
+        for q in qs:
+            for i in self._candidates(q):
+                vote[i] = vote.get(i, 0) + 1
+        order = sorted(vote, key=lambda i: (-vote[i], i))
+        hits: List[Dict] = []
+        scanned, truncated = 0, False
+        for i in order:
+            if len(hits) >= limit:
+                break
+            if scanned >= max_scan or \
+                    (_time.perf_counter() - t0) * 1000 > budget_ms:
+                truncated = True
+                break
+            u = self.units[i]
+            if category and category not in u["category"]:
+                continue
+            scanned += 1
+            scored: List[Tuple[float, Dict, List[str]]] = []
+            for p in self.passages(u):
+                folded = fold_variants(p["text"])
+                matched = [q for q in qs if q in folded]
+                if not matched:
+                    continue
+                score = 3.0 * len(matched) + (2.0 if len(matched) == len(qs)
+                                              and len(qs) > 1 else 0.0)
+                scored.append((score, p, matched))
+            scored.sort(key=lambda x: (-x[0], len(x[1]["text"])))
+            for score, p, matched in scored[:per_book]:
+                pos = fold_variants(p["text"]).find(matched[0])
+                lo, hi = max(0, pos - 40), pos + len(matched[0]) + 60
+                hits.append({"title": u["title"], "author": u["author"],
+                             "dynasty": u["dynasty"],
+                             "category": u["category"],
+                             "section": p["section"], "pid": p["pid"],
+                             "passage": p["text"][:300],
+                             "excerpt": p["text"][lo:hi],
+                             "matched_terms": matched, "score": score})
+        hits.sort(key=lambda h: (-h["score"], h["pid"]))
+        return {"terms": qs, "n_hits": len(hits), "hits": hits[:limit],
+                "n_candidate_books": len(order), "n_books_scanned": scanned,
+                "truncated": truncated,
+                "latency_ms": round((_time.perf_counter() - t0) * 1000, 1),
+                "granularity": "段落級（條文/句群），pid 可回源"}
+
     @staticmethod
     def _brief(u: Dict) -> Dict:
         return {k: u[k] for k in ("id", "title", "author", "dynasty", "year",
