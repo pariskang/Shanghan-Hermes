@@ -577,6 +577,148 @@ def tool_contra(formula, symptoms):
     return "".join(parts)
 
 
+def _flags_html(flags: List[Dict]) -> str:
+    out = []
+    for f in flags or []:
+        if f.get("kind") == "dose_conversion":
+            out.append(f'<div class="section-note">⚖️ {_esc(f.get("note", ""))}</div>')
+        else:
+            out.append(f'<div class="ask-box">⚠️ {_esc(f.get("note", ""))}</div>')
+    return "".join(out)
+
+
+def tool_herb(name):
+    if not (name or "").strip():
+        return '<div class="section-note">輸入藥名，如 桂枝 / 附子 / 阿膠。</div>'
+    out = _registry().call("shanghan_herb", {"herb": name.strip()})
+    if out.get("error"):
+        cand = "、".join(out.get("candidates", []))
+        return (f'<div class="ask-box">⚠️ {_esc(out["error"])}'
+                + (f'<br>候選：{_esc(cand)}' if cand else "") + '</div>')
+    seed, ce = out["seed_knowledge"], out["corpus_evidence"]
+    rows = "".join(
+        f'<tr><td>{_esc(r["formula"])}</td><td>{_esc(r["dose_processing"])}</td>'
+        f'<td><span class="cid">{r["clause_id"]}</span></td></tr>'
+        for r in ce.get("formulas", [])[:8])
+    pairs = "、".join(f'{p["paired_with"]}（{p["n_formulas_together"]}方）'
+                     for p in ce.get("frequent_pairs", [])[:5])
+    procs = "、".join(f'{p["form"]}×{p["n"]}'
+                     for p in ce.get("processing_forms", [])[:5])
+    return (f'<div class="consensus-box"><h4>🌿 {_esc(out["herb"])} · 藥解知識卡</h4>'
+            f'<div class="hyp-row">{_layer_badge("D")}<b>性味</b> {_esc(seed["nature_flavor"])}'
+            f' ｜ <b>功效</b> {_esc("、".join(seed["functions"]) or "—")}'
+            f' ｜ 類別 {_esc(seed["category"] or "—")}（本草通識）</div>'
+            f'<div class="hyp-row">{_layer_badge("A")}<b>傷寒論內證</b>：'
+            f'見於 {ce["n_formula_occurrences"]} 方'
+            + (f'；炮製 {procs}' if procs else "") + '</div>'
+            f'<table class="diff-table"><tr><th>方劑</th><th>劑量·炮製</th>'
+            f'<th>條文</th></tr>{rows}</table>'
+            + (f'<div class="hyp-row"><b>高頻配伍</b>：{_esc(pairs)}</div>' if pairs else "")
+            + '</div>' + _flags_html(out.get("cautions", []))
+            + f'<div class="section-note">{_esc(out.get("hint", ""))}</div>')
+
+
+def _decoction_html(d: Dict) -> str:
+    media = "、".join(m["text"] for m in d.get("media", [])[:2])
+    steps = "".join(
+        f'<tr><td>{i}</td><td>{_esc(s["method"])}</td><td>{_esc(s["target"])}</td>'
+        f'<td class="ctext" style="font-size:.84rem">「{_esc(s["span"][:26])}」</td></tr>'
+        for i, s in enumerate(d.get("steps", []), 1))
+    sv = d.get("service", {})
+    svc = "；".join((sv.get("per_dose", [])[:1] + sv.get("frequency", [])[:2]
+                    + sv.get("temperature", [])[:1]))
+    care = "；".join(sv.get("diet_and_care", [])[:4])
+    stop = "；".join(sv.get("stop_rules", [])[:2])
+    adj = "；".join(sv.get("adjustments", [])[:2])
+    generic = "".join(f'<div class="section-note">（兜底通則 D層）'
+                      f'{_esc(g["herb"])}：{_esc(g["rule"])}</div>'
+                      for g in d.get("generic_rules", [])[:3])
+    return (f'<div class="consensus-box"><h4>🫖 {_esc(d.get("formula", ""))} · 煎服法'
+            f'（A 方後原文 <span class="cid">{d.get("clause_id", "")}</span>）</h4>'
+            f'<div class="hyp-row"><b>{_esc(d.get("dosage_form", ""))}</b> · '
+            f'{_esc(d.get("route", ""))}'
+            + (f' ｜ 介質 {_esc(media)}' if media else "")
+            + (f' ｜ 火候 {_esc("、".join(d.get("fire", [])[:1]))}' if d.get("fire") else "")
+            + (f' ｜ 煮取 {_esc("、".join(d.get("boil_to", [])[:1]))}' if d.get("boil_to") else "")
+            + '</div>'
+            + (f'<table class="diff-table"><tr><th>#</th><th>操作</th><th>對象</th>'
+               f'<th>原文依據</th></tr>{steps}</table>' if steps else "")
+            + (f'<div class="hyp-row"><b>服法</b>：{_esc(svc)}</div>' if svc else "")
+            + (f'<div class="hyp-row"><b>將息禁忌</b>：{_esc(care)}</div>' if care else "")
+            + (f'<div class="hyp-row"><b>中病即止</b>：{_esc(stop)}</div>' if stop else "")
+            + (f'<div class="hyp-row"><b>強羸加減</b>：{_esc(adj)}</div>' if adj else "")
+            + '</div>' + generic + _flags_html(d.get("safety_flags", [])))
+
+
+def tool_decoction(formula):
+    if not (formula or "").strip():
+        return '<div class="section-note">選擇或輸入方名。</div>'
+    out = _registry().call("shanghan_decoction", {"formula": formula})
+    if out.get("error"):
+        cand = "、".join(out.get("candidates", []))
+        return (f'<div class="ask-box">⚠️ {_esc(out["error"])}'
+                + (f'<br>候選：{_esc(cand)}' if cand else "") + '</div>')
+    return _decoction_html(out)
+
+
+def tool_formula_card(formula):
+    """方劑知識卡：組成+藥解+君臣佐使+配伍+病機治法+方義+煎服+安全+證據."""
+    if not (formula or "").strip():
+        return '<div class="section-note">選擇或輸入方名，生成完整方劑知識卡。</div>'
+    out = _registry().call("shanghan_formula_explain", {"formula": formula})
+    if out.get("error"):
+        cand = "、".join(out.get("candidates", []))
+        return (f'<div class="ask-box">⚠️ {_esc(out["error"])}'
+                + (f'<br>候選：{_esc(cand)}' if cand else "") + '</div>')
+    ev = out.get("evidence_trace", {})
+    comp_rows = "".join(
+        f'<tr><td class="ctext">{_esc(r["herb"])}</td>'
+        f'<td>{_esc(r["dose_processing"])}</td>'
+        f'<td>{_esc(r["nature"])}</td>'
+        f'<td>{_esc("、".join(r["functions"][:3]) or "—")}</td></tr>'
+        for r in out.get("composition", []))
+    roles = out.get("roles", {})
+    role_rows = "".join(
+        f'<tr><td>{_esc(a["herb"])}</td><td><b>{_esc(a["role"])}</b></td>'
+        f'<td>{_esc(a["basis"])}</td><td>{a.get("confidence", "")}</td></tr>'
+        for a in roles.get("assignments", []))
+    pair_rows = "".join(
+        f'<div class="hyp-row"><b>{"×".join(p["pair"])}</b>：同見 '
+        f'{p["n_formulas_together"]} 方'
+        + (f'（如 {_esc("、".join(p["also_seen_in"][:2]))}）' if p.get("also_seen_in") else "")
+        + f'；{_esc(p["synergy_note"])}</div>'
+        for p in out.get("pairing", [])[:4])
+    pt = out.get("pathogenesis_therapy", {})
+    sup = " ".join(f'<span class="cid">{c}</span>'
+                   for c in ev.get("supporting_clauses", [])[:5])
+    parts = [
+        f'<div class="consensus-box"><h4>📇 {_esc(out["formula"])} · 方劑知識卡'
+        f'（{_esc(out.get("source", ""))}）</h4>'
+        f'<div class="hyp-row">{_layer_badge("A")}<b>組成</b>（方後原文 '
+        f'<span class="cid">{ev.get("block_clause_id", "")}</span>）</div>'
+        f'<table class="diff-table"><tr><th>藥</th><th>劑量·炮製(A)</th>'
+        f'<th>性味(D)</th><th>功效(D)</th></tr>{comp_rows}</table></div>',
+        f'<div class="consensus-box"><h4>⚖️ 君臣佐使（{_esc(roles.get("layer", "")[:22])}…）</h4>'
+        f'<table class="diff-table"><tr><th>藥</th><th>角色</th><th>推導依據</th>'
+        f'<th>置信</th></tr>{role_rows}</table>'
+        f'<div class="section-note">方法：{_esc(roles.get("method", ""))}</div></div>',
+    ]
+    if pair_rows:
+        parts.append(f'<div class="consensus-box"><h4>🔗 配伍分析</h4>{pair_rows}</div>')
+    parts.append(
+        f'<div class="consensus-box"><h4>🧬 病機與治法（D 層歸納）</h4>'
+        f'<div class="hyp-row"><b>方證</b>：{_esc(pt.get("core_pattern", "") or "—")}'
+        f'；<b>核心證</b>：{_esc("、".join(pt.get("core_symptoms", [])[:5]) or "—")}</div>'
+        f'<div class="hyp-row"><b>治法</b>：'
+        f'{_esc("、".join(pt.get("therapeutic_methods", [])) or "—")}'
+        f' ｜ <b>證據</b>：{sup or "—"}</div>'
+        f'<div class="hyp-row"><b>方義</b>：{_esc(out.get("explanation", ""))}</div></div>')
+    parts.append(_decoction_html(out.get("decoction", {})))
+    mm = out.get("modern_mapping", {})
+    parts.append(f'<div class="section-note">現代機制映射：{_esc(mm.get("note", ""))}</div>')
+    return "".join(parts)
+
+
 # ═══════════════════════════════════════════════════════════════════
 # benchmarks tab
 # ═══════════════════════════════════════════════════════════════════
@@ -756,6 +898,30 @@ def build_app():
                     m_btn = gr.Button("分析", variant="primary", scale=1)
                 m_out = gr.HTML()
                 m_btn.click(tool_hypotheses, [m_sym, m_pul, m_ch, m_k], [m_out])
+            with gr.Tab("方劑知識卡"):
+                gr.Markdown('<div class="section-note">組成(A)→藥解(D)→君臣佐使'
+                            '(D/E 透明推導)→配伍(A錨定共現)→病機治法(D)→方義→'
+                            '煎服法(A方後原文)→安全審校→證據鏈</div>')
+                with gr.Row():
+                    fc_f = gr.Dropdown(formulas, label="方劑",
+                                       allow_custom_value=True, scale=5)
+                    fc_btn = gr.Button("生成知識卡 ✦", variant="primary", scale=1)
+                fc_out = gr.HTML()
+                fc_btn.click(tool_formula_card, [fc_f], [fc_out])
+            with gr.Tab("藥解"):
+                with gr.Row():
+                    hb_n = gr.Textbox(label="藥名", scale=5,
+                                      placeholder="桂枝 / 附子 / 阿膠")
+                    hb_btn = gr.Button("藥解", variant="primary", scale=1)
+                hb_out = gr.HTML()
+                hb_btn.click(tool_herb, [hb_n], [hb_out])
+            with gr.Tab("煎服法"):
+                with gr.Row():
+                    dc_f = gr.Dropdown(formulas, label="方劑",
+                                       allow_custom_value=True, scale=5)
+                    dc_btn = gr.Button("解析煎服法", variant="primary", scale=1)
+                dc_out = gr.HTML()
+                dc_btn.click(tool_decoction, [dc_f], [dc_out])
             with gr.Tab("方證鑒別"):
                 with gr.Row():
                     d_f1 = gr.Dropdown(formulas, label="方一", allow_custom_value=True)

@@ -64,6 +64,18 @@ TOOL_META: Dict[str, Dict] = {
     "shanghan_hypotheses": {
         "evidence_level": "D",
         "limitations": ["多假設分析為規則歸納（D層），置信度為啟發式評分；不替代臨床判斷"]},
+    "shanghan_herb": {
+        "evidence_level": "D",
+        "limitations": ["性味功效屬本草學通識（D層）；內證統計錨定 A 層條文；"
+                        "不構成用藥建議"]},
+    "shanghan_formula_explain": {
+        "evidence_level": "D",
+        "limitations": ["君臣佐使為後世方論框架推導（D/E層，方法透明）；"
+                        "組成/煎服為 A 層方後原文；不替代醫師處方"]},
+    "shanghan_decoction": {
+        "evidence_level": "A",
+        "limitations": ["煎服字段逐字取自方後原文（A層）；類別通則兜底標 D 層；"
+                        "漢制劑量不可直接等同現代劑量"]},
 }
 
 _RELEASE_CONFIDENCE = {"gold": 0.9, "silver": 0.75, "bronze": 0.6}
@@ -258,6 +270,33 @@ class ToolRegistry:
                 "top_k": {"type": "integer", "default": 3}},
              "required": []},
             self._t_case_search)
+        self._add(
+            "shanghan_herb",
+            "藥解（單味藥知識卡）：本草通識（性味/功效/類別，D層標注）＋傷寒論"
+            "內證統計（見於哪些方/劑量炮製/高頻配伍，A層錨定 clause_id）＋"
+            "毒性/妊娠/十八反安全審校。",
+            {"type": "object", "properties": {
+                "herb": {"type": "string", "description": "藥名，如 桂枝/附子/甘草"}},
+             "required": ["herb"]},
+            self._t_herb)
+        self._add(
+            "shanghan_formula_explain",
+            "方解（方劑知識卡）：組成(A)→藥解→君臣佐使推導(D/E,方法透明)→"
+            "配伍共現(A錨定統計)→病機治法(D)→方義→煎服法(A方後原文)→"
+            "安全審校→證據鏈——規則裝配證據，模型（可用時）在證據約束下覆核。",
+            {"type": "object", "properties": {
+                "formula": {"type": "string"}},
+             "required": ["formula"]},
+            self._t_formula_explain)
+        self._add(
+            "shanghan_decoction",
+            "煎服法：方後原文逐字解析（A層）——煎煮介質/先煮後內/烊化/火候"
+            "水量/服用頻次溫度/啜粥溫覆/飲食禁忌/強羸加減/中病即止；"
+            "外用方識別；毒性與劑量折算安全警示。",
+            {"type": "object", "properties": {
+                "formula": {"type": "string"}},
+             "required": ["formula"]},
+            self._t_decoction)
         self._add(
             "shanghan_hypotheses",
             "多假設方證分析（醫師/教學端）：依症狀脈象返回並列候選方證假設，"
@@ -677,6 +716,54 @@ class ToolRegistry:
         return HypothesisManager(self).analyze(
             symptoms=symptoms, pulse=pulse or [],
             six_channel=six_channel, top_k=top_k)
+
+    # -- 藥解/方解/煎服法 -------------------------------------------------
+    @property
+    def pharma(self):
+        if not hasattr(self, "_pharma"):
+            from ..induce.pharmacology import (FormulaExplainer, HerbExplainer,
+                                               get_index)
+            from ..llm.client import get_client
+            idx = get_index(self.art.clauses)
+            self._pharma = {
+                "herb": HerbExplainer(idx),
+                "formula": FormulaExplainer(idx, self.art.formula_rules,
+                                            self.art.therapy_rules,
+                                            client=get_client()),
+                "index": idx,
+            }
+        return self._pharma
+
+    def _t_herb(self, herb):
+        out = self.pharma["herb"].card(herb)
+        out["tool"] = "shanghan_herb"
+        return out
+
+    def _t_formula_explain(self, formula):
+        res = self.resolve_formula(formula)
+        name = res["resolved"]
+        if not name:
+            # 方名不在規則庫時，仍可能有方藥原文塊（如 蜜煎導）
+            from ..textutil import normalize_query
+            from .. import lexicon as _lex
+            cand = _lex.canonical_formula(normalize_query(formula))
+            if cand in self.pharma["index"].blocks:
+                name = cand
+            else:
+                return self._ambiguous_payload("shanghan_formula_explain", res)
+        out = self.pharma["formula"].explain(name)
+        out["tool"] = "shanghan_formula_explain"
+        return out
+
+    def _t_decoction(self, formula):
+        out = self._t_formula_explain(formula)
+        if "error" in out:
+            out["tool"] = "shanghan_decoction"
+            return out
+        deco = out["decoction"]
+        deco["tool"] = "shanghan_decoction"
+        deco["evidence_trace"] = out["evidence_trace"]
+        return deco
 
     def _t_mistreatment(self, query=None):
         from ..textutil import normalize_query

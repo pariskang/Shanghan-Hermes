@@ -47,6 +47,9 @@ MODULES = {
     "shanghan_relations": ("原文源流", "條文關係圖譜鄰接邊"),
     "shanghan_therapy": ("方證計量", "治法法度：適應/禁例/誤施"),
     "shanghan_case_search": ("醫案例證", "經方實驗錄真實診案（旁證+經文錨點）"),
+    "shanghan_herb": ("方證計量", "單味藥藥解：性味功效+內證統計+配伍+安全"),
+    "shanghan_decoction": ("原文源流", "方後煎服法逐字解析（A層）"),
+    "shanghan_formula_explain": ("方證計量", "方解知識卡：角色/配伍/病機治法/煎服/安全"),
 }
 DIMENSIONS = ["原文源流", "異文注家", "方證計量", "劑量計量", "客觀評測", "醫案例證"]
 

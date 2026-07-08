@@ -158,6 +158,23 @@ system(角色契約) → user(問題) → [tool_call → tool_result]* → answe
 - **結果緩存**：同一（工具,參數）調用在註冊表生命週期內直接命中緩存
   （深拷貝隔離，`cache_hit:true` 可見），科研復現與多智能體重複取證免費。
 
+## 方藥知識解析（藥解 · 方解 · 煎服法）——規則與模型各守其位
+
+三個模塊回應「單獨一方不能佔比過高」的混合設計：
+
+- **規則層永遠在場**：內證統計（某藥見於哪些方/劑量炮製/高頻藥對，逐條
+  A 錨定 clause_id）、本草種子詞典（85 味性味功效，明確標 D 層通識）、
+  方後原文逐字解析（先煮/烊化/啜粥/禁忌/強羸加減/中病即止，每字段帶
+  verbatim span，A 層）、君臣佐使候選（方名藥/銖權重/調和之品——推導
+  方法全程可見，標 D/E）、安全審校強制掃描（毒性/妊娠/十八反/外用識別/
+  漢制劑量警示）。
+- **模型層證據約束下自主判斷**（接入真模型時）：在既有藥味內覆核角色
+  判定（標 E 層+理由）、撰寫方義文本（過 CitationGuard）；離線走同一
+  代碼路徑的確定性模板。
+- **誠實邊界**：君臣佐使原文無明文——一律標後世方論框架；現代藥理/靶點
+  映射無證據庫——顯式 deferred，不憑空生成；蜜煎導等外用方硬識別，
+  絕不誤作內服。
+
 ## 患者端硬隔離與紅旗分診
 
 - **能力面隔離**（`PATIENT_SAFE_TOOLS` + `registry.for_role("patient")`）：
@@ -206,10 +223,13 @@ python3 -m hermes_shanghan pipeline --llm-extract --llm-critic
 「⚠️ 含未核實條文編號」。可用 `Council(llm_specialists=False)` 關閉，
 離線 `local` 後端自動跳過。
 
-## 20 個可調用工具（智能體 / harness 共用同一能力面）
+## 23 個可調用工具（智能體 / harness 共用同一能力面）
 
 `shanghan_search`、`shanghan_get_clause`、`shanghan_match_formula`、
 `shanghan_hypotheses`（多假設方證分析+鑒別追問）、
+`shanghan_herb`（藥解：本草通識D+內證統計A+安全審校）、
+`shanghan_formula_explain`（方解知識卡：君臣佐使透明推導D/E+配伍+方義）、
+`shanghan_decoction`（煎服法：方後原文逐字解析A層+外用識別）、
 `shanghan_differential`、`shanghan_six_channel`、`shanghan_formula_rule`、
 `shanghan_mistreatment`、`shanghan_list_formulas`，以及十一個**研究/推理/文獻模塊**：
 `shanghan_divergence_atlas`（注家分歧圖譜）、`shanghan_dose`（劑量計量）、

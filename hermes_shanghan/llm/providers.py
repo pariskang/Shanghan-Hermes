@@ -252,6 +252,24 @@ class LocalProvider:
             m_th = re.search(r"(禁[汗下吐]|誤[汗下吐]|[汗下吐和溫清補]法|利水|救逆)", q)
             return call("shanghan_therapy",
                         {"method": m_th.group(1)} if m_th else {})
+        if re.search(r"(煎服法?|煎法|服法|怎麼煎|如何煎|先煮|後下|烊化|啜粥|溫覆)", q) and \
+                formulas and "shanghan_decoction" in available:
+            return call("shanghan_decoction", {"formula": formulas[0]})
+        if re.search(r"(方解|方義|君臣佐使|配伍|組方|知識卡)", q) and \
+                formulas and "shanghan_formula_explain" in available:
+            return call("shanghan_formula_explain", {"formula": formulas[0]})
+        if re.search(r"(藥解|性味|歸經|功效|單味|這味藥|那味藥)", q) and \
+                "shanghan_herb" in available:
+            from ..herb_lexicon import HERB_ALIASES, HERB_INFO
+            # 方名先行剔除：「桂枝湯的功效」問的是方，不是單味桂枝
+            q_wo = q
+            for f in formulas:
+                q_wo = q_wo.replace(f, "")
+            names = sorted(set(HERB_INFO) | set(HERB_ALIASES),
+                           key=len, reverse=True)
+            herb = next((h for h in names if h in q_wo), None)
+            if herb:
+                return call("shanghan_herb", {"herb": herb})
         if re.search(r"(注家|注本|分歧|詮釋|成無己|柯琴|尤怡|方有執|錢潢|黃元御)", q) and \
                 "shanghan_divergence_atlas" in available:
             m_cl = re.search(r"(\d{2,4})\s*條|SHL_SONGBEN_(\d{4})", q)
@@ -475,6 +493,74 @@ class LocalProvider:
                              f"{cz.get('mrr', '—')}；接地率 "
                              f"{gr.get('grounded_answer_rate', '—')}。")
                 cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_herb":
+                seed = p.get("seed_knowledge", {})
+                ce = p.get("corpus_evidence", {})
+                lines.append(f"【{p.get('herb')}藥解】性味 {seed.get('nature_flavor')}；"
+                             f"功效 {'、'.join(seed.get('functions', [])) or '—'}"
+                             "（本草通識，D層）")
+                rows = ce.get("formulas", [])[:4]
+                if rows:
+                    seen = "、".join(f"{r['formula']}({r['dose_processing']}，"
+                                    f"{r['clause_id']})" for r in rows[:3])
+                    lines.append(f"傷寒論內證：見於 {ce.get('n_formula_occurrences')}"
+                                 f" 方，如 {seen}（A層可回源）")
+                    cited += len(rows)
+                pairs = ce.get("frequent_pairs", [])[:3]
+                if pairs:
+                    lines.append("高頻配伍：" + "、".join(
+                        f"{x['paired_with']}（同見{x['n_formulas_together']}方）"
+                        for x in pairs))
+                for cta in p.get("cautions", [])[:3]:
+                    lines.append(f"⚠️ {cta.get('note', '')}")
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_formula_explain":
+                lines.append(f"【{p.get('formula')}方解知識卡】")
+                comp = "、".join(f"{r['herb']}{r['dose_processing'].split('，')[0]}"
+                                for r in p.get("composition", []))
+                ev = p.get("evidence_trace", {})
+                lines.append(f"組成（A 方後原文，{ev.get('block_clause_id', '')}）：{comp}")
+                cited += 1
+                roles = p.get("roles", {})
+                lines.append("君臣佐使（" + roles.get("layer", "")[:14] + "…）：" +
+                             "；".join(f"{a['herb']}={a['role']}（{a['basis']}）"
+                                      for a in roles.get("assignments", [])[:5]))
+                if p.get("explanation"):
+                    lines.append("方義：" + p["explanation"][:160])
+                pt = p.get("pathogenesis_therapy", {})
+                if pt.get("therapeutic_methods"):
+                    lines.append(f"治法：{'、'.join(pt['therapeutic_methods'])}"
+                                 f"；支持條文 {'、'.join(ev.get('supporting_clauses', [])[:3])}")
+                    cited += len(ev.get("supporting_clauses", [])[:3])
+                deco = p.get("decoction", {})
+                if deco.get("steps"):
+                    lines.append("煎法要點：" + "；".join(
+                        f"{s['method']}{s['target']}" for s in deco["steps"][:3]))
+                for fl in p.get("safety_flags", [])[:2]:
+                    if fl.get("kind") != "dose_conversion":
+                        lines.append(f"⚠️ {fl.get('note', '')}")
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_decoction":
+                src = p.get("source", {})
+                lines.append(f"【{p.get('formula')}煎服法】（A 方後原文，"
+                             f"{p.get('clause_id', '')}）"
+                             f"{p.get('dosage_form')}·{p.get('route')}")
+                cited += 1
+                if p.get("media"):
+                    lines.append("介質：" + "、".join(m["text"] for m in p["media"][:2])
+                                 + ("；火候 " + "、".join(p.get("fire", [])[:1])
+                                    if p.get("fire") else ""))
+                for s in p.get("steps", [])[:5]:
+                    lines.append(f"- {s['method']}：{s['target']}（原文「{s['span'][:20]}」）")
+                sv = p.get("service", {})
+                if sv.get("frequency") or sv.get("per_dose"):
+                    lines.append("服法：" + "；".join((sv.get("per_dose", [])[:1]
+                                                    + sv.get("frequency", [])[:2])))
+                if sv.get("diet_and_care"):
+                    lines.append("將息禁忌：" + "；".join(sv["diet_and_care"][:3]))
+                for g in p.get("generic_rules", [])[:2]:
+                    lines.append(f"（兜底通則 D層）{g['herb']}：{g['rule']}")
+                for fl in p.get("safety_flags", []):
+                    if fl.get("kind") in ("route", "toxicity", "shibafan"):
+                        lines.append(f"⚠️ {fl.get('note', '')}")
             elif isinstance(p, dict) and p.get("paths") is not None:
                 lines.append("誤治傳變路徑：")
                 for path in p["paths"][:5]:

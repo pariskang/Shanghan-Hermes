@@ -81,6 +81,18 @@ class TestWebUIHandlers(unittest.TestCase):
         self.assertIn("藥量比", webui.tool_dose("桂枝湯", "三兩"))
         self.assertIn("禁忌檢查", webui.tool_contra("桂枝湯", "無汗"))
 
+    def test_pharma_handlers(self):
+        from hermes_shanghan.apps import webui
+        self.assertIn("藥解知識卡", webui.tool_herb("附子"))
+        deco = webui.tool_decoction("麻黃湯")
+        self.assertIn("先煮", deco)
+        self.assertIn("A 方後原文", deco)
+        card = webui.tool_formula_card("桂枝湯")
+        for section in ("方劑知識卡", "君臣佐使", "配伍分析",
+                        "病機與治法", "煎服法"):
+            self.assertIn(section, card)
+        self.assertIn("外用", webui.tool_decoction("蜜煎導"))
+
     def test_research_handler_produces_dossier_and_exports(self):
         from hermes_shanghan.apps.webui import run_research
         html, md, js = run_research("桂枝湯類方的劑量演化", 2)
