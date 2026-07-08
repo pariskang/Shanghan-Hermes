@@ -19,6 +19,8 @@ dependencies = []
 # Enables real LLMs via LiteLLM (100+ providers). Without it the system
 # transparently uses the deterministic `local` backend.
 llm = ["litellm>=1.40"]
+# Rose-quartz Gradio studio（醫哲未來人工智能研究院界面）+ ngrok tunnel.
+webui = ["gradio>=6.0", "pyngrok>=7.0"]
 
 [project.scripts]
 hermes-shanghan = "hermes_shanghan.cli:main"

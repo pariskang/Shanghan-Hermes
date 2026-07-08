@@ -63,3 +63,41 @@ server/
 └─ static/          index.html · app.css · app.js（自包含 SPA）
 agent/multi_agent.py  Council 多智能體編排（規劃/取證/專家/批評/綜合）
 ```
+
+
+---
+
+# 🌸 粉晶 Gradio 界面（醫哲未來人工智能研究院）
+
+`hermes_shanghan/apps/webui.py` 提供第二個界面形態 —— **Rose-Quartz Studio**：
+面向演示/教學/科研協作的 Gradio 應用，粉晶（rose quartz）×
+國際極簡設計語言，Colab 一鍵啟動 + ngrok 公網映射。
+
+## 啟動
+
+```bash
+pip install "hermes-shanghan[webui]"          # gradio>=6 + pyngrok
+python3 -m hermes_shanghan webui              # 本地 http://127.0.0.1:7860/
+python3 -m hermes_shanghan webui --share      # gradio 官方公網鏈接
+python3 -m hermes_shanghan webui --ngrok-token <YOUR_TOKEN>   # ngrok 隧道
+```
+
+Colab：筆記本第 9 節一鍵啟動（`launch_webui(ngrok_token=...)`），
+留空 token 自動用 gradio share 鏈接。
+
+## 分區
+
+| 分區 | 能力 |
+|---|---|
+| 💬 對話研習 | 三種智能體模式（單智能體 / 任務圖編排 / 多智能體合議）× 四角色（醫師/科研/學生/患者——患者角色在能力面即被硬隔離）；右側四聯面板：**📜 檢索原文**（本輪證據條文卡片，層級徽章可回源）· **🔬 多假設**（支持/反證/缺失核心證/鑒別追問）· **⚖️ 合議**（專家判斷 + 共識/分歧裁決）· **✅ 核驗**（引用核驗 + 句級 claim 綁定表）· **🧭 軌跡**（agent trace） |
+| 🔭 深度研究 | 研究問題細化 → 六維度取證 → 缺口報告；檔案導出 Markdown/JSON |
+| ⚗️ 方證工具台 | 原文檢索 · 條文全息（異文 B/注家 C/關係圖譜）· 多假設匹配 · 方證鑒別 · 劑量計量與漢制換算 · 禁忌檢查 |
+| 📊 評測基準 | 四套件指標速覽；智能體基準一鍵重跑 |
+
+對話全程可 **導出 Markdown / JSON**（含每輪證據 clause_id 與核驗結果）。
+
+## 安全
+
+患者角色下：紅旗分診與意圖守衛先於一切模型調用；工具面為
+`PATIENT_SAFE_TOOLS` 白名單（無方證匹配/組成/劑量類工具）；
+answer 與 claims 載荷統一劑量脫敏。

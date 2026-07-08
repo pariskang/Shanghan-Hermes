@@ -126,6 +126,12 @@ def cmd_serve(args):
     serve(host=args.host, port=args.port, warm=not args.no_warm)
 
 
+def cmd_webui(args):
+    from .apps.webui import launch_webui
+    launch_webui(share=args.share or None, ngrok_token=args.ngrok_token,
+                 port=args.port, quiet=False)
+
+
 def cmd_ingest(args):
     from .corpus import downloader
     path = downloader.run()
@@ -536,6 +542,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp.add_argument("--port", type=int, default=8765)
     sp.add_argument("--no-warm", action="store_true", help="不預熱（首個請求較慢）")
     sp.set_defaults(func=cmd_serve)
+
+    sp = sub.add_parser("webui",
+                        help="啟動粉晶 Gradio 界面（醫哲未來人工智能研究院；"
+                             "需 pip install 'hermes-shanghan[webui]'）")
+    sp.add_argument("--port", type=int, default=7860)
+    sp.add_argument("--share", action="store_true", help="gradio 官方公網鏈接")
+    sp.add_argument("--ngrok-token", default=None,
+                    help="pyngrok authtoken——提供則建立 ngrok 公網隧道")
+    sp.set_defaults(func=cmd_webui)
 
     sp = sub.add_parser("ingest", help="語料導入與 manifest")
     sp.set_defaults(func=cmd_ingest)

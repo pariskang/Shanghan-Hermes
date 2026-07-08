@@ -35,14 +35,19 @@ class TestColabNotebook(unittest.TestCase):
         # the notebook's imports must resolve against the current package
         from hermes_shanghan.agent.agent import ShanghanAgent            # noqa
         from hermes_shanghan.agent.complex_agent import ComplexAgent     # noqa
+        from hermes_shanghan.agent.multi_agent import Council            # noqa
         from hermes_shanghan.agent.research_loop import DeepResearcher   # noqa
         from hermes_shanghan.agent.session import AgentSession           # noqa
+        from hermes_shanghan.agent.tools import get_registry             # noqa
+        from hermes_shanghan.apps.webui import launch_webui              # noqa
         from hermes_shanghan.eval.runner import run_suites               # noqa
         from hermes_shanghan.integrations.tool_specs import openai_tool_specs  # noqa
         from hermes_shanghan.paper.charts import heatmap                 # noqa
         from hermes_shanghan.paper.writer import PaperWriter             # noqa
         from hermes_shanghan.server.http_server import serve             # noqa
         from hermes_shanghan.server.service import ServiceContext        # noqa
+        # the 6.5 cell's tool name must stay real
+        self.assertIn("shanghan_hypotheses", get_registry().names())
 
     def test_research_assets_referenced_exist(self):
         blob = "".join("".join(c["source"]) for c in self.nb["cells"]
