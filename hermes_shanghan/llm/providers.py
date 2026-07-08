@@ -203,6 +203,18 @@ class LocalProvider:
         m_num = re.search(r"(\d{1,3})", q)
         channel = next((c for c in _SIX_CHANNELS if c in q or c[:-1] in q), None)
 
+        # 全景多路檢索：現代疾病跨時代映射（骨質疏鬆/銀屑病/糖尿病→古籍），
+        # 或顯式要求多路檢索——須先於 library 分支（「古籍」關鍵詞會相撞）
+        if "shanghan_omni_search" in available:
+            from ..phenotype_map import detect_modern
+            modern = detect_modern(q)
+            if (modern and re.search(r"(古籍|古書|古代|映射|對應|相當|怎麼說|"
+                                     r"記載|文獻|方藥|中醫怎麼)", q)) \
+                    or re.search(r"(全景檢索|多路檢索|綜合檢索)", q):
+                return call("shanghan_omni_search",
+                            {"query": q_raw, "top_k": 8,
+                             "include_library": True})
+
         m_title = re.search(r"《([^》]{2,14})》", q_raw)
         if "shanghan_library" in available and \
                 not re.search(r"(統計|多少條|頻次|計量概況|評測|接地率)", q) and \
@@ -376,7 +388,8 @@ class LocalProvider:
                     fs = "、".join(f["formula"] for f in p["main_formulas"][:6])
                     lines.append(f"主要方劑：{fs}")
                 cited += 1
-            elif isinstance(p, dict) and p.get("hits") is not None:
+            elif isinstance(p, dict) and p.get("hits") is not None \
+                    and p.get("tool") != "shanghan_omni_search":
                 lines.append("檢索到的相關條文（A 原文直述）：")
                 for h in p["hits"][:5]:
                     lines.append(f"- [{h.get('clause_id')}] {h.get('text','')[:50]}…")
@@ -493,6 +506,30 @@ class LocalProvider:
                              f"{cz.get('mrr', '—')}；接地率 "
                              f"{gr.get('grounded_answer_rate', '—')}。")
                 cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_omni_search":
+                u0 = p.get("understanding", {})
+                lines.append(f"【全景多路檢索】意圖：{u0.get('intent', '')}；"
+                             f"用時 {p.get('latency_ms', '—')} ms")
+                mp = p.get("modern_mapping")
+                if mp:
+                    lines.append(f"跨時代映射（{mp['grade']} 級·{mp['grade_note']}，"
+                                 f"候選不作病名等同）：{mp['modern']} → 病機 "
+                                 f"{'、'.join(mp['tcm_semantics'][:3])} → 古籍詞 "
+                                 f"{'、'.join(mp['classical_terms'][:5])}")
+                    if mp.get("safety_note"):
+                        lines.append(f"⚠️ {mp['safety_note']}")
+                if p.get("expanded_terms"):
+                    lines.append("本體擴展：" + "、".join(p["expanded_terms"][:6]))
+                for h in p.get("hits", [])[:5]:
+                    lines.append(f"- [{h['clause_id']}]（{h['evidence_type']}，"
+                                 f"命中：{'、'.join(h['matched_terms'][:2])}）"
+                                 f"{h['text'][:44]}…")
+                    cited += 1
+                for h in p.get("library_hits", [])[:3]:
+                    lines.append(f"- 《{h['book']}》§{h['section'][:12]}："
+                                 f"…{h['excerpt'][:40]}…（文獻旁證，非經文層）")
+                if mp:
+                    lines.append(f"（{mp['disclaimer'][:60]}…）")
             elif isinstance(p, dict) and p.get("tool") == "shanghan_herb":
                 seed = p.get("seed_knowledge", {})
                 ce = p.get("corpus_evidence", {})

@@ -64,6 +64,11 @@ TOOL_META: Dict[str, Dict] = {
     "shanghan_hypotheses": {
         "evidence_level": "D",
         "limitations": ["多假設分析為規則歸納（D層），置信度為啟發式評分；不替代臨床判斷"]},
+    "shanghan_omni_search": {
+        "evidence_level": "A",
+        "limitations": ["多路召回逐條標注 evidence_type（直接原文/本體擴展/圖譜"
+                        "關聯/現代映射/文獻旁證）；現代映射為候選（帶等級與免責），"
+                        "不作病名等同"]},
     "shanghan_herb": {
         "evidence_level": "D",
         "limitations": ["性味功效屬本草學通識（D層）；內證統計錨定 A 層條文；"
@@ -270,6 +275,18 @@ class ToolRegistry:
                 "top_k": {"type": "integer", "default": 3}},
              "required": []},
             self._t_case_search)
+        self._add(
+            "shanghan_omni_search",
+            "全景多路檢索：字詞(BM25)+本體同義擴展(水腫→腫滿/溢飲)+條文圖譜"
+            "+現代表型映射(骨質疏鬆→骨痿/骨痹，帶等級與免責)+笈成全庫旁證"
+            "(可選，時間預算內)。每條命中標 evidence_type，返回 latency_ms。",
+            {"type": "object", "properties": {
+                "query": {"type": "string"},
+                "top_k": {"type": "integer", "default": 8},
+                "include_library": {"type": "boolean", "default": False,
+                                    "description": "同時檢索 800+ 部全庫（旁證層）"}},
+             "required": ["query"]},
+            self._t_omni_search)
         self._add(
             "shanghan_herb",
             "藥解（單味藥知識卡）：本草通識（性味/功效/類別，D層標注）＋傷寒論"
@@ -733,6 +750,13 @@ class ToolRegistry:
                 "index": idx,
             }
         return self._pharma
+
+    def _t_omni_search(self, query, top_k=8, include_library=False):
+        from ..rag.omni_search import get_omni
+        out = get_omni().search(query, top_k=top_k,
+                                include_library=include_library)
+        out["tool"] = "shanghan_omni_search"
+        return out
 
     def _t_herb(self, herb):
         out = self.pharma["herb"].card(herb)

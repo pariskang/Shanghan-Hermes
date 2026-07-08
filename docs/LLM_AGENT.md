@@ -158,6 +158,23 @@ system(角色契約) → user(問題) → [tool_call → tool_result]* → answe
 - **結果緩存**：同一（工具,參數）調用在註冊表生命週期內直接命中緩存
   （深拷貝隔離，`cache_hit:true` 可見），科研復現與多智能體重複取證免費。
 
+## 全景多路檢索（omni_search）——從「查詞」到「查知識鏈」
+
+五通道召回，每條命中標注 evidence_type，誠實與高效並重：
+
+| 通道 | 機制 | 延遲 |
+|---|---|---|
+| 直接原文 | BM25+結構化（傷寒論 681 條） | <1ms |
+| 本體擴展 | 44 組古籍同義詞（水腫→腫滿/浮腫/溢飲/水氣） | +幾ms |
+| 圖譜關聯 | top 命中的條文關係鄰接 | +幾ms |
+| 現代映射 | 28 個現代疾病→表型→病機→古籍詞（A-D 等級+固定免責，不作病名等同） | +幾ms |
+| 文獻旁證 | 笈成 800+ 部全庫（字符倒排剪枝+硬時間預算，超時顯式 truncated） | 30-450ms |
+
+實測（warm）：經文層多路 3-6ms；含全庫通道中位 ~120ms、最高 ~430ms。
+`latency_ms` 隨結果返回可回歸監控。重排為確定性加權（通道權重×BM25 歸一分
++多通道匯聚加成），無不可復現的學習排序。現代疾病問題（「骨質疏鬆在古籍中
+如何對應？」）由本地路由自動走全景檢索，映射鏈與免責聲明隨答案輸出。
+
 ## 方藥知識解析（藥解 · 方解 · 煎服法）——規則與模型各守其位
 
 三個模塊回應「單獨一方不能佔比過高」的混合設計：
@@ -223,10 +240,11 @@ python3 -m hermes_shanghan pipeline --llm-extract --llm-critic
 「⚠️ 含未核實條文編號」。可用 `Council(llm_specialists=False)` 關閉，
 離線 `local` 後端自動跳過。
 
-## 23 個可調用工具（智能體 / harness 共用同一能力面）
+## 24 個可調用工具（智能體 / harness 共用同一能力面）
 
 `shanghan_search`、`shanghan_get_clause`、`shanghan_match_formula`、
 `shanghan_hypotheses`（多假設方證分析+鑒別追問）、
+`shanghan_omni_search`（全景多路檢索：字詞+本體+圖譜+現代映射+全庫旁證）、
 `shanghan_herb`（藥解：本草通識D+內證統計A+安全審校）、
 `shanghan_formula_explain`（方解知識卡：君臣佐使透明推導D/E+配伍+方義）、
 `shanghan_decoction`（煎服法：方後原文逐字解析A層+外用識別）、

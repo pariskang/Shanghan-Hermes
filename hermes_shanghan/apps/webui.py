@@ -587,6 +587,63 @@ def _flags_html(flags: List[Dict]) -> str:
     return "".join(out)
 
 
+_CHANNEL_COLOR = {"直接原文": "#C96B72", "本體擴展": "#9C7BA8",
+                  "圖譜關聯": "#7D8CC4", "現代映射": "#D89A6E",
+                  "文獻旁證": "#8A8F98"}
+
+
+def tool_omni(query, top_k, include_library):
+    if not (query or "").strip():
+        return '<div class="section-note">輸入古籍詞或現代疾病名。</div>'
+    out = _registry().call("shanghan_omni_search",
+                           {"query": query, "top_k": int(top_k),
+                            "include_library": bool(include_library)})
+    if out.get("error"):
+        return f'<div class="ask-box">⚠️ {_esc(out["error"])}</div>'
+    u = out.get("understanding", {})
+    parts = [f'<div class="section-note">意圖 <b>{_esc(u.get("intent", ""))}</b>'
+             f' · 用時 <b>{out.get("latency_ms")}</b> ms'
+             f' · 命中池 {out.get("n_pool")} 條</div>']
+    mp = out.get("modern_mapping")
+    if mp:
+        parts.append(
+            f'<div class="consensus-box"><h4>🌉 跨時代映射 · {_esc(mp["modern"])}'
+            f'（{mp["grade"]} 級·{_esc(mp["grade_note"])}）</h4>'
+            f'<div class="hyp-row"><b>現代表型</b>：{_esc("、".join(mp["phenotypes"][:5]))}</div>'
+            f'<div class="hyp-row"><b>病機語義</b>：{_esc("、".join(mp["tcm_semantics"][:4]))}</div>'
+            f'<div class="hyp-row"><b>古籍候選詞</b>：{_esc("、".join(mp["classical_terms"]))}</div>'
+            f'<div class="hyp-row"><b>治法方向</b>：{_esc("、".join(mp["methods_hint"]))}</div>'
+            + (f'<div class="ask-box">⚠️ {_esc(mp["safety_note"])}</div>'
+               if mp.get("safety_note") else "")
+            + f'<div class="section-note">{_esc(mp["disclaimer"])}</div></div>')
+    if out.get("expanded_terms"):
+        parts.append(f'<div class="section-note">本體擴展：'
+                     f'{_esc("、".join(out["expanded_terms"][:8]))}</div>')
+    store = _store()
+    for h in out.get("hits", []):
+        color = _CHANNEL_COLOR.get(h["evidence_type"], "#8A8F98")
+        c = store.get(h["clause_id"])
+        text = c.clean_text if c else h.get("text", "")
+        parts.append(
+            f'<div class="clause-card" style="border-left-color:{color}">'
+            f'<div class="meta"><span class="layer-badge" style="background:'
+            f'{color}">{_esc(h["evidence_type"])}</span>'
+            f'<span class="cid">{h["clause_id"]}</span>'
+            f'<span class="ctag">{_esc(h.get("six_channel", "") or "")}</span>'
+            f'<span class="ctag">命中：{_esc("、".join(h["matched_terms"][:3]))}</span>'
+            f'<span class="ctag">score {h["score"]}</span></div>'
+            f'<div class="ctext">{_esc(text)}</div></div>')
+    for h in out.get("library_hits", [])[:6]:
+        parts.append(
+            f'<div class="clause-card" style="border-left-color:#8A8F98">'
+            f'<div class="meta"><span class="layer-badge" style="background:'
+            f'#8A8F98">文獻旁證</span><span class="ctag">《{_esc(h["book"])}》'
+            f'§{_esc(h["section"][:14])}</span>'
+            f'<span class="ctag">命中：{_esc(h["matched_term"])}</span></div>'
+            f'<div class="ctext" style="font-size:.88rem">…{_esc(h["excerpt"])}…</div></div>')
+    return f'<div class="panel-scroll">{"".join(parts)}</div>'
+
+
 def tool_herb(name):
     if not (name or "").strip():
         return '<div class="section-note">輸入藥名，如 桂枝 / 附子 / 阿膠。</div>'
@@ -872,6 +929,19 @@ def build_app():
 
         # ── Tab 3 · 方證工具台 ──────────────────────────────────
         with gr.Tab("⚗️ 方證工具台"):
+            with gr.Tab("全景檢索"):
+                gr.Markdown('<div class="section-note">字詞 BM25 + 本體同義擴展'
+                            '（水腫→腫滿/溢飲）+ 條文圖譜 + 現代表型映射'
+                            '（骨質疏鬆→骨痿/骨痹，帶等級與免責）+ 笈成全庫旁證'
+                            '（可選）——每條命中標注證據類型與毫秒級用時</div>')
+                with gr.Row():
+                    o_q = gr.Textbox(label="檢索詞（古籍詞或現代疾病皆可）", scale=5,
+                                     placeholder="骨質疏鬆 / 水腫 / 往來寒熱")
+                    o_k = gr.Slider(4, 15, value=8, step=1, label="Top-K", scale=2)
+                    o_lib = gr.Checkbox(label="含全庫旁證", scale=1)
+                    o_btn = gr.Button("檢索 ✦", variant="primary", scale=1)
+                o_out = gr.HTML()
+                o_btn.click(tool_omni, [o_q, o_k, o_lib], [o_out])
             with gr.Tab("原文檢索"):
                 with gr.Row():
                     s_q = gr.Textbox(label="檢索詞", scale=5, placeholder="往來寒熱")
