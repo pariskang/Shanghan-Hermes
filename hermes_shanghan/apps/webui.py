@@ -17,6 +17,7 @@ dependency: `pip install hermes-shanghan[webui]`.
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 import time
 from pathlib import Path
@@ -726,6 +727,64 @@ def tool_correspondence(symptoms, pulse, channel, modern):
     return f'<div class="panel-scroll">{"".join(parts)}</div>'
 
 
+def tool_perspectives(target):
+    target = (target or "").strip()
+    if not target:
+        return ('<div class="section-note">輸入條文號（如 12）或方名'
+                '（如 桂枝湯）。</div>')
+    m = re.search(r"(\d{1,3})", target)
+    args = {"ref": m.group(1)} if m else {"formula": target}
+    out = _registry().call("shanghan_perspectives", args)
+    if out.get("error"):
+        return f'<div class="ask-box">⚠️ {_esc(out["error"])}</div>'
+
+    def _pbadge(layer):
+        color = LAYER_COLORS.get(layer.split("（")[0].strip(), "#8A8F98")
+        return (f'<span class="layer-badge" style="background:{color}">'
+                f'{_esc(layer)}</span>')
+
+    t = out["target"]
+    head = t.get("clause_id") or t.get("formula") or ""
+    sub = f'（{t["formula"]}）' if t.get("clause_id") and t.get("formula") else ""
+    parts = [f'<div class="consensus-box"><h4>🗣 多觀點論證 · {_esc(head)}{_esc(sub)}'
+             f'</h4><div class="section-note">{_esc(out.get("evidence_grading_note", ""))}'
+             '</div></div>']
+    for p in out.get("positions", []):
+        ev = " ".join(f'<span class="cid">{_esc(e)}</span>'
+                      for e in p.get("supporting_evidence", [])[:5])
+        path = "<br>".join(f"· {_esc(s)}" for s in p.get("reasoning_path", [])[:4])
+        parts.append(
+            f'<div class="hyp-card"><span class="conf-chip">強度 {_esc(p["strength"])}'
+            f'</span><h4>{_pbadge(p["layer"])}{_esc(p["paradigm"])} · '
+            f'{_esc(p["focus"])}</h4>'
+            f'<div class="hyp-row"><b>觀點</b>：{_esc(p["claim"])}</div>'
+            + (f'<div class="hyp-row"><b>論證路徑</b>：<br>{path}</div>' if path else "")
+            + f'<div class="hyp-row"><b>適用範圍</b>：{_esc(p["scope"])} ｜ '
+              f'<b>侷限</b>：{_esc(p["limitation"])} ｜ '
+              f'<b>適合</b>：{_esc(p["suits"])}</div>'
+            + (f'<div class="hyp-row"><b>證據</b>：{ev}</div>' if ev else "")
+            + '</div>')
+    adj = out.get("adjudication", {})
+    if adj:
+        rows = "".join(
+            f'<tr><td>{_esc(r["paradigm"])}</td><td>{_pbadge(r["layer"])}</td>'
+            f'<td>{_esc(r["strength"])}</td><td>{r["n_evidence"]}</td></tr>'
+            for r in adj.get("strength_table", []))
+        parts.append(
+            '<div class="consensus-box"><h4>⚖️ 爭議仲裁（結構化分歧，不裁決唯一正解）</h4>'
+            '<div class="hyp-row"><b>共同點</b><br>'
+            + "".join(f"· {_esc(x)}<br>" for x in adj.get("common_ground", []))
+            + '</div><div class="hyp-row" style="color:#A94E57"><b>分歧點</b><br>'
+            + "".join(f"· {_esc(x)}<br>" for x in adj.get("divergences", []))
+            + '</div><table class="diff-table"><tr><th>範式</th><th>證據層</th>'
+              '<th>強度</th><th>證據數</th></tr>' + rows + '</table>'
+            + '<div class="hyp-row"><b>場景指引</b>：'
+            + "；".join(_esc(x) for x in adj.get("scenario_guide", []))
+            + f'</div><div class="section-note">{_esc(adj.get("note", ""))}</div></div>')
+    parts.append(f'<div class="section-note">{_esc(out.get("boundary", ""))}</div>')
+    return f'<div class="panel-scroll">{"".join(parts)}</div>'
+
+
 def tool_herb(name):
     if not (name or "").strip():
         return '<div class="section-note">輸入藥名，如 桂枝 / 附子 / 阿膠。</div>'
@@ -1056,6 +1115,18 @@ def build_app():
                 co_out = gr.HTML()
                 co_btn.click(tool_correspondence,
                              [co_sym, co_pul, co_ch, co_mod], [co_out])
+            with gr.Tab("多觀點論證"):
+                gr.Markdown('<div class="section-note">七解釋範式並立：條文字面'
+                            '(A)·六經(D錨A)·方證(A分級)·病機醫理(D/E推斷標注)·'
+                            '藥證藥組(D/E)·類方(D)·注家歷史(C真實分歧度)——'
+                            '不消滅分歧，而是結構化分歧；不裁決唯一正解，'
+                            '只給證據層級與適用場景。</div>')
+                with gr.Row():
+                    pv_t = gr.Textbox(label="條文號 或 方名", scale=5,
+                                      placeholder="12 / 桂枝湯")
+                    pv_btn = gr.Button("七範式論證 ✦", variant="primary", scale=1)
+                pv_out = gr.HTML()
+                pv_btn.click(tool_perspectives, [pv_t], [pv_out])
             with gr.Tab("多假設匹配"):
                 with gr.Row():
                     m_sym = gr.Textbox(label="症狀（頓號/逗號分隔）", scale=4,

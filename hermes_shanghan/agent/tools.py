@@ -74,6 +74,11 @@ TOOL_META: Dict[str, Dict] = {
         "limitations": ["病機/治法屬後世歸納（D/E層，推理依據逐項可見）；"
                         "方證關係分級由宋本處方語式（主之/宜/與）確定性推導；"
                         "宋本無舌診主證體系，不設舌象維度；不作處方建議"]},
+    "shanghan_perspectives": {
+        "evidence_level": "C",
+        "limitations": ["七解釋範式並陳（字面A/六經D/方證A-D/病機D-E/藥證D-E/"
+                        "類方D/注家C），仲裁只給證據強度與適用場景，不裁決唯一"
+                        "正解；注家分歧度為九注本對齊層真實計量"]},
     "shanghan_herb": {
         "evidence_level": "D",
         "limitations": ["性味功效屬本草學通識（D層）；內證統計錨定 A 層條文；"
@@ -308,6 +313,17 @@ class ToolRegistry:
                 "top_k": {"type": "integer", "default": 4}},
              "required": []},
             self._t_correspondence)
+        self._add(
+            "shanghan_perspectives",
+            "多觀點論證（爭議感知）：同一條文/方證由七個解釋範式各自生成"
+            "結構化觀點（claim+證據+推理路徑+適用範圍+侷限+層級+強度）——"
+            "條文字面/六經/方證/病機醫理/藥證藥組/類方鑒別/注家歷史（錨定"
+            "九注本真實分歧度）；仲裁提取共同點/分歧點/場景指引。",
+            {"type": "object", "properties": {
+                "ref": {"type": "string", "description": "條文號或 clause_id"},
+                "formula": {"type": "string", "description": "或方名"}},
+             "required": []},
+            self._t_perspectives)
         self._add(
             "shanghan_herb",
             "藥解（單味藥知識卡）：本草通識（性味/功效/類別，D層標注）＋傷寒論"
@@ -778,6 +794,13 @@ class ToolRegistry:
                                 include_library=include_library)
         out["tool"] = "shanghan_omni_search"
         return out
+
+    def _t_perspectives(self, ref=None, formula=None):
+        if not (ref or formula):
+            return {"tool": "shanghan_perspectives",
+                    "error": "請提供 ref（條文號）或 formula（方名）"}
+        from .perspectives import PerspectiveCouncil
+        return PerspectiveCouncil(self).deliberate(ref=ref, formula=formula)
 
     def _t_correspondence(self, symptoms=None, pulse=None, six_channel=None,
                           modern=None, top_k=4):

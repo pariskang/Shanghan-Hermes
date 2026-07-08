@@ -303,6 +303,16 @@ class LocalProvider:
         if re.search(r"(誤治|誤下|誤汗|誤吐|火逆|壞病|變證|傳變)", q) and \
                 "shanghan_mistreatment" in available:
             return call("shanghan_mistreatment", {"query": q_raw})
+        if re.search(r"(怎麼理解|如何理解|多觀點|多角度|學派(觀點|解釋|比較)|"
+                     r"觀點(比較|論證)|各家怎麼|不同解釋)", q) and \
+                "shanghan_perspectives" in available:
+            # 多觀點論證先於取條文：「第12條怎麼理解？」問的是詮釋，
+            # 不是原文本身（純取文問法仍由 get_clause 分支接住）
+            m_p = re.search(r"第?\s*(\d{1,3})\s*條", q)
+            if m_p:
+                return call("shanghan_perspectives", {"ref": m_p.group(1)})
+            if formulas:
+                return call("shanghan_perspectives", {"formula": formulas[0]})
         if (re.search(r"第?\d{1,3}條", q) or re.search(r"SHL_SONGBEN", q_raw)) and \
                 "shanghan_get_clause" in available and m_num:
             # prefer an explicit 第N條/full SHL id over the first digit run,
@@ -514,6 +524,23 @@ class LocalProvider:
                              f"{cz.get('mrr', '—')}；接地率 "
                              f"{gr.get('grounded_answer_rate', '—')}。")
                 cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_perspectives":
+                tgt = p.get("target", {})
+                lines.append(f"【多觀點論證】{tgt.get('clause_id') or ''}"
+                             f"{('·' + tgt['formula']) if tgt.get('formula') else ''}"
+                             "（七範式並陳，不裁決唯一正解）")
+                for pos in p.get("positions", []):
+                    lines.append(f"◆ {pos['paradigm']}（{pos['layer']}·強度"
+                                 f"{pos['strength']}）：{pos['claim'][:70]}")
+                    if pos.get("reasoning_path"):
+                        lines.append(f"   ↳ {pos['reasoning_path'][0][:56]}")
+                    cited += len(pos.get("supporting_evidence", [])[:2])
+                adj = p.get("adjudication", {})
+                for c0 in adj.get("common_ground", [])[:2]:
+                    lines.append(f"◎ 共同點：{c0}")
+                for d0 in adj.get("divergences", [])[:2]:
+                    lines.append(f"◎ 分歧點：{d0[:64]}")
+                lines.append(f"（{p.get('boundary', '')[:56]}）")
             elif isinstance(p, dict) and p.get("tool") == "shanghan_correspondence":
                 qa = p.get("query_analysis", {})
                 lines.append("【方證對應分析（八段式）】")

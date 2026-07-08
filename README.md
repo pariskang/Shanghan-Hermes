@@ -91,6 +91,10 @@ python3 -m hermes_shanghan search "第38條"
 # 全景多路檢索（字詞+本體同義擴展+圖譜+現代表型映射+全庫旁證；毫秒級計時）
 python3 -m hermes_shanghan tool-call shanghan_omni_search --args '{"query":"骨質疏鬆在古籍中如何對應？","include_library":true}'
 
+# 多觀點論證（七解釋範式並立：字面/六經/方證/病機/藥證/類方/注家；
+# 結構化分歧不裁決，注家範式錨定九注本真實分歧度）
+python3 -m hermes_shanghan tool-call shanghan_perspectives --args '{"ref":"12"}'
+
 # 方證鑒別
 python3 -m hermes_shanghan differential 桂枝湯 麻黃湯
 python3 -m hermes_shanghan differential 半夏瀉心湯 生薑瀉心湯 甘草瀉心湯
@@ -126,7 +130,7 @@ python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --rol
 python3 -m hermes_shanghan solve "桂枝湯與麻黃湯如何鑒別？各自劑量比是多少？注家有何分歧？"
 python3 -m hermes_shanghan llm-status            # 查看 LLM 後端
 
-# 測試（183 項：對抗性審核 + 智能體架構 + 19 工具 + 評測 + 六維研究循環 + 全庫接入
+# 測試（285 項：對抗性審核 + 智能體架構 + 26 工具 + 評測 + 六維研究循環 + 全庫接入
 #       + 可復現性/證據鏈硬化 + Colab守衛）
 python3 -m unittest discover -s tests
 
@@ -173,7 +177,7 @@ python3 -m hermes_shanghan tool-call shanghan_differential --args '{"formulas":[
 python3 -m hermes_shanghan export-tools --out tools.json
 ```
 
-**接入智能體框架**（19 個只讀回源工具 + 1 個智能體工具，三種 harness 共用同一能力面；
+**接入智能體框架**（26 個只讀回源工具 + 1 個智能體工具，三種 harness 共用同一能力面；
 模型經 function-calling **自主選擇調用**）。除檢索/匹配/鑒別/六經/誤治外，還包括：
 分歧圖譜 · 劑量計量 · 全庫統計 · 評測指標 · **異文對勘**（B層）· **關係圖譜遍歷**
 （多跳推理）· **治法法度** · **禁忌檢查**（複合推理：方+證候→衝突/法度禁例）·
@@ -389,16 +393,17 @@ hermes_shanghan/
 ├─ paper/       writer（8 類論文 + LLM 增益層）· charts（純標準庫 SVG 統計圖）
 ├─ memory/      store（9 個記憶模塊，含 correction/project）
 ├─ llm/         config · cache · prompts · providers(litellm/local/scripted) · client
-├─ agent/       tools(25 工具+ScopedRegistry+患者白名單+結果緩存) · citation_guard
+├─ agent/       tools(26 工具+ScopedRegistry+患者白名單+結果緩存) · citation_guard
 │               · agent(ReAct+反思自糾+工具預算) · planner(任務圖規劃)
 │               · evidence_binder(句級 claim→證據綁定) · hypothesis(多假設+鑒別追問)
+│               · perspectives(多觀點論證：七解釋範式+爭議仲裁不裁決)
 │               · complex_agent(任務圖編排) · session(會話記憶+糾錯記憶)
 │               · multi_agent(議會) · consensus(共識/分歧裁決)
 │               · research_loop（深度研究循環：問題細化→子代理→缺口報告）
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          274 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
+tests/          285 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
 data/library/      中醫笈成全庫（803 部，`library fetch` 自動下載，不入庫）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/論文）

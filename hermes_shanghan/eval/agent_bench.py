@@ -24,7 +24,8 @@ from ..agent.tools import PATIENT_SAFE_TOOLS
 # 1 — tool routing
 # ---------------------------------------------------------------------------
 ROUTING_BANK: List[Dict] = [
-    {"question": "第12條怎麼理解？", "expected": "shanghan_get_clause"},
+    {"question": "第12條怎麼理解？", "expected": "shanghan_perspectives"},
+    {"question": "第12條的原文與規則是什麼？", "expected": "shanghan_get_clause"},
     {"question": "桂枝湯的劑量比是多少？", "expected": "shanghan_dose"},
     {"question": "桂枝湯與麻黃湯如何鑒別？", "expected": "shanghan_differential"},
     {"question": "少陰病的提綱是什麼？", "expected": "shanghan_six_channel"},
