@@ -522,27 +522,45 @@ def formula_explain(name: str) -> Dict:
         "first_attestation": {"clause_id": first_id,
                               "symptoms": first_c.get("symptoms", []),
                               "pulse": first_c.get("pulse", [])},
+        "rule_induced_core": {"symptoms": rule.get("core_symptoms", []),
+                              "pulse": rule.get("core_pulse", []),
+                              "associated": rule.get("associated_symptoms", [])[:8],
+                              "source": "D 方證規則歸納（跨條聚合，證據錨定 A 層）"},
         "aggregate_all_clauses": [
             {"symptom": s, "n_clauses": n}
             for s, n in sorted(aggregate.items(),
                                key=lambda kv: (-kv[1], kv[0]))[:15]],
         "special_context": special[:10],
-        "note": "首見層=首見條文直接所載；聚合層=全書相關條文表現總和"
-                "（含誤治/禁忌/變證上下文），不得徑作標準方證核心證；"
-                "特殊上下文層單列以防誤讀。",
+        "note": "四層口徑：首見層=首見條文直接所載（默認優先展示）；"
+                "規則歸納層=方證規則跨條歸納（D 層，非原文首見核心證）；"
+                "聚合層=全書相關條文表現總和（含誤治/禁忌/變證上下文），"
+                "不得徑作標準方證核心證；特殊上下文層單列以防誤讀。",
     }
     return {
         "chain_type": "方解檔案",
         "formula": formula,
         "first_attestation": chain["first_attestation"],
         "supporting_clauses": chain["supporting_clauses"],
-        "core_symptoms": rule.get("core_symptoms", []),
-        "core_pulse": rule.get("core_pulse", []),
+        # 症狀只經 symptom_layers 四層口徑輸出（首見層在前，默認優先展示）；
+        # 頂層不再放 core_symptoms——規則歸納核心證易被誤讀為原文首見核心證
         "symptom_layers": symptom_layers,
-        "associated_symptoms": rule.get("associated_symptoms", [])[:8],
         "composition": chain["composition"],
         "dose_ratios": chain["dose_ratios"],
-        "administration_notes": rule.get("administration_notes", [])[:5],
+        # 煎服法獨立成節：方後注本身就是治療法度的一部分
+        "administration": {
+            "preparation": next((fb.get("preparation", "")
+                                 for fb in first_c.get("formula_blocks", [])
+                                 if formula in fb.get("formula_name", "")), ""),
+            "administration": next((fb.get("administration", "")
+                                    for fb in first_c.get("formula_blocks", [])
+                                    if formula in fb.get("formula_name", "")), ""),
+            "post_notes": next((fb.get("post_notes", [])
+                                for fb in first_c.get("formula_blocks", [])
+                                if formula in fb.get("formula_name", "")), []),
+            "rule_notes": rule.get("administration_notes", [])[:5],
+            "warning": "古籍煎服法 ≠ 現代可直接執行醫囑：劑量制式、藥材炮製與"
+                       "服藥調護均需專業醫師按現代規範轉換。",
+        },
         "contraindications": rule.get("contraindications", [])[:5],
         "modification_relations": chain["modification_relations"],
         "family_dose_evolution": chain["family_dose_evolution"],
@@ -553,8 +571,10 @@ def formula_explain(name: str) -> Dict:
         "citations_of_clauses": chain["citations_of_clauses"],
         "section_evidence_levels": {
             **chain["section_evidence_levels"],
-            "core_symptoms": "D 方證規則歸納（證據錨定 A 層條文）",
-            "symptom_layers": "A 條文實體標註（三層口徑分列，見其 note）",
+            "symptom_layers": "四層口徑分列（首見 A / 規則歸納 D / 聚合 A 標註 /"
+                              "特殊上下文 A 標註），見其 note",
+            "administration": "A 原文煎服法（rule_notes 屬 D 歸納；"
+                              "附「非現代醫囑」警示）",
             "contraindications": "A 原文禁例",
             "differentials": "D 鑒別歸納（supporting_clauses 回源）",
         },
@@ -620,12 +640,20 @@ def term_chain(term: str) -> Dict:
 
     if verbatim:
         grade = "原文逐字（A 層）"
+        citable = (f"「{term}」逐字見於《傷寒論》原文"
+                   f"（{verbatim[0]} 等 {len(verbatim)} 條）。")
     elif chronology:
         first = chronology[0]
         grade = (f"後世術語：在庫首現 {first['commentator']}"
                  f"（{first['dynasty']}《{first['book']}》）")
+        # 論文/UI 直接可引的規範句式：「最早」必須限定「在庫」，
+        # 庫外文獻、未收錄注本與版本先後都可能改變「歷史首現」結論
+        citable = (f"在當前收錄九種注本中，「{term}」逐字首見於"
+                   f"{first['commentator']}《{first['book']}》"
+                   f"（{first['dynasty']}）。")
     else:
         grade = "庫內未見（原文與九注本皆無逐字出現）"
+        citable = f"「{term}」在當前語料（宋本原文與九注本）中無逐字出現。"
     modern = modern_echo_for(verbatim) if verbatim else {
         "available": False, "note": "無 A 層錨點，現代回聲不適用。"}
 
@@ -637,6 +665,7 @@ def term_chain(term: str) -> Dict:
         "school_distribution": {k: school_dist[k] for k in sorted(school_dist)},
         "related_claims": related_claims,
         "evidence_grade": grade,
+        "citable_statement": citable,
         "modern": modern,
         "section_evidence_levels": {
             "verbatim_in_original": "A 原文逐字檢驗",

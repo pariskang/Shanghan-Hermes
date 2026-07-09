@@ -28,7 +28,20 @@ C10–C12 方藥知識類、D13–D14 注家學派類）。本文檔記錄逐項
 | 轉引語義細分 | self vs relay | **採納**：`trace-audit-citation` 區分「本書注文（self_commentary）」與「轉引注文（relay_commentary）」——來蘇集×12 命中柯琴注判本書注文，張卿子本×12 命中成無己注判後世轉引 |
 | 耦合逐 scope | bibliographic_coupling 全域 | **採納**：著作條文集先按域過濾再算 Jaccard，入 `scoped`；合成邊單元測試驗證語義（共享 12 正文+12 輔助 → canonical/auxiliary 各 12、all 24） |
 
-## 規劃中（B/D 組：需要獨立迭代與安全評審）
+## 第五輪落地：B 組方證辨證閉環（`apps/bianzheng.py`，四工具入註冊表）
+
+| # | 建議 | 落點 |
+|---|---|---|
+| B6 | 四診信息採集 | `intake` / `shanghan_intake`（**患者白名單唯一辨證類工具**）：自然敘述→結構化四診表（主訴/病程/寒熱/汗/渴飲/二便/胸脅腹/痛/眠/舌/脈/誤治史/藥後反應）+ 缺失關鍵信息 + 追問建議；現代口語→古籍術語映射表透明可審（怕冷→惡寒）；只整理信息不做匹配 |
+| B7 | 多假設裁決 | `adjudicate` / `shanghan_adjudicate`：基於 HypothesisManager，每候選附支持/反證/缺失/禁忌衝突，三態裁決（傾向A/傾向B/不能裁決）+「為什麼還不能定方」+ 3 個關鍵追問 |
+| B8 | 方證衝突審計 | `conflict-check` / `shanghan_conflict_audit`：互斥證對×方證規則→核心證/兼證衝突分級 + 衝突條文回源 + 觸發禁例 + 改判候選（無汗→麻黃湯類）+ 應補問；固有禁例不虛升嚴重度 |
+| B9 | 誤治傳變模擬 | `simulate-mistreatment` / `shanghan_mistreatment_simulate`：經×誤治→變證分支→救逆方→條文依據（60 條規則逐條錨定）；多步鏈為組合視圖並如實標註「非原文連續敘述」 |
+
+另落地：文檔同步守衛 `tests/test_docs_sync.py`（README/TEST_REPORT/
+LLM_AGENT 的測試數與工具數必須等於運行時實測，漂移即紅——回應
+「TEST_REPORT 同步智能體」建議，以 CI 守衛而非另一個生成器實現）。
+
+## 規劃中（D 組與深化項）
 
 | # | 建議 | 現有部分能力 | 評估與規劃 |
 |---|---|---|---|

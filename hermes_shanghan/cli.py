@@ -312,6 +312,39 @@ def cmd_formula_explain(args):
     _print(safety.governed(formula_explain(args.name), args.role or "doctor"))
 
 
+def cmd_intake(args):
+    """四診信息採集：自然敘述 → 結構化四診表（信息整理，非診斷）。"""
+    _need_pipeline()
+    from .apps.bianzheng import intake_parse
+    _print(safety.governed(intake_parse(args.text), args.role or "patient"))
+
+
+def cmd_adjudicate(args):
+    """方證多假設裁決（醫師/教學端）。"""
+    _need_pipeline()
+    from .apps.bianzheng import adjudicate
+    out = adjudicate([s for s in args.symptoms.split(",") if s.strip()],
+                     pulse=[p for p in (args.pulse or "").split(",") if p.strip()],
+                     six_channel=args.six_channel)
+    _print(safety.governed(out, args.role or "doctor"))
+
+
+def cmd_conflict_check(args):
+    """方證衝突審計（醫師端）。"""
+    _need_pipeline()
+    from .apps.bianzheng import conflict_audit
+    out = conflict_audit(args.formula,
+                         [s for s in args.symptoms.split(",") if s.strip()])
+    _print(safety.governed(out, args.role or "doctor"))
+
+
+def cmd_simulate_mistreatment(args):
+    """誤治傳變路徑模擬。"""
+    _need_pipeline()
+    from .apps.bianzheng import mistreatment_simulate
+    _print(mistreatment_simulate(args.channel, args.type, steps=args.steps))
+
+
 def cmd_trace_audit_scope(args):
     """Scope 一致性審計（A1）：三個 scope 的計量輸出逐一遞歸掃描違例。"""
     _need_pipeline()
@@ -732,6 +765,34 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="引文識別金標準：讀回人工標註計 P/R/F1 與模式一致率")
     sp.add_argument("--file", required=True, help="已標註 CSV 路徑")
     sp.set_defaults(func=cmd_trace_gold_eval)
+
+    sp = sub.add_parser("intake",
+                        help="四診信息採集：自然敘述→結構化四診表+缺失信息+追問（非診斷）")
+    sp.add_argument("text")
+    sp.add_argument("--role", choices=list(safety.ROLES))
+    sp.set_defaults(func=cmd_intake)
+
+    sp = sub.add_parser("adjudicate",
+                        help="方證多假設裁決：三態裁決+為什麼還不能定方+關鍵追問")
+    sp.add_argument("--symptoms", required=True, help="逗號分隔")
+    sp.add_argument("--pulse", default="", help="逗號分隔")
+    sp.add_argument("--six-channel", default="")
+    sp.add_argument("--role", choices=list(safety.ROLES))
+    sp.set_defaults(func=cmd_adjudicate)
+
+    sp = sub.add_parser("conflict-check",
+                        help="方證衝突審計：衝突項/衝突條文/是否禁忌/改判候選/應補問")
+    sp.add_argument("--formula", required=True)
+    sp.add_argument("--symptoms", required=True, help="逗號分隔")
+    sp.add_argument("--role", choices=list(safety.ROLES))
+    sp.set_defaults(func=cmd_conflict_check)
+
+    sp = sub.add_parser("simulate-mistreatment",
+                        help="誤治傳變路徑模擬：經×誤治→變證→救逆方→條文依據")
+    sp.add_argument("--channel", default="太陽病")
+    sp.add_argument("--type", default="", help="誤汗/誤下/誤吐/火逆；留空列全部")
+    sp.add_argument("--steps", type=int, default=1)
+    sp.set_defaults(func=cmd_simulate_mistreatment)
 
     sp = sub.add_parser("herb", help="藥證檔案：方劑/條文/劑量寫法/配伍網絡（不編造藥性解釋）")
     sp.add_argument("name")

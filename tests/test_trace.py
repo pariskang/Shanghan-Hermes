@@ -415,7 +415,8 @@ class TestTraceTools(unittest.TestCase):
         self.assertIn("shanghan_herb_profile", names)
         self.assertIn("shanghan_formula_explain", names)
         h = self.reg.call("shanghan_herb_profile", {"herb": "桂枝"})
-        self.assertEqual(h["evidence_level"], "A")
+        # 五輪評審：A 層材料的派生統計標 A-derived，不冒充原文直述
+        self.assertEqual(h["evidence_level"], "A-derived")
         f = self.reg.call("shanghan_formula_explain", {"formula": "桂枝湯"})
         self.assertEqual(f["evidence_level"], "mixed")
         # 患者模式不暴露（含劑量）

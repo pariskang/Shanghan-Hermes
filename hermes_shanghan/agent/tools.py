@@ -74,13 +74,30 @@ TOOL_META: Dict[str, Dict] = {
         "limitations": ["計量指標由逐字引文邊確定性推導；語料最晚傳播層為民國，"
                         "現代引用需經 modern 接口導入"]},
     "shanghan_herb_profile": {
-        "evidence_level": "A",
-        "limitations": ["僅含可計算事實（方劑/條文/劑量寫法/配伍共現）；"
+        "evidence_level": "A-derived",
+        "limitations": ["原始事實取自 A 層（組成/條文/劑量寫法），配伍共現與"
+                        "頻次排序屬確定性派生統計，非原文直述；"
                         "藥性功效解釋屬本草層未隨庫，不編造"]},
     "shanghan_formula_explain": {
         "evidence_level": "mixed",
         "limitations": ["一站式檔案混合 A/C/D 層與引文邊，逐節層級見 "
-                        "section_evidence_levels；三層症狀口徑見 symptom_layers.note"]},
+                        "section_evidence_levels；四層症狀口徑見 symptom_layers.note"]},
+    "shanghan_intake": {
+        "evidence_level": "D",
+        "limitations": ["僅為就診信息整理（確定性詞表抽取），不構成診斷；"
+                        "現代口語映射表透明可審"]},
+    "shanghan_adjudicate": {
+        "evidence_level": "D",
+        "limitations": ["三態裁決為確定性規則（評分差距+反證+禁忌），核心是"
+                        "說明「為什麼還不能定方」；不替代臨床判斷"]},
+    "shanghan_conflict_audit": {
+        "evidence_level": "D",
+        "limitations": ["衝突判定基於互斥證對與方證規則，條文可回源；"
+                        "改判候選僅為定位提示，不構成處方建議"]},
+    "shanghan_mistreatment_simulate": {
+        "evidence_level": "D",
+        "limitations": ["單步路徑逐條錨定原文；多步鏈為組合視圖（假設路徑），"
+                        "非原文連續敘述"]},
 }
 
 _RELEASE_CONFIDENCE = {"gold": 0.9, "silver": 0.75, "bronze": 0.6}
@@ -92,6 +109,7 @@ PATIENT_SAFE_TOOLS: List[str] = [
     "shanghan_search", "shanghan_get_clause", "shanghan_six_channel",
     "shanghan_relations", "shanghan_variants", "shanghan_divergence_atlas",
     "shanghan_corpus_stats", "shanghan_eval_metrics", "shanghan_library",
+    "shanghan_intake",   # 就診信息整理：無方/無劑量/無診斷，患者端安全
 ]
 
 
@@ -353,6 +371,48 @@ class ToolRegistry:
                 "formula": {"type": "string", "description": "方名，如 桂枝湯"}},
              "required": ["formula"]},
             self._t_formula_explain)
+        self._add(
+            "shanghan_intake",
+            "四診信息採集：把患者自然敘述整理為結構化四診表（主訴/病程/寒熱/"
+            "汗/渴飲/二便/胸脅腹/痛/眠/舌/脈/誤治史/藥後反應）+ 缺失關鍵信息 "
+            "+ 追問建議。只整理信息，不做匹配不做診斷（患者端安全）。",
+            {"type": "object", "properties": {
+                "text": {"type": "string", "description": "患者的自然語言敘述"}},
+             "required": ["text"]},
+            self._t_intake)
+        self._add(
+            "shanghan_adjudicate",
+            "方證多假設裁決（醫師/教學端）：候選方證各附支持證/反證/缺失證/"
+            "禁忌衝突，輸出三態裁決（傾向A/傾向B/不能裁決）+「為什麼還不能"
+            "定方」+ 三個關鍵追問。",
+            {"type": "object", "properties": {
+                "symptoms": {"type": "array", "items": {"type": "string"}},
+                "pulse": {"type": "array", "items": {"type": "string"}},
+                "six_channel": {"type": "string"}},
+             "required": ["symptoms"]},
+            self._t_adjudicate)
+        self._add(
+            "shanghan_conflict_audit",
+            "方證衝突審計（醫師端）：候選方 × 呈現表現 → 衝突項（核心證/兼證"
+            "衝突）/衝突條文/是否禁忌/改判候選/應補問。比 top-k 匹配更安全的"
+            "定位方式。",
+            {"type": "object", "properties": {
+                "formula": {"type": "string"},
+                "symptoms": {"type": "array", "items": {"type": "string"}},
+                "pulse": {"type": "array", "items": {"type": "string"}}},
+             "required": ["formula", "symptoms"]},
+            self._t_conflict_audit)
+        self._add(
+            "shanghan_mistreatment_simulate",
+            "誤治傳變路徑模擬：某經 × 某誤治 → 變證分支 → 救逆方 → 條文依據；"
+            "多步鏈為組合視圖並如實標註（每步錨定原文，鏈非原文連續敘述）。",
+            {"type": "object", "properties": {
+                "channel": {"type": "string", "default": "太陽病"},
+                "mistreatment": {"type": "string",
+                                 "description": "誤汗/誤下/誤吐/火逆；留空列全部"},
+                "steps": {"type": "integer", "default": 1}},
+             "required": []},
+            self._t_mistreatment_simulate)
 
     # -- research-layer helpers -----------------------------------------
     @staticmethod
@@ -638,6 +698,26 @@ class ToolRegistry:
     def _t_herb_profile(self, herb):
         from ..apps.herbal import herb_profile
         return {"tool": "shanghan_herb_profile", **herb_profile(herb)}
+
+    def _t_intake(self, text):
+        from ..apps.bianzheng import intake_parse
+        return {"tool": "shanghan_intake", **intake_parse(text)}
+
+    def _t_adjudicate(self, symptoms, pulse=None, six_channel=None):
+        from ..apps.bianzheng import adjudicate
+        return {"tool": "shanghan_adjudicate",
+                **adjudicate(symptoms, pulse=pulse,
+                             six_channel=six_channel or "", registry=self)}
+
+    def _t_conflict_audit(self, formula, symptoms, pulse=None):
+        from ..apps.bianzheng import conflict_audit
+        return {"tool": "shanghan_conflict_audit",
+                **conflict_audit(formula, symptoms, pulse=pulse, registry=self)}
+
+    def _t_mistreatment_simulate(self, channel="太陽病", mistreatment="", steps=1):
+        from ..apps.bianzheng import mistreatment_simulate
+        return {"tool": "shanghan_mistreatment_simulate",
+                **mistreatment_simulate(channel, mistreatment, steps)}
 
     def _t_formula_explain(self, formula):
         from ..trace.chains import formula_explain
