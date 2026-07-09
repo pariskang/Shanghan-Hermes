@@ -6,6 +6,16 @@
    "claim_id": "CLAIM_GZT_YINGWEI",
    "formula": "桂枝湯",
    "claim": "桂枝湯證的核心病機為營衛不和，桂枝湯功在調和營衛",
+   "interpretive_terms": [
+    "營衛不和",
+    "調和營衛",
+    "榮衛不和",
+    "衛強營弱",
+    "營弱衛強",
+    "榮氣和",
+    "衛氣不和",
+    "營衛"
+   ],
    "core_symptoms": [
     "發熱",
     "汗出",
@@ -192,6 +202,43 @@
      "sample": "復發其汗。營衛和則愈。宜桂枝湯。（玉函。作病常自汗出者。此為營氣和。衛氣不和故也。營行脈中。為陰主內。衛行脈外。為陽主外"
     }
    ],
+   "first_proponent": {
+    "commentator": "成無己",
+    "book": "註解傷寒論",
+    "dynasty": "金",
+    "school_id": "SCH_YIJING_ZHULUN"
+   },
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {
+    "榮氣和": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    },
+    "營弱衛強": {
+     "commentator": "尤怡",
+     "dynasty": "清"
+    },
+    "營衛": {
+     "commentator": "尤怡",
+     "dynasty": "清"
+    },
+    "營衛不和": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    },
+    "衛強營弱": {
+     "commentator": "錢潢",
+     "dynasty": "清"
+    },
+    "衛氣不和": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    },
+    "調和營衛": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    }
+   },
    "n_commentators_using_terms": 7,
    "school_views": [
     "SCH_CUOJIAN",
@@ -212,6 +259,13 @@
    "claim_id": "CLAIM_XCHT_SHUJI",
    "formula": "小柴胡湯",
    "claim": "小柴胡湯證屬少陽樞機不利，治以和解少陽",
+   "interpretive_terms": [
+    "樞機",
+    "和解",
+    "半表半裏",
+    "半在裏半在外",
+    "樞"
+   ],
    "core_symptoms": [
     "嘔",
     "往來寒熱",
@@ -378,6 +432,31 @@
      "sample": "者小間。有與字。玉函。者字。作即與。）\n〔汪〕此條。乃少陽病兼挾裡虛之證。傷寒脈弦者。弦本少陽之脈。宜與小柴胡湯。茲但陰"
     }
    ],
+   "first_proponent": {
+    "commentator": "成無己",
+    "book": "註解傷寒論",
+    "dynasty": "金",
+    "school_id": "SCH_YIJING_ZHULUN"
+   },
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {
+    "半表半裏": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    },
+    "和解": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    },
+    "樞": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    },
+    "樞機": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    }
+   },
    "n_commentators_using_terms": 6,
    "school_views": [
     "SCH_FANGZHENG",
@@ -397,6 +476,12 @@
    "claim_id": "CLAIM_DCQT_FUSHI",
    "formula": "大承氣湯",
    "claim": "大承氣湯證為陽明腑實，治以峻下燥屎",
+   "interpretive_terms": [
+    "腑實",
+    "燥屎",
+    "胃家實",
+    "痞滿燥實"
+   ],
    "core_symptoms": [
     "潮熱",
     "不大便",
@@ -598,6 +683,23 @@
      "sample": "不轉失氣者。慎不可攻也。（不可與之。成本。脫可字。玉函。作勿與之。此有燥屎也。成本。無也字。轉失氣。玉函。並作轉矢氣。其"
     }
    ],
+   "first_proponent": {
+    "commentator": "成無己",
+    "book": "註解傷寒論",
+    "dynasty": "金",
+    "school_id": "SCH_YIJING_ZHULUN"
+   },
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {
+    "燥屎": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    },
+    "胃家實": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    }
+   },
    "n_commentators_using_terms": 8,
    "school_views": [
     "SCH_CUOJIAN",
@@ -618,6 +720,12 @@
    "claim_id": "CLAIM_BXXXT_HANRE",
    "formula": "半夏瀉心湯",
    "claim": "半夏瀉心湯證為寒熱錯雜之痞，治以辛開苦降",
+   "interpretive_terms": [
+    "寒熱錯雜",
+    "辛開苦降",
+    "痞",
+    "中焦"
+   ],
    "core_symptoms": [],
    "core_pulse": [],
    "classical_evidence": [
@@ -720,6 +828,19 @@
      "sample": "柴胡不中與之。宜半夏瀉心湯。（外台。此條作太陽病下之。其脈促不結胸者。此為欲解也。若心下滿硬痛者。\n此為結胸也。大陷胸湯"
     }
    ],
+   "first_proponent": {
+    "commentator": "成無己",
+    "book": "註解傷寒論",
+    "dynasty": "金",
+    "school_id": "SCH_YIJING_ZHULUN"
+   },
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {
+    "痞": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    }
+   },
    "n_commentators_using_terms": 6,
    "school_views": [
     "SCH_FANGZHENG",
@@ -738,6 +859,13 @@
    "claim_id": "CLAIM_SNT_HUIYANG",
    "formula": "四逆湯",
    "claim": "四逆湯證為少陰陽衰陰盛，治以回陽救逆",
+   "interpretive_terms": [
+    "回陽",
+    "救逆",
+    "亡陽",
+    "陽衰",
+    "陰盛"
+   ],
    "core_symptoms": [
     "下利清穀",
     "下利",
@@ -906,6 +1034,35 @@
      "sample": "〔錢〕此與少陰厥陰。裡寒外熱。同義。若風脈浮而表熱。則浮脈必數。今表雖熱而脈遲。則知陰寒在裡。\n陰盛格陽於外。而表熱也。"
     }
    ],
+   "first_proponent": {
+    "commentator": "成無己",
+    "book": "註解傷寒論",
+    "dynasty": "金",
+    "school_id": "SCH_YIJING_ZHULUN"
+   },
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {
+    "亡陽": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    },
+    "回陽": {
+     "commentator": "方有執",
+     "dynasty": "明"
+    },
+    "救逆": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    },
+    "陰盛": {
+     "commentator": "尤怡",
+     "dynasty": "清"
+    },
+    "陽衰": {
+     "commentator": "方有執",
+     "dynasty": "明"
+    }
+   },
    "n_commentators_using_terms": 8,
    "school_views": [
     "SCH_CUOJIAN",
@@ -926,6 +1083,12 @@
    "claim_id": "CLAIM_WLS_XUSHUI",
    "formula": "五苓散",
    "claim": "五苓散證為太陽蓄水、膀胱氣化不利",
+   "interpretive_terms": [
+    "蓄水",
+    "氣化",
+    "水逆",
+    "膀胱"
+   ],
    "core_symptoms": [
     "渴",
     "發熱",
@@ -1065,6 +1228,31 @@
      "sample": "〔方〕已者。言發汗畢。非謂表病罷也。煩渴者。膀胱水蓄。不化津液。故用四苓以利之。浮數者。外表未除。故憑一桂以和之。所以謂"
     }
    ],
+   "first_proponent": {
+    "commentator": "成無己",
+    "book": "註解傷寒論",
+    "dynasty": "金",
+    "school_id": "SCH_YIJING_ZHULUN"
+   },
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {
+    "氣化": {
+     "commentator": "柯琴",
+     "dynasty": "清"
+    },
+    "水逆": {
+     "commentator": "成無己",
+     "dynasty": "金"
+    },
+    "膀胱": {
+     "commentator": "尤怡",
+     "dynasty": "清"
+    },
+    "蓄水": {
+     "commentator": "丹波元簡",
+     "dynasty": "日本"
+    }
+   },
    "n_commentators_using_terms": 6,
    "school_views": [
     "SCH_FANGZHENG",
@@ -1084,6 +1272,12 @@
    "claim_id": "CLAIM_BHT_JINGZHENG",
    "formula": "白虎湯",
    "claim": "白虎湯證為陽明經證（表裏俱熱），治以辛寒清氣",
+   "interpretive_terms": [
+    "經證",
+    "表裏俱熱",
+    "清氣",
+    "氣分"
+   ],
    "core_symptoms": [
     "腹滿",
     "身重",
@@ -1107,6 +1301,9 @@
    ],
    "terms_verbatim_in_original": {},
    "commentarial_chronology": [],
+   "first_proponent": {},
+   "first_proponent_note": "「最早可見」以在庫九注本為限；更早的散佚注釋不可考，不作臆斷。",
+   "term_first_use": {},
    "n_commentators_using_terms": 0,
    "school_views": [],
    "controversies": [

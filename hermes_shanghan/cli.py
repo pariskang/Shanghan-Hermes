@@ -269,6 +269,68 @@ def cmd_trace_scan_full(args):
     _print({"out": str(out), "n_edges": n, "params": scan["params"]})
 
 
+def cmd_trace_audit_citation(args):
+    """引文邊審計（A2）：某書 × 某條文的全部引文邊逐條可靠性核查。"""
+    _need_pipeline()
+    from .schemas import read_jsonl as _rj
+    from .trace.builder import _clause_texts
+    from .trace.chains import _clauses, _resolve_clause
+    from .trace.quotation import audit_citation
+    c = _resolve_clause(args.clause, _clauses())
+    if c is None:
+        print(f"未找到條文 {args.clause}", file=sys.stderr)
+        sys.exit(1)
+    commentary = _rj(config.RULES_COMMENTARY_DIR / "commentary_rules.jsonl")
+    _print(audit_citation(args.book, c["clause_id"], _clause_texts(), commentary))
+
+
+def cmd_trace_gold_sample(args):
+    """金標準標註表生成（A3）：確定性等距抽樣 + 算法預測列。"""
+    _need_pipeline()
+    from .trace.goldset import build_sample
+    _print(build_sample(n=args.n, out_path=args.out))
+
+
+def cmd_trace_gold_eval(args):
+    """金標準評估（A3）：讀回人工標註，計 P/R/F1 與模式一致率。"""
+    _need_pipeline()
+    from .trace.goldset import evaluate
+    _print(evaluate(args.file))
+
+
+def cmd_herb(args):
+    """藥證檔案（C10）：單味藥的方劑/條文/劑量/配伍畫像。"""
+    _need_pipeline()
+    from .apps.herbal import herb_profile
+    _print(safety.governed(herb_profile(args.name), args.role or "doctor"))
+
+
+def cmd_formula_explain(args):
+    """方解檔案（C11）：源流+方證+鑒別+禁忌+煎服一站式。"""
+    _need_pipeline()
+    from .trace.chains import formula_explain
+    _print(safety.governed(formula_explain(args.name), args.role or "doctor"))
+
+
+def cmd_trace_audit_scope(args):
+    """Scope 一致性審計（A1）：三個 scope 的計量輸出逐一遞歸掃描違例。"""
+    _need_pipeline()
+    from .agent.tools import get_registry
+    from .trace.scientometrics import audit_scope_consistency
+    reg = get_registry()
+    reports = []
+    for scope in ("canonical", "auxiliary", "all"):
+        payload = reg.call("shanghan_citation_network",
+                           {"scope": scope, "top_k": 20})
+        reports.append(audit_scope_consistency(payload, scope))
+    ok = all(r["ok"] for r in reports)
+    _print({"ok": ok, "reports": reports,
+            "note": "canonical 輸出含 AUX 或 auxiliary 輸出含正文條文即為違例；"
+                    "對工具輸出全文遞歸掃描，杜絕漏檢字段。"})
+    if not ok:
+        sys.exit(1)
+
+
 def cmd_trace_scan_library(args):
     """全庫（中醫笈成 800+ 部）引文掃描；庫未下載時如實提示。"""
     _need_pipeline()
@@ -627,8 +689,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp.add_argument("ref", help="條文號、方名、觀點關鍵詞、注家名、學派名或原文片段")
     sp.add_argument("--type", "-t", default="text",
                     choices=["clause", "formula", "claim", "school",
-                             "commentator", "text"],
-                    help="溯源對象類型（默認 text：任意文本回源）")
+                             "commentator", "text", "quote"],
+                    help="溯源對象類型（默認 text：任意文本回源；"
+                         "quote：誤引檢測——引文能否作原文直引）")
     sp.set_defaults(func=cmd_trace)
 
     sp = sub.add_parser("trace-build", help="重建溯源層資產（引文邊/計量網絡/學派/觀點）")
@@ -646,6 +709,38 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="導出段落級全量引文邊 jsonl（~4 萬條，體積大不入庫）")
     sp.add_argument("--out", required=True, help="輸出 jsonl 路徑")
     sp.set_defaults(func=cmd_trace_scan_full)
+
+    sp = sub.add_parser("trace-audit-scope",
+                        help="Scope 一致性審計：canonical/auxiliary/all 輸出逐一驗證無跨域混入")
+    sp.set_defaults(func=cmd_trace_audit_scope)
+
+    sp = sub.add_parser("trace-audit-citation",
+                        help="引文邊審計：某書×某條文逐邊可靠性核查（片段/覆蓋/歧義/轉引）")
+    sp.add_argument("--book", required=True, help="書目錄名，如 傷寒來蘇集")
+    sp.add_argument("--clause", required=True, help="條文號或 clause_id")
+    sp.set_defaults(func=cmd_trace_audit_citation)
+
+    sp = sub.add_parser("trace-gold-sample",
+                        help="引文識別金標準：確定性抽樣導出標註表 CSV（附算法預測列）")
+    sp.add_argument("--n", type=int, default=50)
+    sp.add_argument("--out", required=True, help="輸出 CSV 路徑")
+    sp.set_defaults(func=cmd_trace_gold_sample)
+
+    sp = sub.add_parser("trace-gold-eval",
+                        help="引文識別金標準：讀回人工標註計 P/R/F1 與模式一致率")
+    sp.add_argument("--file", required=True, help="已標註 CSV 路徑")
+    sp.set_defaults(func=cmd_trace_gold_eval)
+
+    sp = sub.add_parser("herb", help="藥證檔案：方劑/條文/劑量寫法/配伍網絡（不編造藥性解釋）")
+    sp.add_argument("name")
+    sp.add_argument("--role", choices=list(safety.ROLES))
+    sp.set_defaults(func=cmd_herb)
+
+    sp = sub.add_parser("formula-explain",
+                        help="方解檔案：首見/方證/組成劑量/煎服/禁忌/類方鑒別/方名傳播一站式")
+    sp.add_argument("name")
+    sp.add_argument("--role", choices=list(safety.ROLES))
+    sp.set_defaults(func=cmd_formula_explain)
 
     sp = sub.add_parser("trace-scan-library",
                         help="全庫引文掃描（中醫笈成 800+ 部，旁證層；需先 library fetch）")

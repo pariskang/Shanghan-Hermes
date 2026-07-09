@@ -480,6 +480,76 @@ def formula_mentions(formula_names: Iterable[str], verbose: bool = False) -> Dic
 
 
 # ---------------------------------------------------------------------------
+# 引文邊審計（A2 Citation Evidence Auditor：每條邊的可靠性逐項核查）
+# ---------------------------------------------------------------------------
+def audit_citation(book_dir: str, clause_id: str,
+                   clause_texts: Dict[str, str],
+                   commentary_rules: Optional[List[Dict]] = None) -> Dict:
+    """重掃單書，對「某書 × 某條文」的全部引文邊出具審計報告。
+
+    每條邊給出：模式、最長逐字片段、覆蓋率、歸屬歧義（同片段可歸屬條文數）、
+    是否僅達套語邊界（run==8）、是否片段引用（覆蓋率低，存在斷章風險，
+    需結合上下文人工核）、是否經由注文轉引，並給出確定性可靠性分級。"""
+    from ..corpus import segmenter
+
+    scanner = QuotationScanner(clause_texts, commentary_rules)
+    try:
+        paragraphs = segmenter.segment_paragraphs(book_dir)
+    except FileNotFoundError:
+        return {"error": f"語料中無此書：{book_dir}"}
+    ctext = scanner.index.texts.get(clause_id, "")
+    if not ctext:
+        return {"error": f"未找到條文 {clause_id}"}
+
+    rows = []
+    for seq, (chapter, para) in enumerate(paragraphs):
+        edges, _ = scanner.scan_paragraph(para)
+        for e in edges:
+            if e.get("clause_id") != clause_id:
+                continue
+            run = e.get("longest_run", 0)
+            cov = e.get("coverage", 0.0)
+            amb = e.get("ambiguity", 1)
+            flags = []
+            if amb > 1:
+                flags.append(f"歸屬歧義：同片段可歸屬 {amb} 條條文")
+            if 0 < run <= SHINGLE_CLAUSE:
+                flags.append("僅達套語邊界（8 字），證據強度弱")
+            if e["target_kind"] == "clause" and 0 < cov < 0.3:
+                flags.append("片段引用（覆蓋率<0.3）：存在斷章風險，"
+                             "結論部分未必被引及，需人工核上下文")
+            if e["target_kind"] == "commentary":
+                flags.append(f"經由注文轉引（{e.get('via_commentator', '')}"
+                             f"《{e.get('via_book', '')}》），非直接引經文")
+            if e["mode"] == "改寫":
+                flags.append("改寫判定為相似度提示（無逐字片段），可靠性低")
+            if run >= 16 and amb == 1 and e["target_kind"] == "clause":
+                reliability = "高"
+            elif run >= 10 or cov >= 0.5:
+                reliability = "中"
+            else:
+                reliability = "低"
+            rows.append({"chapter": chapter, "para_seq": seq,
+                         "paragraph_excerpt": para[:80],
+                         "mode": e["mode"], "marker": e.get("marker", ""),
+                         "longest_run": run, "coverage": cov,
+                         "ambiguity": amb, "matched_span": e.get("matched_span", ""),
+                         "reliability": reliability, "flags": flags})
+    rows.sort(key=lambda r: ({"高": 0, "中": 1, "低": 2}[r["reliability"]],
+                             r["para_seq"]))
+    counts = {}
+    for r in rows:
+        counts[r["reliability"]] = counts.get(r["reliability"], 0) + 1
+    return {"book_dir": book_dir, "clause_id": clause_id,
+            "clause_text": clause_texts.get(clause_id, "")[:80],
+            "n_edges": len(rows),
+            "reliability_counts": {k: counts[k] for k in sorted(counts)},
+            "edges": rows,
+            "note": "可靠性分級為確定性規則（片段長度/覆蓋率/歧義度/轉引），"
+                    "「斷章風險」僅為提示，語義層面的斷章取義需人工判定。"}
+
+
+# ---------------------------------------------------------------------------
 # 全庫掃描（中醫笈成 800+ 部，文獻旁證層；`library fetch` 後可用）
 # ---------------------------------------------------------------------------
 def scan_library(clause_texts: Dict[str, str],

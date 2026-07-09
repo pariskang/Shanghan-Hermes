@@ -178,7 +178,11 @@ class TestChains(unittest.TestCase):
         from hermes_shanghan.trace.chains import formula_chain
         r = formula_chain("桂枝湯")
         self.assertEqual(r["chain_type"], "方劑源流鏈")
-        self.assertTrue(r["earliest_source"]["clause_ids"])
+        # 首見（宋本條文序）為單一正文條文；支持條文全集正文/輔助分列
+        self.assertEqual(r["first_attestation"]["clause_id"], "SHL_SONGBEN_0012")
+        self.assertTrue(r["supporting_clauses"]["canonical"])
+        self.assertFalse([c for c in r["supporting_clauses"]["canonical"]
+                          if "AUX" in c])
         self.assertTrue(r["family_dose_evolution"])
         self.assertGreater(r["name_transmission"]["n_books"], 20)
         self.assertTrue(r["claims"])
@@ -271,6 +275,92 @@ class TestTraceTools(unittest.TestCase):
         r = load_modern_trace()
         self.assertFalse(r["available"])
         self.assertIn("不隨庫分發", r["note"])
+
+    def test_network_scope_covers_all_fields(self):
+        # 三輪評審方案 A：scope 貫穿時間切片/共引/突現/主路徑（審計器驗證）
+        from hermes_shanghan.trace.scientometrics import audit_scope_consistency
+        for scope in ("canonical", "auxiliary", "all"):
+            payload = self.reg.call("shanghan_citation_network",
+                                    {"scope": scope, "top_k": 20})
+            report = audit_scope_consistency(payload, scope)
+            self.assertTrue(report["ok"], report)
+
+    def test_quote_check_misquotation(self):
+        # A4 誤引檢測：評審給出的典型用例
+        from hermes_shanghan.trace.chains import quote_check
+        r = quote_check("营卫不和，桂枝汤主之")
+        frag = {f["fragment"]: f for f in r["fragments"]}
+        self.assertEqual(frag["營衛不和"]["verdict"], "後世歸納語（非原文）")
+        self.assertIn("CLAIM_GZT_YINGWEI",
+                      [c["claim_id"] for c in frag["營衛不和"]["related_claims"]])
+        self.assertEqual(frag["桂枝湯主之"]["verdict"], "原文逐字")
+        self.assertIn("SHL_SONGBEN_0012", frag["桂枝湯主之"]["verbatim_in"])
+        self.assertIn("不能整句作為原文直引", r["verdict"])
+        # 全原文輸入 → 可直引
+        ok = quote_check("太陽之為病，脈浮，頭項強痛而惡寒")
+        self.assertIn("可作原文直引", ok["verdict"])
+
+    def test_audit_citation_reliability(self):
+        # A2 引文邊審計
+        from hermes_shanghan.schemas import read_jsonl
+        from hermes_shanghan.trace.builder import _clause_texts
+        from hermes_shanghan.trace.quotation import audit_citation
+        cr = read_jsonl(config.RULES_COMMENTARY_DIR / "commentary_rules.jsonl")
+        r = audit_citation("傷寒來蘇集", "SHL_SONGBEN_0012", _clause_texts(), cr)
+        self.assertGreater(r["n_edges"], 0)
+        for e in r["edges"]:
+            self.assertIn(e["reliability"], ("高", "中", "低"))
+        self.assertIn("error", audit_citation("不存在的書", "SHL_SONGBEN_0012",
+                                              _clause_texts()))
+
+    def test_goldset_roundtrip(self):
+        # A3 金標準：抽樣→(以算法預測代人工)→評估 P/R/F1=1（機制自檢）
+        import csv
+        import tempfile
+        from pathlib import Path
+
+        from hermes_shanghan.trace.goldset import (CSV_FIELDS, build_sample,
+                                                   evaluate)
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "gold.csv"
+            s = build_sample(n=12, out_path=p)
+            self.assertEqual(s["n_sampled"], 12)
+            with p.open(encoding="utf-8-sig", newline="") as fh:
+                rows = list(csv.DictReader(fh))
+            for row in rows:
+                row["human_clause_id"] = (row["algo_clause_id"]
+                                          if row["algo_clause_id"] != "無" else "0")
+                row["human_mode"] = row["algo_mode"]
+            with p.open("w", encoding="utf-8-sig", newline="") as fh:
+                w = csv.DictWriter(fh, fieldnames=CSV_FIELDS)
+                w.writeheader()
+                w.writerows(rows)
+            ev = evaluate(p)
+            self.assertEqual(ev["clause_level"]["precision"], 1.0)
+            self.assertEqual(ev["clause_level"]["recall"], 1.0)
+
+    def test_claim_lineage_fields(self):
+        # A5 觀點譜系：最早可見注家 + 術語首現
+        from hermes_shanghan.trace.builder import load_claims
+        gzt = next(c for c in load_claims()["claims"]
+                   if c["claim_id"] == "CLAIM_GZT_YINGWEI")
+        self.assertEqual(gzt["first_proponent"]["commentator"], "成無己")
+        self.assertIn("在庫", gzt["first_proponent_note"])
+        self.assertTrue(gzt["term_first_use"])
+        self.assertTrue(gzt["interpretive_terms"])
+
+    def test_herb_profile_and_formula_explain(self):
+        # C10 藥解 / C11 方解
+        from hermes_shanghan.apps.herbal import herb_profile
+        from hermes_shanghan.trace.chains import formula_explain
+        h = herb_profile("桂枝")
+        self.assertGreater(h["n_formulas"], 30)
+        self.assertEqual(h["top_partners"][0]["herb"], "甘草")
+        self.assertIn("不編造", h["warnings"][0])
+        f = formula_explain("桂枝湯")
+        self.assertEqual(f["first_attestation"]["clause_id"], "SHL_SONGBEN_0012")
+        self.assertTrue(f["differentials"])
+        self.assertTrue(f["contraindications"] is not None)
 
     def test_scan_library_with_fixture(self):
         # 全庫掃描（引用方=任意醫籍）：合成最小庫驗證端到端，不依賴真實下載

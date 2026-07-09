@@ -3964,6 +3964,52 @@
    "dynasty": "宋",
    "n_edges": 2976,
    "n_works": 8,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0134",
+     "n": 28
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0023",
+     "n": 23
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0131",
+     "n": 22
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0219",
+     "n": 19
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0143",
+     "n": 17
+    }
+   ],
+   "n_edges_canonical": 2133,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0092",
+     "n": 19
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "n": 19
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0233",
+     "n": 17
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0029",
+     "n": 13
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0033",
+     "n": 13
+    }
+   ],
+   "n_edges_auxiliary": 843,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_0134",
@@ -3985,12 +4031,59 @@
      "clause_id": "SHL_SONGBEN_AUX_0092",
      "n": 19
     }
-   ]
+   ],
+   "n_edges_all": 2976
   },
   {
    "dynasty": "金",
    "n_edges": 1715,
    "n_works": 7,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0134",
+     "n": 14
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0236",
+     "n": 12
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0208",
+     "n": 11
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0040",
+     "n": 10
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0212",
+     "n": 10
+    }
+   ],
+   "n_edges_canonical": 1004,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "n": 30
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "n": 27
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0272",
+     "n": 25
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0257",
+     "n": 22
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0033",
+     "n": 13
+    }
+   ],
+   "n_edges_auxiliary": 711,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_AUX_0222",
@@ -4012,12 +4105,59 @@
      "clause_id": "SHL_SONGBEN_0134",
      "n": 14
     }
-   ]
+   ],
+   "n_edges_all": 1715
   },
   {
    "dynasty": "元",
    "n_edges": 40,
    "n_works": 2,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0130",
+     "n": 2
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0167",
+     "n": 2
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0230",
+     "n": 2
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0026",
+     "n": 1
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0061",
+     "n": 1
+    }
+   ],
+   "n_edges_canonical": 23,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0102",
+     "n": 2
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0148",
+     "n": 2
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0092",
+     "n": 1
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0099",
+     "n": 1
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0104",
+     "n": 1
+    }
+   ],
+   "n_edges_auxiliary": 17,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_0130",
@@ -4039,12 +4179,59 @@
      "clause_id": "SHL_SONGBEN_AUX_0148",
      "n": 2
     }
-   ]
+   ],
+   "n_edges_all": 40
   },
   {
    "dynasty": "明",
    "n_edges": 2369,
    "n_works": 4,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0252",
+     "n": 15
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0067",
+     "n": 13
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0106",
+     "n": 13
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0076",
+     "n": 12
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0023",
+     "n": 11
+    }
+   ],
+   "n_edges_canonical": 1534,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "n": 32
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "n": 29
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0272",
+     "n": 28
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0257",
+     "n": 25
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0233",
+     "n": 14
+    }
+   ],
+   "n_edges_auxiliary": 835,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_AUX_0222",
@@ -4066,12 +4253,59 @@
      "clause_id": "SHL_SONGBEN_0252",
      "n": 15
     }
-   ]
+   ],
+   "n_edges_all": 2369
   },
   {
    "dynasty": "清",
    "n_edges": 16025,
    "n_works": 25,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0252",
+     "n": 114
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0221",
+     "n": 97
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0134",
+     "n": 93
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0023",
+     "n": 88
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0067",
+     "n": 74
+    }
+   ],
+   "n_edges_canonical": 11518,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "n": 282
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0272",
+     "n": 249
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "n": 244
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0257",
+     "n": 213
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0266",
+     "n": 128
+    }
+   ],
+   "n_edges_auxiliary": 4507,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_AUX_0222",
@@ -4093,12 +4327,59 @@
      "clause_id": "SHL_SONGBEN_AUX_0266",
      "n": 128
     }
-   ]
+   ],
+   "n_edges_all": 16025
   },
   {
    "dynasty": "日本",
    "n_edges": 1357,
    "n_works": 2,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0029",
+     "n": 12
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0332",
+     "n": 11
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0067",
+     "n": 10
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0307",
+     "n": 10
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0306",
+     "n": 9
+    }
+   ],
+   "n_edges_canonical": 991,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0272",
+     "n": 46
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "n": 41
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0257",
+     "n": 40
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "n": 28
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0230",
+     "n": 15
+    }
+   ],
+   "n_edges_auxiliary": 366,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_AUX_0272",
@@ -4120,12 +4401,59 @@
      "clause_id": "SHL_SONGBEN_AUX_0230",
      "n": 15
     }
-   ]
+   ],
+   "n_edges_all": 1357
   },
   {
    "dynasty": "民國",
    "n_edges": 1119,
    "n_works": 3,
+   "top_canonical": [
+    {
+     "clause_id": "SHL_SONGBEN_0252",
+     "n": 12
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0063",
+     "n": 10
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0023",
+     "n": 9
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0162",
+     "n": 9
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0006",
+     "n": 7
+    }
+   ],
+   "n_edges_canonical": 858,
+   "top_auxiliary": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "n": 25
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "n": 25
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0233",
+     "n": 21
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0263",
+     "n": 18
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0266",
+     "n": 18
+    }
+   ],
+   "n_edges_auxiliary": 261,
    "top_clauses": [
     {
      "clause_id": "SHL_SONGBEN_AUX_0222",
@@ -4147,7 +4475,8 @@
      "clause_id": "SHL_SONGBEN_AUX_0266",
      "n": 18
     }
-   ]
+   ],
+   "n_edges_all": 1119
   }
  ],
  "bursts": [
@@ -5073,5 +5402,3551 @@
     }
    ]
   }
- ]
+ ],
+ "scoped": {
+  "canonical": {
+   "cocitation_pairs": [
+    {
+     "a": "SHL_SONGBEN_0063",
+     "b": "SHL_SONGBEN_0162",
+     "n": 107
+    },
+    {
+     "a": "SHL_SONGBEN_0023",
+     "b": "SHL_SONGBEN_0027",
+     "n": 87
+    },
+    {
+     "a": "SHL_SONGBEN_0302",
+     "b": "SHL_SONGBEN_0303",
+     "n": 87
+    },
+    {
+     "a": "SHL_SONGBEN_0302",
+     "b": "SHL_SONGBEN_0320",
+     "n": 85
+    },
+    {
+     "a": "SHL_SONGBEN_0303",
+     "b": "SHL_SONGBEN_0320",
+     "n": 85
+    },
+    {
+     "a": "SHL_SONGBEN_0134",
+     "b": "SHL_SONGBEN_0221",
+     "n": 69
+    },
+    {
+     "a": "SHL_SONGBEN_0143",
+     "b": "SHL_SONGBEN_0216",
+     "n": 66
+    },
+    {
+     "a": "SHL_SONGBEN_0142",
+     "b": "SHL_SONGBEN_0265",
+     "n": 65
+    },
+    {
+     "a": "SHL_SONGBEN_0187",
+     "b": "SHL_SONGBEN_0278",
+     "n": 64
+    },
+    {
+     "a": "SHL_SONGBEN_0317",
+     "b": "SHL_SONGBEN_0370",
+     "n": 64
+    },
+    {
+     "a": "SHL_SONGBEN_0134",
+     "b": "SHL_SONGBEN_0236",
+     "n": 59
+    },
+    {
+     "a": "SHL_SONGBEN_0048",
+     "b": "SHL_SONGBEN_0185",
+     "n": 57
+    },
+    {
+     "a": "SHL_SONGBEN_0307",
+     "b": "SHL_SONGBEN_0316",
+     "n": 57
+    },
+    {
+     "a": "SHL_SONGBEN_0104",
+     "b": "SHL_SONGBEN_0105",
+     "n": 48
+    },
+    {
+     "a": "SHL_SONGBEN_0212",
+     "b": "SHL_SONGBEN_0213",
+     "n": 47
+    },
+    {
+     "a": "SHL_SONGBEN_0332",
+     "b": "SHL_SONGBEN_0333",
+     "n": 47
+    },
+    {
+     "a": "SHL_SONGBEN_0105",
+     "b": "SHL_SONGBEN_0248",
+     "n": 45
+    },
+    {
+     "a": "SHL_SONGBEN_0209",
+     "b": "SHL_SONGBEN_0238",
+     "n": 44
+    },
+    {
+     "a": "SHL_SONGBEN_0306",
+     "b": "SHL_SONGBEN_0307",
+     "n": 43
+    },
+    {
+     "a": "SHL_SONGBEN_0095",
+     "b": "SHL_SONGBEN_0236",
+     "n": 39
+    },
+    {
+     "a": "SHL_SONGBEN_0255",
+     "b": "SHL_SONGBEN_0256",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0354",
+     "b": "SHL_SONGBEN_0388",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0306",
+     "b": "SHL_SONGBEN_0308",
+     "n": 33
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0253",
+     "n": 30
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0322",
+     "n": 27
+    },
+    {
+     "a": "SHL_SONGBEN_0231",
+     "b": "SHL_SONGBEN_0232",
+     "n": 25
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0254",
+     "n": 25
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0320",
+     "n": 25
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0302",
+     "n": 24
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0303",
+     "n": 24
+    },
+    {
+     "a": "SHL_SONGBEN_0252",
+     "b": "SHL_SONGBEN_0321",
+     "n": 24
+    },
+    {
+     "a": "SHL_SONGBEN_0306",
+     "b": "SHL_SONGBEN_0316",
+     "n": 24
+    },
+    {
+     "a": "SHL_SONGBEN_0037",
+     "b": "SHL_SONGBEN_0231",
+     "n": 23
+    },
+    {
+     "a": "SHL_SONGBEN_0101",
+     "b": "SHL_SONGBEN_0149",
+     "n": 22
+    },
+    {
+     "a": "SHL_SONGBEN_0103",
+     "b": "SHL_SONGBEN_0123",
+     "n": 20
+    },
+    {
+     "a": "SHL_SONGBEN_0217",
+     "b": "SHL_SONGBEN_0220",
+     "n": 20
+    },
+    {
+     "a": "SHL_SONGBEN_0037",
+     "b": "SHL_SONGBEN_0232",
+     "n": 19
+    },
+    {
+     "a": "SHL_SONGBEN_0222",
+     "b": "SHL_SONGBEN_0223",
+     "n": 18
+    },
+    {
+     "a": "SHL_SONGBEN_0307",
+     "b": "SHL_SONGBEN_0308",
+     "n": 18
+    },
+    {
+     "a": "SHL_SONGBEN_0266",
+     "b": "SHL_SONGBEN_0267",
+     "n": 17
+    },
+    {
+     "a": "SHL_SONGBEN_0104",
+     "b": "SHL_SONGBEN_0248",
+     "n": 16
+    },
+    {
+     "a": "SHL_SONGBEN_0128",
+     "b": "SHL_SONGBEN_0129",
+     "n": 15
+    },
+    {
+     "a": "SHL_SONGBEN_0221",
+     "b": "SHL_SONGBEN_0222",
+     "n": 15
+    },
+    {
+     "a": "SHL_SONGBEN_0221",
+     "b": "SHL_SONGBEN_0236",
+     "n": 15
+    },
+    {
+     "a": "SHL_SONGBEN_0379",
+     "b": "SHL_SONGBEN_0394",
+     "n": 15
+    },
+    {
+     "a": "SHL_SONGBEN_0096",
+     "b": "SHL_SONGBEN_0100",
+     "n": 14
+    },
+    {
+     "a": "SHL_SONGBEN_0244",
+     "b": "SHL_SONGBEN_0329",
+     "n": 14
+    },
+    {
+     "a": "SHL_SONGBEN_0051",
+     "b": "SHL_SONGBEN_0052",
+     "n": 13
+    },
+    {
+     "a": "SHL_SONGBEN_0131",
+     "b": "SHL_SONGBEN_0134",
+     "n": 13
+    },
+    {
+     "a": "SHL_SONGBEN_0221",
+     "b": "SHL_SONGBEN_0223",
+     "n": 13
+    }
+   ],
+   "bursts": [
+    {
+     "clause_id": "SHL_SONGBEN_0167",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 34.6
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0130",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 30.48
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0397",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 22.07
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0343",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 21.33
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0337",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 19.39
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0304",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 18.82
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0129",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 17.3
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0230",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 15.24
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0390",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 14.55
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0026",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 13.62
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0352",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.8
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0315",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.31
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0321",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.08
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0388",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.08
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0061",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.85
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0279",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.43
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0326",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.23
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0257",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 9.85
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0131",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 6.1
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0369",
+     "dynasty": "民國",
+     "n": 2,
+     "lift": 4.16
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0018",
+     "dynasty": "民國",
+     "n": 4,
+     "lift": 3.98
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0252",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 3.74
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0081",
+     "dynasty": "民國",
+     "n": 4,
+     "lift": 3.66
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0335",
+     "dynasty": "民國",
+     "n": 6,
+     "lift": 3.35
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0022",
+     "dynasty": "日本",
+     "n": 7,
+     "lift": 3.3
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0122",
+     "dynasty": "民國",
+     "n": 4,
+     "lift": 3.27
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0308",
+     "dynasty": "日本",
+     "n": 6,
+     "lift": 3.23
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0296",
+     "dynasty": "日本",
+     "n": 2,
+     "lift": 3.14
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0281",
+     "dynasty": "民國",
+     "n": 4,
+     "lift": 2.95
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0306",
+     "dynasty": "日本",
+     "n": 9,
+     "lift": 2.93
+    }
+   ],
+   "main_paths": [
+    {
+     "clause_id": "SHL_SONGBEN_0252",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "元",
+       "dynasty_order": 30,
+       "book": "敖氏傷寒金鏡錄",
+       "book_dir": "敖氏傷寒金鏡錄",
+       "author": "杜本",
+       "mode": "化用",
+       "coverage": 0.222,
+       "longest_run": 8
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒來蘇集",
+       "book_dir": "傷寒來蘇集",
+       "author": "柯琴",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 36
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 36
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0134",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "明引",
+       "coverage": 0.937,
+       "longest_run": 63
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.982,
+       "longest_run": 53
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.991,
+       "longest_run": 96
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒貫珠集",
+       "book_dir": "傷寒貫珠集_1",
+       "author": "尤怡",
+       "mode": "暗引",
+       "coverage": 0.991,
+       "longest_run": 96
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.369,
+       "longest_run": 26
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.784,
+       "longest_run": 34
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0023",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論_1",
+       "author": "龐安石",
+       "mode": "暗引",
+       "coverage": 0.903,
+       "longest_run": 47
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 93
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 93
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論",
+       "book_dir": "傷寒纘論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 93
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.591,
+       "longest_run": 55
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.882,
+       "longest_run": 31
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0221",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "明引",
+       "coverage": 0.842,
+       "longest_run": 40
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.855,
+       "longest_run": 40
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.763,
+       "longest_run": 22
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 0.921,
+       "longest_run": 36
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.987,
+       "longest_run": 65
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.921,
+       "longest_run": 29
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0236",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "暗引",
+       "coverage": 0.755,
+       "longest_run": 16
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.642,
+       "longest_run": 34
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.83,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒尋源",
+       "book_dir": "傷寒尋源",
+       "author": "呂震名",
+       "mode": "暗引",
+       "coverage": 0.962,
+       "longest_run": 33
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.698,
+       "longest_run": 37
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.83,
+       "longest_run": 25
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0067",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "明引",
+       "coverage": 1.0,
+       "longest_run": 44
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 44
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.977,
+       "longest_run": 35
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒來蘇集",
+       "book_dir": "傷寒來蘇集",
+       "author": "柯琴",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 44
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 44
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.955,
+       "longest_run": 19
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0063",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "暗引",
+       "coverage": 0.931,
+       "longest_run": 19
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 29
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 29
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒大白",
+       "book_dir": "傷寒大白",
+       "author": "高世栻",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 29
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 29
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 29
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0212",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "暗引",
+       "coverage": 0.94,
+       "longest_run": 61
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.94,
+       "longest_run": 32
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.94,
+       "longest_run": 67
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒恆論",
+       "book_dir": "傷寒恆論",
+       "author": "",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 84
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.44,
+       "longest_run": 19
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.952,
+       "longest_run": 80
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0317",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論_1",
+       "author": "龐安石",
+       "mode": "暗引",
+       "coverage": 0.981,
+       "longest_run": 27
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.442,
+       "longest_run": 23
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.962,
+       "longest_run": 27
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒來蘇集",
+       "book_dir": "傷寒來蘇集",
+       "author": "柯琴",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 52
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.577,
+       "longest_run": 30
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.827,
+       "longest_run": 28
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0006",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "明引",
+       "coverage": 0.978,
+       "longest_run": 76
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.826,
+       "longest_run": 53
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "明引",
+       "coverage": 0.978,
+       "longest_run": 57
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒恆論",
+       "book_dir": "傷寒恆論",
+       "author": "",
+       "mode": "暗引",
+       "coverage": 0.989,
+       "longest_run": 77
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.435,
+       "longest_run": 26
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.902,
+       "longest_run": 23
+      }
+     ]
+    }
+   ]
+  },
+  "auxiliary": {
+   "cocitation_pairs": [
+    {
+     "a": "SHL_SONGBEN_AUX_0257",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 317
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 274
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0236",
+     "n": 270
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0257",
+     "n": 263
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0236",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 183
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0263",
+     "b": "SHL_SONGBEN_AUX_0266",
+     "n": 177
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0233",
+     "b": "SHL_SONGBEN_AUX_0236",
+     "n": 172
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0236",
+     "b": "SHL_SONGBEN_AUX_0257",
+     "n": 155
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0233",
+     "n": 150
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0226",
+     "b": "SHL_SONGBEN_AUX_0230",
+     "n": 78
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0226",
+     "b": "SHL_SONGBEN_AUX_0259",
+     "n": 75
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0230",
+     "b": "SHL_SONGBEN_AUX_0259",
+     "n": 75
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0233",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 49
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0213",
+     "b": "SHL_SONGBEN_AUX_0215",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0157",
+     "b": "SHL_SONGBEN_AUX_0184",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0164",
+     "b": "SHL_SONGBEN_AUX_0192",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0210",
+     "b": "SHL_SONGBEN_AUX_0211",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0210",
+     "b": "SHL_SONGBEN_AUX_0213",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0210",
+     "b": "SHL_SONGBEN_AUX_0215",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0211",
+     "b": "SHL_SONGBEN_AUX_0213",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0211",
+     "b": "SHL_SONGBEN_AUX_0215",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0233",
+     "b": "SHL_SONGBEN_AUX_0257",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0157",
+     "b": "SHL_SONGBEN_AUX_0164",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0157",
+     "b": "SHL_SONGBEN_AUX_0192",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0157",
+     "b": "SHL_SONGBEN_AUX_0194",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0164",
+     "b": "SHL_SONGBEN_AUX_0184",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0164",
+     "b": "SHL_SONGBEN_AUX_0194",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0184",
+     "b": "SHL_SONGBEN_AUX_0192",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0184",
+     "b": "SHL_SONGBEN_AUX_0194",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0192",
+     "b": "SHL_SONGBEN_AUX_0194",
+     "n": 34
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0262",
+     "b": "SHL_SONGBEN_AUX_0265",
+     "n": 29
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0035",
+     "b": "SHL_SONGBEN_AUX_0198",
+     "n": 23
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0266",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 20
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0079",
+     "b": "SHL_SONGBEN_AUX_0081",
+     "n": 18
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0228",
+     "b": "SHL_SONGBEN_AUX_0230",
+     "n": 18
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0263",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 18
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0236",
+     "b": "SHL_SONGBEN_AUX_0266",
+     "n": 17
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0247",
+     "b": "SHL_SONGBEN_AUX_0249",
+     "n": 17
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0236",
+     "b": "SHL_SONGBEN_AUX_0263",
+     "n": 16
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0141",
+     "b": "SHL_SONGBEN_AUX_0142",
+     "n": 13
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0263",
+     "b": "SHL_SONGBEN_AUX_0265",
+     "n": 13
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0265",
+     "b": "SHL_SONGBEN_AUX_0266",
+     "n": 13
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0221",
+     "b": "SHL_SONGBEN_AUX_0276",
+     "n": 12
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0245",
+     "b": "SHL_SONGBEN_AUX_0274",
+     "n": 12
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0221",
+     "b": "SHL_SONGBEN_AUX_0271",
+     "n": 11
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0262",
+     "b": "SHL_SONGBEN_AUX_0263",
+     "n": 11
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0262",
+     "b": "SHL_SONGBEN_AUX_0266",
+     "n": 11
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0014",
+     "b": "SHL_SONGBEN_AUX_0015",
+     "n": 10
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0019",
+     "b": "SHL_SONGBEN_AUX_0020",
+     "n": 10
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0144",
+     "b": "SHL_SONGBEN_AUX_0145",
+     "n": 10
+    }
+   ],
+   "bursts": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0102",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 42.67
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0109",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 26.67
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0107",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 25.6
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0108",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 25.6
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0148",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 23.7
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0105",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 20.65
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0104",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 19.39
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0099",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 16.84
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0275",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 16.84
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0112",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 14.22
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0122",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.43
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0146",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 10.0
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0092",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 8.77
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0119",
+     "dynasty": "金",
+     "n": 5,
+     "lift": 4.98
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0123",
+     "dynasty": "金",
+     "n": 3,
+     "lift": 4.98
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0138",
+     "dynasty": "金",
+     "n": 4,
+     "lift": 4.59
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0200",
+     "dynasty": "民國",
+     "n": 2,
+     "lift": 4.58
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0098",
+     "dynasty": "金",
+     "n": 6,
+     "lift": 4.48
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0268",
+     "dynasty": "明",
+     "n": 4,
+     "lift": 4.32
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0018",
+     "dynasty": "民國",
+     "n": 3,
+     "lift": 4.29
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0228",
+     "dynasty": "日本",
+     "n": 4,
+     "lift": 4.19
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0231",
+     "dynasty": "民國",
+     "n": 2,
+     "lift": 4.16
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0101",
+     "dynasty": "金",
+     "n": 3,
+     "lift": 4.07
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0253",
+     "dynasty": "金",
+     "n": 3,
+     "lift": 4.07
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0054",
+     "dynasty": "明",
+     "n": 3,
+     "lift": 4.05
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0097",
+     "dynasty": "金",
+     "n": 4,
+     "lift": 3.98
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0200",
+     "dynasty": "日本",
+     "n": 2,
+     "lift": 3.77
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0251",
+     "dynasty": "日本",
+     "n": 2,
+     "lift": 3.77
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0045",
+     "dynasty": "金",
+     "n": 8,
+     "lift": 3.73
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0100",
+     "dynasty": "金",
+     "n": 2,
+     "lift": 3.73
+    }
+   ],
+   "main_paths": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.5,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.848,
+       "longest_run": 30
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.935,
+       "longest_run": 28
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 0.913,
+       "longest_run": 28
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.761,
+       "longest_run": 18
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.652,
+       "longest_run": 13
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論",
+       "author": "龐安石",
+       "mode": "化用",
+       "coverage": 0.394,
+       "longest_run": 13
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.939,
+       "longest_run": 31
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 33
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 33
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.939,
+       "longest_run": 16
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.758,
+       "longest_run": 25
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0272",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.55,
+       "longest_run": 11
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.95,
+       "longest_run": 19
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.95,
+       "longest_run": 19
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.65,
+       "longest_run": 13
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0257",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.667,
+       "longest_run": 10
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.933,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 13
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 15
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.933,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.8,
+       "longest_run": 12
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0266",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.88,
+       "longest_run": 12
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "元",
+       "dynasty_order": 30,
+       "book": "敖氏傷寒金鏡錄",
+       "book_dir": "敖氏傷寒金鏡錄",
+       "author": "杜本",
+       "mode": "化用",
+       "coverage": 0.36,
+       "longest_run": 9
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 12
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0263",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.88,
+       "longest_run": 12
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "元",
+       "dynasty_order": 30,
+       "book": "敖氏傷寒金鏡錄",
+       "book_dir": "敖氏傷寒金鏡錄",
+       "author": "杜本",
+       "mode": "化用",
+       "coverage": 0.36,
+       "longest_run": 9
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.88,
+       "longest_run": 12
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0233",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論",
+       "author": "龐安石",
+       "mode": "化用",
+       "coverage": 0.344,
+       "longest_run": 11
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.969,
+       "longest_run": 31
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 32
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒貫珠集",
+       "book_dir": "傷寒貫珠集_1",
+       "author": "尤怡",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 32
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.938,
+       "longest_run": 16
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.688,
+       "longest_run": 22
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0221",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 35
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "化用",
+       "coverage": 0.543,
+       "longest_run": 11
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒論辯證廣注",
+       "book_dir": "傷寒論辯證廣注",
+       "author": "汪琥",
+       "mode": "暗引",
+       "coverage": 0.829,
+       "longest_run": 17
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.371,
+       "longest_run": 13
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.286,
+       "longest_run": 10
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0230",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論",
+       "author": "龐安石",
+       "mode": "化用",
+       "coverage": 0.333,
+       "longest_run": 8
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.833,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨",
+       "author": "方有執",
+       "mode": "化用",
+       "coverage": 0.583,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒貫珠集",
+       "book_dir": "傷寒貫珠集_1",
+       "author": "尤怡",
+       "mode": "暗引",
+       "coverage": 0.958,
+       "longest_run": 23
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "中寒論辯證廣注",
+       "book_dir": "中寒論辯證廣注",
+       "author": "丹波元胤",
+       "mode": "暗引",
+       "coverage": 0.833,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.458,
+       "longest_run": 11
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0259",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 23
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨",
+       "author": "方有執",
+       "mode": "化用",
+       "coverage": 0.391,
+       "longest_run": 9
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論",
+       "book_dir": "傷寒纘論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 23
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.478,
+       "longest_run": 11
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.826,
+       "longest_run": 19
+      }
+     ]
+    }
+   ]
+  },
+  "all": {
+   "cocitation_pairs": [
+    {
+     "a": "SHL_SONGBEN_AUX_0257",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 317
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 274
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0236",
+     "n": 270
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0257",
+     "n": 263
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0236",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 183
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0263",
+     "b": "SHL_SONGBEN_AUX_0266",
+     "n": 177
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0233",
+     "b": "SHL_SONGBEN_AUX_0236",
+     "n": 172
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0236",
+     "b": "SHL_SONGBEN_AUX_0257",
+     "n": 155
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0222",
+     "b": "SHL_SONGBEN_AUX_0233",
+     "n": 150
+    },
+    {
+     "a": "SHL_SONGBEN_0063",
+     "b": "SHL_SONGBEN_0162",
+     "n": 107
+    },
+    {
+     "a": "SHL_SONGBEN_0023",
+     "b": "SHL_SONGBEN_0027",
+     "n": 87
+    },
+    {
+     "a": "SHL_SONGBEN_0302",
+     "b": "SHL_SONGBEN_0303",
+     "n": 87
+    },
+    {
+     "a": "SHL_SONGBEN_0302",
+     "b": "SHL_SONGBEN_0320",
+     "n": 85
+    },
+    {
+     "a": "SHL_SONGBEN_0303",
+     "b": "SHL_SONGBEN_0320",
+     "n": 85
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0226",
+     "b": "SHL_SONGBEN_AUX_0230",
+     "n": 78
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0226",
+     "b": "SHL_SONGBEN_AUX_0259",
+     "n": 75
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0230",
+     "b": "SHL_SONGBEN_AUX_0259",
+     "n": 75
+    },
+    {
+     "a": "SHL_SONGBEN_0134",
+     "b": "SHL_SONGBEN_0221",
+     "n": 69
+    },
+    {
+     "a": "SHL_SONGBEN_0143",
+     "b": "SHL_SONGBEN_0216",
+     "n": 66
+    },
+    {
+     "a": "SHL_SONGBEN_0142",
+     "b": "SHL_SONGBEN_0265",
+     "n": 65
+    },
+    {
+     "a": "SHL_SONGBEN_0187",
+     "b": "SHL_SONGBEN_0278",
+     "n": 64
+    },
+    {
+     "a": "SHL_SONGBEN_0317",
+     "b": "SHL_SONGBEN_0370",
+     "n": 64
+    },
+    {
+     "a": "SHL_SONGBEN_0134",
+     "b": "SHL_SONGBEN_0236",
+     "n": 59
+    },
+    {
+     "a": "SHL_SONGBEN_0028",
+     "b": "SHL_SONGBEN_AUX_0239",
+     "n": 58
+    },
+    {
+     "a": "SHL_SONGBEN_0048",
+     "b": "SHL_SONGBEN_0185",
+     "n": 57
+    },
+    {
+     "a": "SHL_SONGBEN_0307",
+     "b": "SHL_SONGBEN_0316",
+     "n": 57
+    },
+    {
+     "a": "SHL_SONGBEN_0172",
+     "b": "SHL_SONGBEN_AUX_0267",
+     "n": 55
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0233",
+     "b": "SHL_SONGBEN_AUX_0272",
+     "n": 49
+    },
+    {
+     "a": "SHL_SONGBEN_0104",
+     "b": "SHL_SONGBEN_0105",
+     "n": 48
+    },
+    {
+     "a": "SHL_SONGBEN_0212",
+     "b": "SHL_SONGBEN_0213",
+     "n": 47
+    },
+    {
+     "a": "SHL_SONGBEN_0332",
+     "b": "SHL_SONGBEN_0333",
+     "n": 47
+    },
+    {
+     "a": "SHL_SONGBEN_0105",
+     "b": "SHL_SONGBEN_0248",
+     "n": 45
+    },
+    {
+     "a": "SHL_SONGBEN_0204",
+     "b": "SHL_SONGBEN_AUX_0199",
+     "n": 44
+    },
+    {
+     "a": "SHL_SONGBEN_0209",
+     "b": "SHL_SONGBEN_0238",
+     "n": 44
+    },
+    {
+     "a": "SHL_SONGBEN_0091",
+     "b": "SHL_SONGBEN_AUX_0175",
+     "n": 43
+    },
+    {
+     "a": "SHL_SONGBEN_0306",
+     "b": "SHL_SONGBEN_0307",
+     "n": 43
+    },
+    {
+     "a": "SHL_SONGBEN_0355",
+     "b": "SHL_SONGBEN_AUX_0183",
+     "n": 42
+    },
+    {
+     "a": "SHL_SONGBEN_0022",
+     "b": "SHL_SONGBEN_AUX_0229",
+     "n": 40
+    },
+    {
+     "a": "SHL_SONGBEN_0256",
+     "b": "SHL_SONGBEN_AUX_0211",
+     "n": 40
+    },
+    {
+     "a": "SHL_SONGBEN_0095",
+     "b": "SHL_SONGBEN_0236",
+     "n": 39
+    },
+    {
+     "a": "SHL_SONGBEN_0255",
+     "b": "SHL_SONGBEN_0256",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0255",
+     "b": "SHL_SONGBEN_AUX_0215",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0256",
+     "b": "SHL_SONGBEN_AUX_0213",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0256",
+     "b": "SHL_SONGBEN_AUX_0215",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0352",
+     "b": "SHL_SONGBEN_AUX_0275",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0354",
+     "b": "SHL_SONGBEN_0388",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_AUX_0213",
+     "b": "SHL_SONGBEN_AUX_0215",
+     "n": 38
+    },
+    {
+     "a": "SHL_SONGBEN_0255",
+     "b": "SHL_SONGBEN_AUX_0210",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_0255",
+     "b": "SHL_SONGBEN_AUX_0211",
+     "n": 37
+    },
+    {
+     "a": "SHL_SONGBEN_0255",
+     "b": "SHL_SONGBEN_AUX_0213",
+     "n": 37
+    }
+   ],
+   "bursts": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0102",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 42.67
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0167",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 34.6
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0130",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 30.48
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0109",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 26.67
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0107",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 25.6
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0108",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 25.6
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0148",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 23.7
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0397",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 22.07
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0343",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 21.33
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0105",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 20.65
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0337",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 19.39
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0104",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 19.39
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0304",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 18.82
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0129",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 17.3
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0099",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 16.84
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0275",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 16.84
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0230",
+     "dynasty": "元",
+     "n": 2,
+     "lift": 15.24
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0390",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 14.55
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0112",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 14.22
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0026",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 13.62
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0352",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.8
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0315",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.31
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0321",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.08
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0388",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 12.08
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0061",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.85
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0279",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.43
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0122",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.43
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0326",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 11.23
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0146",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 10.0
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0257",
+     "dynasty": "元",
+     "n": 1,
+     "lift": 9.85
+    }
+   ],
+   "main_paths": [
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0222",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.5,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.848,
+       "longest_run": 30
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.935,
+       "longest_run": 28
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 0.913,
+       "longest_run": 28
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.761,
+       "longest_run": 18
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.652,
+       "longest_run": 13
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0236",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論",
+       "author": "龐安石",
+       "mode": "化用",
+       "coverage": 0.394,
+       "longest_run": 13
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.939,
+       "longest_run": 31
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 33
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 33
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.939,
+       "longest_run": 16
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.758,
+       "longest_run": 25
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0272",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.55,
+       "longest_run": 11
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.95,
+       "longest_run": 19
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.95,
+       "longest_run": 19
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.65,
+       "longest_run": 13
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0257",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "化用",
+       "coverage": 0.667,
+       "longest_run": 10
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.933,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 13
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 15
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.933,
+       "longest_run": 14
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.8,
+       "longest_run": 12
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0266",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.88,
+       "longest_run": 12
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "元",
+       "dynasty_order": 30,
+       "book": "敖氏傷寒金鏡錄",
+       "book_dir": "敖氏傷寒金鏡錄",
+       "author": "杜本",
+       "mode": "化用",
+       "coverage": 0.36,
+       "longest_run": 9
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 12
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0263",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒明理論",
+       "book_dir": "傷寒明理論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.88,
+       "longest_run": 12
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "元",
+       "dynasty_order": 30,
+       "book": "敖氏傷寒金鏡錄",
+       "book_dir": "敖氏傷寒金鏡錄",
+       "author": "杜本",
+       "mode": "化用",
+       "coverage": 0.36,
+       "longest_run": 9
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論·傷寒緒論",
+       "book_dir": "傷寒纘論_傷寒緒論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 25
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.96,
+       "longest_run": 24
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.88,
+       "longest_run": 12
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_AUX_0233",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論",
+       "author": "龐安石",
+       "mode": "化用",
+       "coverage": 0.344,
+       "longest_run": 11
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.969,
+       "longest_run": 31
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 32
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒貫珠集",
+       "book_dir": "傷寒貫珠集_1",
+       "author": "尤怡",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 32
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.938,
+       "longest_run": 16
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "化用",
+       "coverage": 0.688,
+       "longest_run": 22
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0252",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "元",
+       "dynasty_order": 30,
+       "book": "敖氏傷寒金鏡錄",
+       "book_dir": "敖氏傷寒金鏡錄",
+       "author": "杜本",
+       "mode": "化用",
+       "coverage": 0.222,
+       "longest_run": 8
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒來蘇集",
+       "book_dir": "傷寒來蘇集",
+       "author": "柯琴",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 36
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "暗引",
+       "coverage": 0.972,
+       "longest_run": 20
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 36
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0134",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "仲景傷寒補亡論",
+       "book_dir": "仲景傷寒補亡論",
+       "author": "郭雍",
+       "mode": "明引",
+       "coverage": 0.937,
+       "longest_run": 63
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 0.982,
+       "longest_run": 53
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨_1",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 0.991,
+       "longest_run": 96
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒貫珠集",
+       "book_dir": "傷寒貫珠集_1",
+       "author": "尤怡",
+       "mode": "暗引",
+       "coverage": 0.991,
+       "longest_run": 96
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.369,
+       "longest_run": 26
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.784,
+       "longest_run": 34
+      }
+     ]
+    },
+    {
+     "clause_id": "SHL_SONGBEN_0023",
+     "path": [
+      {
+       "dynasty": "東漢",
+       "book": "傷寒論",
+       "author": "張仲景",
+       "mode": "原典",
+       "coverage": 1.0,
+       "longest_run": 0
+      },
+      {
+       "dynasty": "宋",
+       "dynasty_order": 20,
+       "book": "傷寒總病論",
+       "book_dir": "傷寒總病論_1",
+       "author": "龐安石",
+       "mode": "暗引",
+       "coverage": 0.903,
+       "longest_run": 47
+      },
+      {
+       "dynasty": "金",
+       "dynasty_order": 25,
+       "book": "註解傷寒論",
+       "book_dir": "註解傷寒論",
+       "author": "成無己",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 93
+      },
+      {
+       "dynasty": "明",
+       "dynasty_order": 40,
+       "book": "傷寒論條辨",
+       "book_dir": "傷寒論條辨",
+       "author": "方有執",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 93
+      },
+      {
+       "dynasty": "清",
+       "dynasty_order": 50,
+       "book": "傷寒纘論",
+       "book_dir": "傷寒纘論",
+       "author": "張璐",
+       "mode": "暗引",
+       "coverage": 1.0,
+       "longest_run": 93
+      },
+      {
+       "dynasty": "日本",
+       "dynasty_order": 55,
+       "book": "傷寒論輯義",
+       "book_dir": "傷寒論輯義",
+       "author": "丹波元珍",
+       "mode": "化用",
+       "coverage": 0.591,
+       "longest_run": 55
+      },
+      {
+       "dynasty": "民國",
+       "dynasty_order": 60,
+       "book": "曹氏傷寒金匱發微合刊",
+       "book_dir": "曹氏傷寒金匱發微合刊",
+       "author": "曹穎甫",
+       "mode": "暗引",
+       "coverage": 0.882,
+       "longest_run": 31
+      }
+     ]
+    }
+   ]
+  }
+ }
 }

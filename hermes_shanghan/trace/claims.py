@@ -151,16 +151,33 @@ def build_claims(commentary_books_meta: Optional[Dict[str, Dict]] = None,
         chronology = sorted(timeline.values(),
                             key=lambda e: (e["dynasty_order"], e["commentator"]))
 
+        # 觀點譜系（A5）：最早可見注家與各術語首現（以在庫注本為限，如實聲明）
+        first_proponent = ({k: chronology[0][k] for k in
+                            ("commentator", "book", "dynasty", "school_id")}
+                           if chronology else {})
+        term_first_use = {}
+        for entry in chronology:
+            for t in entry["terms_used"]:
+                if t not in term_first_use:
+                    term_first_use[t] = {"commentator": entry["commentator"],
+                                         "dynasty": entry["dynasty"]}
+        term_first_use = {t: term_first_use[t] for t in sorted(term_first_use)}
+
         claims.append({
             "claim_id": seed["claim_id"],
             "formula": seed["formula"],
             "claim": seed["claim"],
+            "interpretive_terms": seed["interpretive_terms"],
             "core_symptoms": (rule or {}).get("core_symptoms", []),
             "core_pulse": (rule or {}).get("core_pulse", []),
             "classical_evidence": supporting,
             "terms_verbatim_in_original": {
                 t: cids for t, cids in sorted(term_hits_a.items())},
             "commentarial_chronology": chronology,
+            "first_proponent": first_proponent,
+            "first_proponent_note": "「最早可見」以在庫九注本為限；"
+                                    "更早的散佚注釋不可考，不作臆斷。",
+            "term_first_use": term_first_use,
             "n_commentators_using_terms": len(chronology),
             "school_views": sorted({e["school_id"] for e in chronology if e["school_id"]}),
             "controversies": seed["controversies"],

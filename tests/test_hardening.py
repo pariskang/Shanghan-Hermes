@@ -228,6 +228,7 @@ class TestServerHardening(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError) as cm:
                 urllib.request.urlopen(f"{base}/api/stats")
             self.assertEqual(cm.exception.code, 401)
+            cm.exception.close()   # HTTPError 持有響應 socket，須顯式關閉
             # authorized with bearer token
             req = urllib.request.Request(f"{base}/api/stats",
                                          headers={"Authorization": "Bearer sekrit"})
@@ -241,7 +242,10 @@ class TestServerHardening(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError) as cm:
                 urllib.request.urlopen(req)
             self.assertEqual(cm.exception.code, 413)
+            cm.exception.close()
             httpd.shutdown()
+            httpd.server_close()   # 關閉監聽 socket，消除 ResourceWarning
+            th.join(timeout=5)
         finally:
             hs.AUTH_TOKEN = saved
 
