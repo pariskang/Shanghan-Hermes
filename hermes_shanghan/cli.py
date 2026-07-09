@@ -14,6 +14,8 @@ Commands:
   research TOPIC    research mining outputs
   paper             generate a manuscript
   skills            list compiled skills
+  trace REF         deep provenance chains (clause/formula/claim/school/text)
+  trace-network     citation-network scientometrics (cocitation/slices/bursts)
 """
 from __future__ import annotations
 
@@ -229,6 +231,41 @@ def cmd_divergence(args):
                                   "mean_term_divergence", "book_coverage",
                                   "top_divergent_clauses", "agreement_matrix",
                                   "commentator_fingerprints")})
+
+
+def cmd_trace(args):
+    _need_pipeline()
+    from .trace.chains import trace_dispatch
+    out = trace_dispatch(args.type, args.ref)
+    _print(safety.governed(out, "researcher"))
+
+
+def cmd_trace_build(args):
+    _need_pipeline()
+    from .trace.builder import build_all
+    _print(build_all(verbose=True))
+
+
+def cmd_trace_network(args):
+    _need_pipeline()
+    from .agent.tools import get_registry
+    _print(get_registry().call("shanghan_citation_network",
+                               {"target": args.target, "top_k": args.top_k}))
+
+
+def cmd_trace_scan_full(args):
+    """段落級全量引文邊導出（~4 萬條，不作為提交資產）。"""
+    _need_pipeline()
+    from pathlib import Path
+
+    from .schemas import write_jsonl
+    from .trace.builder import _clause_texts
+    from .trace.quotation import scan_corpus
+    commentary = read_jsonl(config.RULES_COMMENTARY_DIR / "commentary_rules.jsonl")
+    scan = scan_corpus(_clause_texts(), commentary, verbose=True)
+    out = Path(args.out)
+    n = write_jsonl(out, scan["edges"])
+    _print({"out": str(out), "n_edges": n, "params": scan["params"]})
 
 
 def cmd_solve(args):
@@ -560,6 +597,28 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp = sub.add_parser("divergence", help="注家分歧圖譜：覆蓋/爭點條文/一致度矩陣")
     sp.add_argument("--clause", default="", help="按 clause_id 片段過濾")
     sp.set_defaults(func=cmd_divergence)
+
+    sp = sub.add_parser("trace",
+                        help="深度溯源鏈：條文/方劑/方證觀點/注家/學派/任意文本回源")
+    sp.add_argument("ref", help="條文號、方名、觀點關鍵詞、注家名、學派名或原文片段")
+    sp.add_argument("--type", "-t", default="text",
+                    choices=["clause", "formula", "claim", "school",
+                             "commentator", "text"],
+                    help="溯源對象類型（默認 text：任意文本回源）")
+    sp.set_defaults(func=cmd_trace)
+
+    sp = sub.add_parser("trace-build", help="重建溯源層資產（引文邊/計量網絡/學派/觀點）")
+    sp.set_defaults(func=cmd_trace_build)
+
+    sp = sub.add_parser("trace-network", help="學術計量網絡：引文/共引/耦合/切片/突現/主路徑")
+    sp.add_argument("--target", default="", help="可選：條文號或方名")
+    sp.add_argument("--top-k", type=int, default=8)
+    sp.set_defaults(func=cmd_trace_network)
+
+    sp = sub.add_parser("trace-scan-full",
+                        help="導出段落級全量引文邊 jsonl（~4 萬條，體積大不入庫）")
+    sp.add_argument("--out", required=True, help="輸出 jsonl 路徑")
+    sp.set_defaults(func=cmd_trace_scan_full)
 
     sp = sub.add_parser("solve", help="複合問題編排：任務分解→作用域子代理→綜合核驗")
     sp.add_argument("question")

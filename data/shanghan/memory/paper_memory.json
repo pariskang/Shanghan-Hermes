@@ -19,6 +19,9 @@
   "commentary_books_aligned": 9,
   "clauses_multi_commentator": 395,
   "dose_rows": 536,
-  "dose_unparsed": 5
+  "dose_unparsed": 5,
+  "trace_citation_edges": 40660,
+  "trace_citation_pairs": 13405,
+  "trace_claims": 7
  }
 }

@@ -18,12 +18,13 @@ class TestNewTools(unittest.TestCase):
         from hermes_shanghan.agent.tools import get_registry
         cls.reg = get_registry()
 
-    def test_registry_has_eighteen_tools(self):
+    def test_registry_tool_count(self):
         names = self.reg.names()
-        self.assertEqual(len(names), 20)
+        self.assertEqual(len(names), 22)
         for t in ("shanghan_variants", "shanghan_relations", "shanghan_therapy",
                   "shanghan_contraindication_check", "shanghan_dose_convert",
-                  "shanghan_case_search"):
+                  "shanghan_case_search", "shanghan_trace",
+                  "shanghan_citation_network"):
             self.assertIn(t, names)
 
     def test_variants_b_layer(self):
