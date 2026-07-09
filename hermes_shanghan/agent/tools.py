@@ -91,6 +91,12 @@ TOOL_META: Dict[str, Dict] = {
         "evidence_level": "A",
         "limitations": ["煎服字段逐字取自方後原文（A層）；類別通則兜底標 D 層；"
                         "漢制劑量不可直接等同現代劑量"]},
+    "shanghan_provenance": {
+        "evidence_level": "A",
+        "limitations": ["知識生命史溯源鏈跨 A 原文/B 異文/C 注家/D 後世歸納/"
+                        "D 現代映射（候選，不作病名等同）並逐段標注；"
+                        "現代文獻計量層為 deferred augmentation——需接入外部"
+                        "引文源（Crossref/OpenAlex 等），離線不虛構論文/DOI"]},
 }
 
 _RELEASE_CONFIDENCE = {"gold": 0.9, "silver": 0.75, "bronze": 0.6}
@@ -324,6 +330,22 @@ class ToolRegistry:
                 "formula": {"type": "string", "description": "或方名"}},
              "required": []},
             self._t_perspectives)
+        self._add(
+            "shanghan_provenance",
+            "深度溯源（知識生命史）：追蹤條文/方劑/概念/方證觀點的完整演化——"
+            "原始條文→版本異文→注家解釋→後世方論醫案→現代疾病映射→現代機制"
+            "橋接。識別明引/暗引/節引/改寫/轉引/誤引六種引用模式；輸出源頭/"
+            "演化/現代影響三段式 + 古今知識影響力指標（源頭度/傳承度/異文穩定度/"
+            "注家爭議度/方證擴展度/現代轉化度/證據可靠度）。現代文獻計量層需接入"
+            "外部引文源，離線誠實 deferred（不虛構論文）。",
+            {"type": "object", "properties": {
+                "ref": {"type": "string", "description": "條文號或 clause_id"},
+                "formula": {"type": "string", "description": "或方名"},
+                "concept": {"type": "string",
+                            "description": "或概念/方證觀點（如 腎主骨、營衛不和）"},
+                "text": {"type": "string", "description": "或待溯源的文本片段"}},
+             "required": []},
+            self._t_provenance)
         self._add(
             "shanghan_herb",
             "藥解（單味藥知識卡）：本草通識（性味/功效/類別，D層標注）＋傷寒論"
@@ -801,6 +823,17 @@ class ToolRegistry:
                     "error": "請提供 ref（條文號）或 formula（方名）"}
         from .perspectives import PerspectiveCouncil
         return PerspectiveCouncil(self).deliberate(ref=ref, formula=formula)
+
+    def _t_provenance(self, ref=None, formula=None, concept=None, text=None):
+        if not (ref or formula or concept or text):
+            return {"tool": "shanghan_provenance",
+                    "error": "請提供 ref（條文號）/ formula（方名）/ "
+                             "concept（概念）/ text（待溯源文本）之一"}
+        from ..induce.provenance import ProvenanceTracer
+        out = ProvenanceTracer(self).trace(ref=ref, formula=formula,
+                                           concept=concept, text=text)
+        out["tool"] = "shanghan_provenance"
+        return out
 
     def _t_correspondence(self, symptoms=None, pulse=None, six_channel=None,
                           modern=None, top_k=4):

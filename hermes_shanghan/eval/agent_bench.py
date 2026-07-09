@@ -42,6 +42,9 @@ ROUTING_BANK: List[Dict] = [
     {"question": "全庫統計有多少條規則？", "expected": "shanghan_corpus_stats"},
     {"question": "第16條的異文在桂林古本裡是什麼樣？",
      "expected": "shanghan_variants"},
+    {"question": "第12條的知識生命史與傳播路徑如何？",
+     "expected": "shanghan_provenance"},
+    {"question": "桂枝湯的源流演化如何？", "expected": "shanghan_provenance"},
     {"question": "剛痙是什麼？", "expected": "shanghan_search"},
 ]
 

@@ -785,6 +785,125 @@ def tool_perspectives(target):
     return f'<div class="panel-scroll">{"".join(parts)}</div>'
 
 
+def tool_provenance(target):
+    target = (target or "").strip()
+    if not target:
+        return ('<div class="section-note">輸入條文號（12）、方名（桂枝湯）'
+                '或概念/方證觀點（腎主骨、營衛不和）。</div>')
+    if re.fullmatch(r"第?\s*\d{1,3}\s*條?", target):
+        args = {"ref": re.search(r"\d{1,3}", target).group(0)}
+    elif target in {f.formula for f in _registry().art.formula_rules}:
+        args = {"formula": target}
+    else:
+        args = {"concept": target}
+    out = _registry().call("shanghan_provenance", args)
+    if out.get("error"):
+        cand = "、".join(out.get("candidates", []))
+        return (f'<div class="ask-box">⚠️ {_esc(out["error"])}'
+                + (f'<br>候選：{_esc(cand)}' if cand else "") + '</div>')
+
+    def _pbadge(layer):
+        color = LAYER_COLORS.get(str(layer).split("（")[0].split(" ")[0].strip(),
+                                 "#8A8F98")
+        return (f'<span class="layer-badge" style="background:{color}">'
+                f'{_esc(layer)}</span>')
+
+    t = out["target"]
+    parts = [f'<div class="consensus-box"><h4>🧬 深度溯源 · 知識生命史 · '
+             f'{_esc(t.get("label", ""))}（{_esc(t.get("kind", ""))}）</h4>'
+             f'<div class="section-note">源頭 → 演化 → 現代影響，逐段標層；'
+             f'{_esc(out.get("source_note", ""))}</div></div>']
+
+    # 源頭
+    es = (out.get("source_trace", {}).get("earliest_sources") or [{}])[0]
+    parts.append(
+        f'<div class="hyp-card"><h4>◇ 源頭 {_pbadge(es.get("layer", "—"))}</h4>'
+        f'<div class="hyp-row"><b>{_esc(es.get("work", ""))}</b>'
+        + (f' <span class="cid">{_esc(es["clause_id"])}</span>'
+           if es.get("clause_id") else "")
+        + (f'<br>{_esc(es.get("text", ""))}' if es.get("text") else "")
+        + (f'<br><span class="section-note">{_esc(es.get("note", ""))}</span>'
+           if es.get("note") else "")
+        + f'</div><div class="hyp-row"><b>版本異文</b>：'
+          f'{_esc(out.get("source_trace", {}).get("variant_notes", ""))}</div>'
+        + (f'<div class="hyp-row"><b>方證關係分級</b>：{_pbadge(out["source_trace"]["relation_grade"]["grade"])}'
+           f'{_esc(out["source_trace"]["relation_grade"]["relation"])}'
+           f'（{_esc(out["source_trace"]["relation_grade"]["basis"])}）</div>'
+           if out.get("source_trace", {}).get("relation_grade") else "")
+        + '</div>')
+
+    # 文本譜系
+    lin = "".join(
+        f'<tr><td>{_pbadge(s["layer"])}</td><td>{_esc(s["stage"])}</td>'
+        f'<td>{_esc(str(s.get("source") or "—"))}</td>'
+        f'<td class="ctext" style="font-size:.84rem">{_esc(str(s.get("detail", ""))[:40])}</td></tr>'
+        for s in out.get("text_lineage", []))
+    if lin:
+        parts.append('<div class="consensus-box"><h4>📜 文本譜系鏈</h4>'
+                     '<table class="diff-table"><tr><th>層</th><th>階段</th>'
+                     '<th>來源</th><th>要點</th></tr>' + lin + '</table></div>')
+
+    # 概念演化
+    ev = "".join(
+        f'<div class="hyp-row">{_pbadge(s.get("layer", "—"))}<b>{_esc(s["stage"])}</b>：'
+        f'{_esc(s["concept"])}（{_esc(s.get("role", ""))}'
+        + (f'·{_esc(s["grade"])}級' if s.get("grade") else "") + '）'
+        + (f' — 依據 {_esc("、".join(str(x) for x in s["evidence"][:4]))}'
+           if s.get("evidence") else "") + '</div>'
+        for s in out.get("concept_evolution", []))
+    if ev:
+        parts.append('<div class="consensus-box"><h4>🌱 概念演化（經典→後世→現代）'
+                     '</h4>' + ev + '</div>')
+
+    # 後世反響（引文模式）
+    recep = out.get("later_reception", [])
+    if recep:
+        rows = "".join(
+            f'<tr><td>《{_esc(r["book"])}》</td><td>{_esc(r["category"])}</td>'
+            f'<td><span class="ctag">{_esc(r["citation_pattern"])}</span></td>'
+            f'<td class="ctext" style="font-size:.82rem">…{_esc(r["excerpt"][:44])}…</td></tr>'
+            for r in recep[:6])
+        parts.append('<div class="consensus-box"><h4>🔗 後世反響（全庫旁證·引用模式）'
+                     '</h4><table class="diff-table"><tr><th>書</th><th>類</th>'
+                     '<th>引用模式</th><th>摘錄</th></tr>' + rows + '</table></div>')
+
+    # 影響力指標
+    idx = out.get("influence_index", {})
+    bar_rows = ""
+    for k, v in idx.items():
+        if isinstance(v, dict) and "band" in v:
+            pct = int(v["value"] * 100)
+            color = {"高": "#5B9A6B", "中": "#B08968", "低": "#A94E57"}[v["band"]]
+            bar_rows += (
+                f'<tr><td>{_esc(k)}</td><td>'
+                f'<div style="background:var(--rq-line);border-radius:4px;height:12px;'
+                f'width:120px;display:inline-block;vertical-align:middle">'
+                f'<div style="background:{color};height:12px;border-radius:4px;'
+                f'width:{pct}%"></div></div> <b style="color:{color}">{v["band"]}</b>'
+                f'（{v["value"]}）</td>'
+                f'<td class="ctext" style="font-size:.82rem">{_esc(v["basis"][:44])}</td></tr>')
+    if bar_rows:
+        parts.append('<div class="consensus-box"><h4>📊 古今知識影響力指標</h4>'
+                     '<table class="diff-table"><tr><th>維度</th><th>強度</th>'
+                     '<th>依據</th></tr>' + bar_rows + '</table></div>')
+
+    # 現代計量（誠實 deferred）
+    bib = out.get("bibliometric_trace", {})
+    hot = "、".join(bib.get("hot_topics", []))
+    mech = "、".join(bib.get("modern_mechanism_bridge", []))
+    parts.append(
+        '<div class="ask-box"><b>🔬 現代文獻計量</b><br>'
+        f'連接器：{_esc(bib.get("connector", "null"))} ｜ {_esc(bib.get("status", ""))}'
+        + (f'<br><b>熱點方向</b>（表型橋接）：{_esc(hot)}' if hot else "")
+        + (f'<br><b>機制橋接候選</b>：{_esc(mech)}' if mech else "")
+        + (f'<br><span class="section-note">{_esc(bib.get("note", ""))}</span>'
+           if bib.get("note") else "") + '</div>')
+
+    parts.append(f'<div class="section-note">⚠️ {_esc(out.get("evidence_warning", ""))}'
+                 f'<br>{_esc(out.get("boundary", ""))}</div>')
+    return f'<div class="panel-scroll">{"".join(parts)}</div>'
+
+
 def tool_herb(name):
     if not (name or "").strip():
         return '<div class="section-note">輸入藥名，如 桂枝 / 附子 / 阿膠。</div>'
@@ -1127,6 +1246,20 @@ def build_app():
                     pv_btn = gr.Button("七範式論證 ✦", variant="primary", scale=1)
                 pv_out = gr.HTML()
                 pv_btn.click(tool_perspectives, [pv_t], [pv_out])
+            with gr.Tab("深度溯源"):
+                gr.Markdown('<div class="section-note">知識生命史：源頭(A)→版本'
+                            '異文(B)→注家(C)→後世方論醫案(旁證)→現代疾病映射'
+                            '(候選)→現代機制橋接。識別明引/暗引/節引/改寫/轉引/'
+                            '誤引；輸出古今影響力指標（源頭度/傳承度/異文穩定度/'
+                            '注家爭議度/方證擴展度/現代轉化度/證據可靠度）。現代'
+                            '文獻計量需接入外部引文源，離線誠實 deferred（不虛構'
+                            '論文）。</div>')
+                with gr.Row():
+                    pr_t = gr.Textbox(label="條文號 / 方名 / 概念·方證觀點", scale=5,
+                                      placeholder="12 / 桂枝湯 / 腎主骨")
+                    pr_btn = gr.Button("追溯知識生命史 ✦", variant="primary", scale=1)
+                pr_out = gr.HTML()
+                pr_btn.click(tool_provenance, [pr_t], [pr_out])
             with gr.Tab("多假設匹配"):
                 with gr.Row():
                     m_sym = gr.Textbox(label="症狀（頓號/逗號分隔）", scale=4,

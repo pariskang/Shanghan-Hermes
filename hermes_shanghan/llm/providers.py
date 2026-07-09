@@ -303,6 +303,18 @@ class LocalProvider:
         if re.search(r"(誤治|誤下|誤汗|誤吐|火逆|壞病|變證|傳變)", q) and \
                 "shanghan_mistreatment" in available:
             return call("shanghan_mistreatment", {"query": q_raw})
+        if re.search(r"(溯源|知識生命史|生命史|傳播路徑|傳播鏈|最早出處|"
+                     r"源頭在|源流|演化史|演化鏈|演化如何|如何演化|知識演化|"
+                     r"知識譜系|版本源流|引文溯源|後世如何(引用|化用|發揮)|"
+                     r"現代論文如何)", q) and \
+                "shanghan_provenance" in available:
+            # 深度溯源先於取條文/多觀點：問的是知識生命史（源頭→演化→現代）
+            m_c = re.search(r"第?\s*(\d{1,3})\s*條", q)
+            if m_c:
+                return call("shanghan_provenance", {"ref": m_c.group(1)})
+            if formulas:
+                return call("shanghan_provenance", {"formula": formulas[0]})
+            return call("shanghan_provenance", {"concept": q_raw[:20]})
         if re.search(r"(怎麼理解|如何理解|多觀點|多角度|學派(觀點|解釋|比較)|"
                      r"觀點(比較|論證)|各家怎麼|不同解釋)", q) and \
                 "shanghan_perspectives" in available:
@@ -524,6 +536,33 @@ class LocalProvider:
                              f"{cz.get('mrr', '—')}；接地率 "
                              f"{gr.get('grounded_answer_rate', '—')}。")
                 cited += 1
+            elif isinstance(p, dict) and p.get("tool") == "shanghan_provenance":
+                tgt = p.get("target", {})
+                lines.append(f"【深度溯源·知識生命史】{tgt.get('label', '')}"
+                             "（源頭→演化→現代影響，逐段標層）")
+                es = (p.get("source_trace", {}).get("earliest_sources") or [{}])[0]
+                lines.append(f"◇ 源頭：{es.get('work', '')}"
+                             f"{('（' + es['clause_id'] + '）') if es.get('clause_id') else ''}"
+                             f"（{es.get('evidence_type', '')}·{es.get('layer', '')}層）")
+                if es.get("clause_id"):
+                    cited += 1
+                for st in p.get("text_lineage", [])[1:5]:
+                    lines.append(f"   ↳ {st['stage']}（{st['layer']}）：{st['source']}"
+                                 f" {str(st.get('detail', ''))[:32]}")
+                for ev in p.get("concept_evolution", []):
+                    lines.append(f"◇ {ev['stage']}：{ev['concept']}（{ev.get('role', '')}"
+                                 f"·{ev.get('layer', '')}）")
+                idx = p.get("influence_index", {})
+                bands = "；".join(
+                    f"{k}={v['band']}" for k, v in idx.items()
+                    if isinstance(v, dict) and "band" in v)
+                if bands:
+                    lines.append(f"◇ 影響力指標：{bands}")
+                bib = p.get("bibliometric_trace", {})
+                lines.append(f"◇ 現代計量：{str(bib.get('status', ''))[:48]}"
+                             + (f"；熱點方向 {'、'.join(bib.get('hot_topics', [])[:4])}"
+                                if bib.get("hot_topics") else ""))
+                lines.append(f"（{p.get('evidence_warning', '')[:60]}）")
             elif isinstance(p, dict) and p.get("tool") == "shanghan_perspectives":
                 tgt = p.get("target", {})
                 lines.append(f"【多觀點論證】{tgt.get('clause_id') or ''}"
