@@ -197,6 +197,10 @@ def formula_chain(name: str) -> Dict:
         return {"error": f"未找到方劑 {name}"}
     formula = rule["formula"]
     supporting = rule.get("supporting_clauses", [])
+    canonical_ids = sorted(c for c in supporting if "AUX" not in c)
+    auxiliary_ids = sorted(c for c in supporting if "AUX" in c)
+    first_id = canonical_ids[0] if canonical_ids else (
+        auxiliary_ids[0] if auxiliary_ids else "")
 
     # 劑量與類方演化（劑量計量層資產）
     ratios = {}
@@ -224,15 +228,21 @@ def formula_chain(name: str) -> Dict:
               if c.get("formula") == formula]
     citations = _citations_by_dynasty(supporting)
     modern = modern_echo_for(supporting)
-    anchor = supporting[0] if supporting else ""
+    anchor = first_id
     schools_reg = builder.load_schools()
 
     return {
         "chain_type": "方劑源流鏈",
         "query": name,
         "formula": formula,
-        "earliest_source": {"work": "傷寒論（宋本）", "clause_ids": supporting,
-                            "core_pattern": rule.get("core_pattern", "")},
+        # 「首見」指宋本條文序中的首次出現；支持條文全集另列並分正文/輔助
+        # （不與首見混同——跨書史源（如湯液經法之爭）庫外不作臆斷）
+        "first_attestation": {"work": "傷寒論（宋本）", "clause_id": first_id,
+                              "core_pattern": rule.get("core_pattern", ""),
+                              "note": "首見=宋本條文序中的首次出現，"
+                                      "非跨書史源判定"},
+        "supporting_clauses": {"canonical": canonical_ids,
+                               "auxiliary": auxiliary_ids},
         "composition": rule.get("composition", []),
         "administration_notes": rule.get("administration_notes", [])[:3],
         "dose_ratios": ratios,
@@ -249,7 +259,8 @@ def formula_chain(name: str) -> Dict:
         "evidence_grade": ["A 原文直述（條文與組成）", "D 劑量/類方計量",
                            "方名逐字計量", "後世引文邊"],
         "section_evidence_levels": {
-            "earliest_source": "A 原文直述",
+            "first_attestation": "A 原文直述（宋本條文序首見）",
+            "supporting_clauses": "A 原文直述（正文/輔助分列）",
             "composition": "A 原文直述（<F> 方塊）",
             "administration_notes": "A 原文直述",
             "dose_ratios": "A 銖當量藥量比（克數折算屬 D 層假設）",
@@ -460,11 +471,137 @@ def _library_candidates(text: str, limit: int = 6) -> Dict:
                     "全庫檢索不臆斷「最早出處」（庫外文獻與版本先後未覆蓋）。"}
 
 
+# ---------------------------------------------------------------------------
+# 6b. 方解（C11 formula-explain：一站式方劑檔案，組合既有確定性資產）
+# ---------------------------------------------------------------------------
+def formula_explain(name: str) -> Dict:
+    """方解一站式檔案：源流鏈 + 方證規則 + 類方鑒別 + 禁忌 + 煎服法。"""
+    chain = formula_chain(name)
+    if "error" in chain:
+        return chain
+    formula = chain["formula"]
+    rule = next((r for r in read_jsonl(config.RULES_FORMULA_DIR /
+                                       "formula_pattern_rules.jsonl")
+                 if r.get("formula") == formula), {})
+    differentials = []
+    for d in read_jsonl(config.RULES_DIFFERENTIAL_DIR / "differential_rules.jsonl"):
+        if formula in d.get("formulas", []):
+            differentials.append({
+                "vs": [f for f in d["formulas"] if f != formula],
+                "key_discriminators": d.get("key_discriminators", [])[:3],
+                "supporting_clauses": d.get("supporting_clauses", [])[:3]})
+        if len(differentials) >= 3:
+            break
+    return {
+        "chain_type": "方解檔案",
+        "formula": formula,
+        "first_attestation": chain["first_attestation"],
+        "supporting_clauses": chain["supporting_clauses"],
+        "core_symptoms": rule.get("core_symptoms", []),
+        "core_pulse": rule.get("core_pulse", []),
+        "associated_symptoms": rule.get("associated_symptoms", [])[:8],
+        "composition": chain["composition"],
+        "dose_ratios": chain["dose_ratios"],
+        "administration_notes": rule.get("administration_notes", [])[:5],
+        "contraindications": rule.get("contraindications", [])[:5],
+        "modification_relations": chain["modification_relations"],
+        "family_dose_evolution": chain["family_dose_evolution"],
+        "differentials": differentials,
+        "claims": chain["claims"],
+        "anchor_commentaries": chain["anchor_commentaries"],
+        "name_transmission": chain["name_transmission"],
+        "citations_of_clauses": chain["citations_of_clauses"],
+        "section_evidence_levels": {
+            **chain["section_evidence_levels"],
+            "core_symptoms": "D 方證規則歸納（證據錨定 A 層條文）",
+            "contraindications": "A 原文禁例",
+            "differentials": "D 鑒別歸納（supporting_clauses 回源）",
+        },
+        "warnings": chain["warnings"] + [
+            "方義解釋（如調和營衛）見 claims 分級，不混入原文字段。"],
+    }
+
+
+# ---------------------------------------------------------------------------
+# 7. 誤引檢測（Misquotation Detection：引文是否可作原文直引）
+# ---------------------------------------------------------------------------
+def quote_check(text: str) -> Dict:
+    """逐片段檢驗一段「引文」能否作為《傷寒論》原文直引。
+
+    典型輸入「營衛不和，桂枝湯主之」應得到：「桂枝湯主之」逐字見於原文、
+    「營衛不和」原文無此四字（屬後世方證歸納語，可回源到第 53/54 條
+    「榮氣和/衛氣不和」相關表述）→ 整句不能作為原文直引。"""
+    from ..lexicon import POSTHOC_TERMS
+    from ..textutil import split_subclauses
+
+    matcher = builder.get_matcher()
+    folded_texts = matcher.index.texts
+    claims = builder.load_claims().get("claims", [])
+
+    def _verbatim_clauses(frag: str) -> List[str]:
+        return [cid for cid in sorted(folded_texts)
+                if frag in folded_texts[cid]][:5]
+
+    fragments = []
+    for frag in split_subclauses(normalize_query(text)):
+        frag_folded = fold_variants("".join(
+            ch for ch in frag if "㐀" <= ch <= "鿿"))
+        if len(frag_folded) < 3:
+            continue
+        hits = _verbatim_clauses(frag_folded)
+        entry: Dict = {"fragment": frag, "verbatim_in": hits,
+                       "verdict": "原文逐字" if hits else "原文無此表述"}
+        if not hits:
+            # 後世歸納語檢驗：方證觀點術語 / 後世術語表
+            related = []
+            for c in claims:
+                terms = [t for t in c.get("interpretive_terms",
+                                          list(c.get("terms_verbatim_in_original", {})))
+                         or [] if fold_variants(t) in frag_folded
+                         or frag_folded in fold_variants(t)]
+                # claims.json 未存 interpretive_terms 時退回命題文本匹配
+                if terms or frag_folded in fold_variants(c.get("claim", "")):
+                    related.append({
+                        "claim_id": c["claim_id"], "formula": c["formula"],
+                        "evidence_grade": c["evidence_grade"],
+                        "related_original_terms":
+                            c.get("terms_verbatim_in_original", {})})
+            posthoc = [t for t in POSTHOC_TERMS
+                       if fold_variants(t) in frag_folded]
+            if related or posthoc:
+                entry["verdict"] = "後世歸納語（非原文）"
+                entry["posthoc_terms"] = posthoc
+                entry["related_claims"] = related
+        fragments.append(entry)
+
+    n_verbatim = sum(1 for f in fragments if f["verbatim_in"])
+    if not fragments:
+        verdict = "輸入過短，無法檢驗"
+    elif n_verbatim == len(fragments):
+        verdict = "全部片段逐字見於原文，可作原文直引（附條文號）"
+    elif n_verbatim == 0:
+        verdict = "傷寒論原文無此表述，不能作為原文直引"
+    else:
+        verdict = ("混合引用：部分片段為原文逐字、部分為後世歸納語——"
+                   "不能整句作為原文直引，需拆分標註")
+    return {"chain_type": "誤引檢測",
+            "query": text,
+            "fragments": fragments,
+            "verdict": verdict,
+            "section_evidence_levels": {
+                "fragments.verbatim_in": "A 原文逐字檢驗",
+                "fragments.related_claims": "方證觀點庫（分級見各條）",
+                "fragments.posthoc_terms": "後世術語表（posthoc）"},
+            "warnings": ["逐字檢驗折疊異體字並剝離標點；「原文無此表述」"
+                         "僅就傷寒論（含輔助篇章）而言，不排除出自他書。"]}
+
+
 def trace_dispatch(query_type: str, ref: str) -> Dict:
     """統一入口（CLI / 工具 / 服務端共用）。"""
     dispatch = {"clause": clause_chain, "formula": formula_chain,
                 "claim": claim_chain, "school": school_chain,
-                "commentator": commentator_chain, "text": text_trace}
+                "commentator": commentator_chain, "text": text_trace,
+                "quote": quote_check}
     fn = dispatch.get(query_type)
     if fn is None:
         return {"error": f"未知溯源對象類型 {query_type}",

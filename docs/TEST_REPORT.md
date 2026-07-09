@@ -46,9 +46,11 @@
 
 | 告警 | 狀態 |
 |---|---|
-| `ResourceWarning: unclosed socket`（test_server） | **已修復**：`tearDownClass` 補 `server_close()` + `thread.join()`；`python3 -W default -m unittest tests.test_server` 實測無告警 |
+| `ResourceWarning: unclosed socket`（test_server） | **已修復**：`tearDownClass` 補 `server_close()` + `thread.join()` |
+| `ResourceWarning: unclosed socket`（test_hardening，第二處） | **已修復**：鑒權測試補 `server_close()` + `th.join()`，兩處 `HTTPError` 響應對象顯式 `close()`（HTTPError 本身持有 socket） |
+| `ResourceWarning: unclosed file clauses.jsonl`（test_refinements） | **已修復**：改用 `with open(...)` 上下文管理 |
 | test_server 論文測試向 `data/shanghan/papers/` 洩漏產物 | **已修復**：測試內把 `PAPER_DIR` 重定向到臨時目錄，倉庫資產區不再被測試污染 |
-| 其他 ResourceWarning / DeprecationWarning | 當前全量運行未觀察到 |
+| 其他 ResourceWarning / DeprecationWarning | Python 3.11 環境 `-W default` 全量運行未觀察到；不同 Python 版本（如 3.13）GC 時機不同，仍可能暴露新的告警——不影響功能與結果，發現後按上述模式收斂（`python3 -W default -X tracemalloc=5 …` 可定位分配點） |
 
 ## 五、測試分層一覽
 

@@ -285,7 +285,8 @@ class DeepResearcher:
         if module == "shanghan_trace":
             t = r.get("trace", {}) or {}
             cit = t.get("citations") or t.get("citations_of_clauses") or {}
-            anchors = (t.get("earliest_source", {}).get("clause_ids")
+            anchors = (t.get("supporting_clauses", {}).get("canonical")
+                       or [t.get("first_attestation", {}).get("clause_id", "")]
                        or [t.get("clause", {}).get("clause_id", "")])
             anchors = [a for a in anchors if a][:3]
             return (f"{t.get('chain_type', '溯源鏈')}（{t.get('formula', '') or t.get('query', '')}）："

@@ -117,6 +117,19 @@ python3 -m hermes_shanghan trace-network --scope auxiliary
 python3 -m hermes_shanghan trace-scan-library --category 醫案
 python3 -m hermes_shanghan trace-scan-library --out /tmp/library_edges.jsonl
 
+# 誤引檢測：一段「引文」能否作為原文直引（逐片段判定+關聯方證觀點）
+python3 -m hermes_shanghan trace "营卫不和，桂枝汤主之" -t quote
+
+# 引文邊審計 / Scope 一致性審計 / 金標準標註閉環
+python3 -m hermes_shanghan trace-audit-citation --book 傷寒來蘇集 --clause 12
+python3 -m hermes_shanghan trace-audit-scope
+python3 -m hermes_shanghan trace-gold-sample --n 50 --out gold.csv   # 標註後：
+python3 -m hermes_shanghan trace-gold-eval --file gold.csv           # P/R/F1
+
+# 藥證檔案 · 方解一站式（智能體路線圖見 docs/AGENT_ROADMAP.md）
+python3 -m hermes_shanghan herb 桂枝
+python3 -m hermes_shanghan formula-explain 桂枝湯
+
 # 智能體問答（工具取證 + 回源核驗 + 反思自糾；離線可用）
 python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --role student
 
@@ -124,7 +137,7 @@ python3 -m hermes_shanghan agent "少陰病寒化與熱化怎麼區分？" --rol
 python3 -m hermes_shanghan solve "桂枝湯與麻黃湯如何鑒別？各自劑量比是多少？注家有何分歧？"
 python3 -m hermes_shanghan llm-status            # 查看 LLM 後端
 
-# 測試（237 項：對抗性審核 + 智能體架構 + 22 工具 + 評測 + 七維研究循環 + 全庫接入
+# 測試（246 項：對抗性審核 + 智能體架構 + 22 工具 + 評測 + 七維研究循環 + 全庫接入
 #       + 可復現性/證據鏈硬化 + 溯源層（引文識別/計量網絡/五類溯源鏈）+ Colab守衛）
 python3 -m unittest discover -s tests
 
@@ -431,7 +444,7 @@ hermes_shanghan/
 ├─ integrations/ tool_specs(OpenAI/Anthropic) · mcp_server(Claude Code) · AGENTS.md
 ├─ server/      service(API面) · http_server(stdlib) · static(SPA: index/css/js)
 ├─ orchestrator.py（五大 Workflow 總調度，可選 --llm-extract/--llm-critic）· cli.py
-tests/          237 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
+tests/          246 項測試 ｜ notebooks/ Colab 全功能演示（守衛測試保證與代碼同步）
 data/corpus_raw/   69 部古籍語料（含 manifest）
 data/library/      中醫笈成全庫（803 部，`library fetch` 自動下載，不入庫）
 data/shanghan/     全部生成資產（規則庫/審計/關係/科研/溯源/論文）

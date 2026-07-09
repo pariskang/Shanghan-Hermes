@@ -139,6 +139,20 @@ python3 -m hermes_shanghan trace-scan-full --out /tmp/edges.jsonl
 | 全量測試需明確報告 | **採納**：[`TEST_REPORT.md`](TEST_REPORT.md)（環境/總量/逐模塊耗時/慢因排查/告警狀態）；test_server 的 socket ResourceWarning 已修復 |
 | rejected=0 與 README 張力 | **採納（文檔而非演示數據）**：[`REJECTION_CASES.md`](REJECTION_CASES.md) 給出審計實測（evidence·fail 10 例、repair 32 例）與五個對抗案例的真實閘門輸出；不往 `data/` 放手工樣例以免破壞字節級可復現 |
 
+## 七b、三輪評審意見採納記錄
+
+| 意見 | 處置 |
+|---|---|
+| scope 只過濾被引榜，time_slices 等仍混 AUX | **採納方案 A（嚴格全字段過濾）**：時間切片焦點/共引/突現/主路徑逐 scope 重算（非事後過濾，杜絕「過濾後榜單失真」），工具端全字段按 scope 組裝；新增 `trace-audit-scope`（A1）對輸出全文遞歸掃描違例，實測三 scope 全部 0 違例 |
+| TEST_REPORT 與實測不一致（3.13 有 ResourceWarning） | **採納**：修復 test_refinements 未關閉的 clauses.jsonl、test_hardening 第二處服務器 socket（`server_close`+`HTTPError.close()`）；文檔表述改為版本相關的誠實措辭 |
+| earliest_source 實為支持條文全集且混入 AUX | **採納**：改為 `first_attestation`（單一首見條文，注明「首見=宋本條文序，非跨書史源判定」）+ `supporting_clauses.{canonical,auxiliary}` 分列 |
+| A1–A5 證據溯源智能體 | **全部落地**；B/D 組臨床與裁決類列入 [`AGENT_ROADMAP.md`](AGENT_ROADMAP.md)（含現有能力映射與設計約束） |
+
+新增能力速覽：`trace X -t quote`（誤引檢測）· `trace-audit-citation`
+（逐邊可靠性審計）· `trace-gold-sample`/`trace-gold-eval`（人工金標準閉環）·
+claims 增 `first_proponent`/`term_first_use`（觀點譜系）·
+`herb`（藥證檔案）· `formula-explain`（方解一站式）。
+
 ## 八、已知邊界（如實聲明）
 
 - 引文檢測以宋本條文（含輔助篇章）為靶集；《金匱》條文、方後注不在靶集。

@@ -1,5 +1,9 @@
 """確定性科學計量分析（引文網絡 / 共引 / 文獻耦合 / 時間切片 / 突現 / 主路徑）。
 
+scope 一致性契約（評審方案 A）：scope=canonical/auxiliary 時，報告中
+**所有** scope 敏感字段（被引榜/時間切片焦點/突現/主路徑/共引）只含
+該域條文；`audit_scope_consistency` 對任意輸出做遞歸審計，違例即報。
+
 分析對象是中醫古籍知識單元（條文、方劑、注文）在歷代文獻中的引用與
 傳播，全部從引文邊確定性推導，純標準庫、無隨機性：
 
@@ -17,12 +21,37 @@
 """
 from __future__ import annotations
 
+import json
+import re
 from typing import Dict, List, Tuple
 
 from .ids import dynasty_order
 
 MIN_BURST_EDGES = 8      # 突現分析的條文最小被引邊數
 TOP_N = 20
+
+RE_ANY_CLAUSE = re.compile(r"SHL_SONGBEN_(AUX_)?\d{4}")
+
+
+def audit_scope_consistency(payload: Dict, scope: str) -> Dict:
+    """遞歸審計一份計量輸出是否符合 scope 契約（A1 Scope Auditor）。
+
+    canonical 輸出中出現任何 AUX 條文號、auxiliary 輸出中出現任何正文
+    條文號，均計違例。對整個 JSON 序列化文本掃描，杜絕漏檢字段。"""
+    blob = json.dumps(payload, ensure_ascii=False, default=str)
+    n_aux = n_canon = 0
+    for m in RE_ANY_CLAUSE.finditer(blob):
+        if m.group(1):
+            n_aux += 1
+        else:
+            n_canon += 1
+    violations = 0
+    if scope == "canonical":
+        violations = n_aux
+    elif scope == "auxiliary":
+        violations = n_canon
+    return {"scope": scope, "n_canonical_ids": n_canon, "n_aux_ids": n_aux,
+            "violations": violations, "ok": violations == 0}
 
 
 def aggregate_edges(edges: List[Dict]) -> List[Dict]:
@@ -113,19 +142,32 @@ def build_network(edges: List[Dict], book_stats: List[Dict]) -> Dict:
     for w in works_out:
         w.pop("clauses")
 
-    # ---- 共引：同段落共同引用的條文對 ------------------------------------
+    # ---- scope 謂詞：正文 / 輔助篇章 / 混排 -------------------------------
+    # 評審共識（方案 A）：scope 必須貫穿全部 scope 敏感字段，
+    # 不能只過濾被引榜而讓 time_slices/bursts/main_paths/共引混入另一域。
+    scope_pred = {
+        "canonical": lambda cid: "AUX" not in cid,
+        "auxiliary": lambda cid: "AUX" in cid,
+        "all": lambda cid: True,
+    }
+
+    # ---- 共引：同段落共同引用的條文對（逐 scope，兩端須同域） -------------
     para_clauses: Dict[Tuple[str, int], set] = {}
     for e in clause_edges:
         para_clauses.setdefault((e["book_dir"], e["para_seq"]), set()).add(e["clause_id"])
-    cocite: Dict[Tuple[str, str], int] = {}
-    for cids in para_clauses.values():
-        cl = sorted(cids)
-        for i in range(len(cl)):
-            for j in range(i + 1, len(cl)):
-                cocite[(cl[i], cl[j])] = cocite.get((cl[i], cl[j]), 0) + 1
-    cocitation = [{"a": a, "b": b, "n": n}
-                  for (a, b), n in sorted(cocite.items(),
-                                          key=lambda kv: (-kv[1], kv[0]))[:50]]
+    cocitation_scoped: Dict[str, List[Dict]] = {}
+    for scope, pred in scope_pred.items():
+        cocite: Dict[Tuple[str, str], int] = {}
+        for cids in para_clauses.values():
+            cl = sorted(c for c in cids if pred(c))
+            for i in range(len(cl)):
+                for j in range(i + 1, len(cl)):
+                    cocite[(cl[i], cl[j])] = cocite.get((cl[i], cl[j]), 0) + 1
+        cocitation_scoped[scope] = [
+            {"a": a, "b": b, "n": n}
+            for (a, b), n in sorted(cocite.items(),
+                                    key=lambda kv: (-kv[1], kv[0]))[:50]]
+    cocitation = cocitation_scoped["all"]
 
     # ---- 文獻耦合：共享被引條文集的著作對 --------------------------------
     coupling = []
@@ -154,35 +196,54 @@ def build_network(edges: List[Dict], book_stats: List[Dict]) -> Dict:
     time_slices = []
     for dyn in sorted(slices, key=lambda d: (slices[d]["dynasty_order"], d)):
         s = slices[dyn]
-        focus = sorted(s["focus"].items(), key=lambda kv: (-kv[1], kv[0]))[:5]
-        time_slices.append({"dynasty": dyn, "n_edges": s["n_edges"],
-                            "n_works": len(s["books"]),
-                            "top_clauses": [{"clause_id": c, "n": n} for c, n in focus]})
+        row = {"dynasty": dyn, "n_edges": s["n_edges"],
+               "n_works": len(s["books"])}
+        for scope, pred in scope_pred.items():
+            focus = sorted(((c, n) for c, n in s["focus"].items() if pred(c)),
+                           key=lambda kv: (-kv[1], kv[0]))[:5]
+            key = {"canonical": "top_canonical", "auxiliary": "top_auxiliary",
+                   "all": "top_clauses"}[scope]
+            row[key] = [{"clause_id": c, "n": n} for c, n in focus]
+            row["n_edges_" + scope] = sum(n for c, n in s["focus"].items()
+                                          if pred(c))
+        time_slices.append(row)
 
-    # ---- 突現分析：條文在某朝代的引用份額 lift ---------------------------
+    # ---- 突現分析：條文在某朝代的引用份額 lift（逐 scope 排榜） -----------
     total_edges = len(clause_edges) or 1
     dyn_totals = {s["dynasty"]: s["n_edges"] for s in time_slices}
-    bursts = []
-    for cid in sorted(clause_stats):
-        s = clause_stats[cid]
-        if s["n_edges"] < MIN_BURST_EDGES:
-            continue
-        base_share = s["n_edges"] / total_edges
-        for dyn, n in sorted(s["dynasties"].items()):
-            dyn_total = dyn_totals.get(dyn, 0)
-            if dyn_total < 20:
+    bursts_scoped: Dict[str, List[Dict]] = {}
+    for scope, pred in scope_pred.items():
+        rows = []
+        for cid in sorted(clause_stats):
+            if not pred(cid):
                 continue
-            share = n / dyn_total
-            lift = share / base_share if base_share else 0.0
-            if lift >= 2.0:
-                bursts.append({"clause_id": cid, "dynasty": dyn, "n": n,
-                               "lift": round(lift, 2)})
-    bursts.sort(key=lambda b: (-b["lift"], b["clause_id"], b["dynasty"]))
-    bursts = bursts[:30]
+            s = clause_stats[cid]
+            if s["n_edges"] < MIN_BURST_EDGES:
+                continue
+            base_share = s["n_edges"] / total_edges
+            for dyn, n in sorted(s["dynasties"].items()):
+                dyn_total = dyn_totals.get(dyn, 0)
+                if dyn_total < 20:
+                    continue
+                share = n / dyn_total
+                lift = share / base_share if base_share else 0.0
+                if lift >= 2.0:
+                    rows.append({"clause_id": cid, "dynasty": dyn, "n": n,
+                                 "lift": round(lift, 2)})
+        rows.sort(key=lambda b: (-b["lift"], b["clause_id"], b["dynasty"]))
+        bursts_scoped[scope] = rows[:30]
+    bursts = bursts_scoped["all"]
 
-    # ---- 主路徑：被引最多正文條文的跨朝代傳播鏈 --------------------------
-    main_paths = [main_path_for(cid["clause_id"], clause_edges)
-                  for cid in top_canonical[:10]]
+    # ---- 主路徑：各 scope 被引最多條文的跨朝代傳播鏈 ----------------------
+    main_paths_scoped = {
+        "canonical": [main_path_for(c["clause_id"], clause_edges)
+                      for c in top_canonical[:10]],
+        "auxiliary": [main_path_for(c["clause_id"], clause_edges)
+                      for c in top_auxiliary[:10]],
+        "all": [main_path_for(c["clause_id"], clause_edges)
+                for c in top_clauses[:10]],
+    }
+    main_paths = main_paths_scoped["canonical"]
 
     mode_counts: Dict[str, int] = {}
     for e in edges:
@@ -213,6 +274,12 @@ def build_network(edges: List[Dict], book_stats: List[Dict]) -> Dict:
         "time_slices": time_slices,
         "bursts": bursts,
         "main_paths": main_paths,
+        # scope 一致視圖：canonical/auxiliary/all 各自的共引/突現/主路徑
+        # （頂層同名字段為向後兼容視圖：cocitation/bursts=all，main_paths=canonical）
+        "scoped": {scope: {"cocitation_pairs": cocitation_scoped[scope],
+                           "bursts": bursts_scoped[scope],
+                           "main_paths": main_paths_scoped[scope]}
+                   for scope in ("canonical", "auxiliary", "all")},
     }
 
 

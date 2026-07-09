@@ -304,8 +304,10 @@ class ToolRegistry:
             {"type": "object", "properties": {
                 "query_type": {"type": "string",
                                "enum": ["clause", "formula", "claim",
-                                        "school", "commentator", "text"],
-                               "description": "溯源對象類型"},
+                                        "school", "commentator", "text",
+                                        "quote"],
+                               "description": "溯源對象類型；quote=誤引檢測"
+                                              "（一段引文能否作原文直引）"},
                 "ref": {"type": "string",
                         "description": "條文號/方名/觀點關鍵詞/注家名/學派名/原文片段"}},
              "required": ["query_type", "ref"]},
@@ -619,10 +621,20 @@ class ToolRegistry:
         from ..textutil import fold_variants, normalize_query
         from ..trace import builder as trace_builder
         net = trace_builder.load_network()
+        # scope 一致性契約（方案 A）：時間切片/共引/突現/主路徑全部按 scope
+        # 過濾，canonical 輸出中不出現任何 AUX 條文（trace-audit-scope 可驗）
+        slice_key = {"canonical": "top_canonical", "auxiliary": "top_auxiliary",
+                     "all": "top_clauses"}.get(scope, "top_canonical")
+        slices = [{"dynasty": s["dynasty"], "n_works": s["n_works"],
+                   "n_edges": s.get("n_edges_" + scope, s["n_edges"]),
+                   "top_clauses": s.get(slice_key, s.get("top_clauses", []))}
+                  for s in net["time_slices"]]
         out = {"tool": "shanghan_citation_network",
                "overview": net["overview"],
                "scope": scope,
-               "time_slices": net["time_slices"],
+               "scope_note": "scope 貫穿全部計量字段（被引榜/時間切片/共引/"
+                             "突現/主路徑）；overview 為全域總量統計。",
+               "time_slices": slices,
                "note": net.get("note", "")}
         if target:
             from ..trace.chains import (_citations_by_dynasty, _clauses,
@@ -656,7 +668,12 @@ class ToolRegistry:
         out["top_cited_clauses"] = net.get(ranking_key,
                                            net["top_cited_clauses"])[:top_k]
         out["ranking_note"] = net.get("ranking_note", "")
-        out["cocitation_pairs"] = net["cocitation_pairs"][:top_k]
+        scoped = net.get("scoped", {}).get(scope, {})
+        out["cocitation_pairs"] = scoped.get(
+            "cocitation_pairs", net["cocitation_pairs"])[:top_k]
+        out["bursts"] = scoped.get("bursts", net.get("bursts", []))[:top_k]
+        out["main_paths"] = scoped.get(
+            "main_paths", net.get("main_paths", []))[:3]
         out["bibliographic_coupling"] = net["bibliographic_coupling"][:top_k]
         return out
 

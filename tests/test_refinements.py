@@ -77,11 +77,12 @@ class TestVariantFolding(unittest.TestCase):
 
     def test_clause_96_symptoms_include_xiongxie(self):
         _ensure_artifacts()
-        for line in open(config.CLAUSE_DIR / "clauses.jsonl", encoding="utf-8"):
-            d = json.loads(line)
-            if d["clause_id"] == "SHL_SONGBEN_0096":
-                self.assertIn("胸脅苦滿", d["symptoms"])
-                return
+        with open(config.CLAUSE_DIR / "clauses.jsonl", encoding="utf-8") as fh:
+            for line in fh:
+                d = json.loads(line)
+                if d["clause_id"] == "SHL_SONGBEN_0096":
+                    self.assertIn("胸脅苦滿", d["symptoms"])
+                    return
         self.fail("clause 96 not found")
 
 
