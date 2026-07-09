@@ -169,6 +169,16 @@ def clause_chain(ref: str) -> Dict:
         "bursts": bursts,
         "modern": modern,
         "evidence_grade": grade,
+        "section_evidence_levels": {
+            "clause": "A 原文直述",
+            "variants": "B 版本異文",
+            "context": "A 原文直述（篇次相鄰）",
+            "commentaries": "C 注家解釋",
+            "citations": "引文邊（跨書逐字回源）",
+            "main_path": "計量推導（基於引文邊）",
+            "bursts": "計量推導（基於引文邊）",
+            "modern": "現代導入層（用戶自備，不隨庫分發）",
+        },
         "warnings": ["注家解釋與後世引用均屬 C/D 層，不得回填為原文直述；"
                      "「化用/暗引」為逐字片段證據，改寫判定僅為相似度提示。"],
     }
@@ -238,6 +248,19 @@ def formula_chain(name: str) -> Dict:
         "modern": modern,
         "evidence_grade": ["A 原文直述（條文與組成）", "D 劑量/類方計量",
                            "方名逐字計量", "後世引文邊"],
+        "section_evidence_levels": {
+            "earliest_source": "A 原文直述",
+            "composition": "A 原文直述（<F> 方塊）",
+            "administration_notes": "A 原文直述",
+            "dose_ratios": "A 銖當量藥量比（克數折算屬 D 層假設）",
+            "modification_relations": "D 類方歸納",
+            "family_dose_evolution": "D 劑量計量歸納",
+            "name_transmission": "方名逐字計量（跨書）",
+            "claims": "方證觀點（分級見各條 evidence_grade）",
+            "anchor_commentaries": "C 注家解釋",
+            "citations_of_clauses": "引文邊（跨書逐字回源）",
+            "modern": "現代導入層（用戶自備，不隨庫分發）",
+        },
         "warnings": ["主治演變與方義解釋屬注文層歸納；方名計量為逐字統計，"
                      "不含異名（異名歸併屬後續工作，如實聲明）。"],
     }
@@ -270,6 +293,15 @@ def claim_chain(key: str) -> Dict:
                                for s in claim.get("school_views", [])],
         "citations_of_evidence": citations,
         "modern": modern,
+        "section_evidence_levels": {
+            "classical_evidence": "A 原文條文（clause_id）",
+            "terms_verbatim_in_original": "A 原文逐字檢驗",
+            "commentarial_chronology": "C 注家解釋（按朝代排序）",
+            "school_views_named": "posthoc_induction 學派歸納",
+            "controversies": "posthoc_induction 編輯性整理",
+            "citations_of_evidence": "引文邊（跨書逐字回源）",
+            "modern": "現代導入層（用戶自備，不隨庫分發）",
+        },
         "warnings": [claim.get("warning", ""),
                      "多觀點並存：學派立場不做對錯裁決。"],
     }
@@ -323,6 +355,13 @@ def commentator_chain(name: str) -> Dict:
                               for r in relayed[:8]]},
         "evidence_grade": ["C 注家解釋（條文級對齊）", "轉引邊（逐字回源）",
                            "學派歸屬（posthoc_induction）"],
+        "section_evidence_levels": {
+            "aligned_books": "C 注家對齊（計算資產）",
+            "fingerprint_terms": "C 層計算資產（詞彙 lift）",
+            "agreement_with_peers": "C 層計算資產（實測一致度）",
+            "relay_hub": "轉引邊（跨書逐字回源）",
+            "school": "posthoc_induction 學派歸納",
+        },
         "warnings": ["注家指紋與一致度為 C 層計算資產；學派歸屬為編輯性元數據。"],
     }
 
@@ -364,6 +403,12 @@ def school_chain(key: str) -> Dict:
                        for s in school.get("opposed_to", [])],
         "member_citation_breadth": member_works,
         "basis": schools_reg.get("note", ""),
+        "section_evidence_levels": {
+            "paradigm": "posthoc_induction 學派歸納",
+            "members": "posthoc_induction（僅收語料在庫著者）",
+            "agreement": "C 層實測一致度（分歧圖譜）",
+            "member_citation_breadth": "引文邊計量",
+        },
         "warnings": ["學派歸屬為後世歸納（posthoc_induction）；"
                      "一致度證據來自注家分歧圖譜實測。"],
     }
@@ -376,15 +421,43 @@ def text_trace(text: str) -> Dict:
     matcher = builder.get_matcher()
     matches = matcher.match_text(normalize_query(text), limit=5)
     if not matches:
-        return {"chain_type": "原文溯源鏈", "query": text,
-                "matches": [],
-                "note": "傷寒論條文（含輔助篇章）內無可回源匹配；"
-                        "該句可能出自他書（如《內經》）或為後世歸納語。"}
+        out = {"chain_type": "原文溯源鏈", "query": text,
+               "matches": [],
+               "note": "傷寒論條文（含輔助篇章）內無可回源匹配；"
+                       "該句可能出自他書（如《內經》）或為後世歸納語。"}
+        out["library_candidates"] = _library_candidates(text)
+        return out
     best = matches[0]
     chain = clause_chain(best["clause_id"])
     chain["query"] = text
     chain["matches"] = matches
     return chain
+
+
+def _library_candidates(text: str, limit: int = 6) -> Dict:
+    """傷寒論內無匹配時，退到中醫笈成全庫（若已下載）找候選出處。
+
+    只做逐字全文檢索並回報「書·章節」定位（文獻旁證層），不臆斷首出。"""
+    from ..corpus import library
+    if not library.is_available():
+        return {"available": False,
+                "note": "全庫未下載（`library fetch` 後，可在 800+ 部醫籍中"
+                        "檢索該句的候選出處）。"}
+    q = normalize_query(text)
+    q = "".join(ch for ch in q if "㐀" <= ch <= "鿿")[:20]
+    if len(q) < 4:
+        return {"available": True, "hits": [],
+                "note": "查詢過短，不作全庫檢索。"}
+    res = library.Library().grep(q, limit=limit)
+    return {"available": True,
+            "query": q,
+            "n_hits": res.get("n_hits", 0),
+            "scan_capped": res.get("scan_capped", False),
+            "hits": [{k: h.get(k, "") for k in
+                      ("title", "author", "dynasty", "category", "section")}
+                     for h in res.get("hits", [])],
+            "note": "文獻旁證層：按書·章節定位候選出處，需人工核對；"
+                    "全庫檢索不臆斷「最早出處」（庫外文獻與版本先後未覆蓋）。"}
 
 
 def trace_dispatch(query_type: str, ref: str) -> Dict:

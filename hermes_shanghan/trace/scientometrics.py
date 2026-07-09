@@ -81,13 +81,21 @@ def build_network(edges: List[Dict], book_stats: List[Dict]) -> Dict:
         s["modes"][e["mode"]] = s["modes"].get(e["mode"], 0) + 1
         dyn = e["dynasty"] or "未詳"
         s["dynasties"][dyn] = s["dynasties"].get(dyn, 0) + 1
-    top_clauses = sorted(clause_stats.values(),
-                         key=lambda s: (-s["n_edges"], s["clause_id"]))[:TOP_N]
-    top_clauses = [{**s, "n_books": len(s["books"]),
-                    "books": sorted(s["books"]),
-                    "modes": {m: s["modes"][m] for m in sorted(s["modes"])},
-                    "dynasties": {d: s["dynasties"][d] for d in sorted(s["dynasties"])}}
-                   for s in top_clauses]
+    def _expand(s: Dict) -> Dict:
+        return {**s, "n_books": len(s["books"]), "books": sorted(s["books"]),
+                "modes": {m: s["modes"][m] for m in sorted(s["modes"])},
+                "dynasties": {d: s["dynasties"][d]
+                              for d in sorted(s["dynasties"])}}
+
+    ranked = sorted(clause_stats.values(),
+                    key=lambda s: (-s["n_edges"], s["clause_id"]))
+    # 正文/輔助篇章分榜：輔助篇章（辨脈法/傷寒例…）篇幅長、被綱目/輯義類
+    # 著作整段徵引，混排會壓過正文 398 條的學術中心性——產品展示必須分開。
+    top_clauses = [_expand(s) for s in ranked[:TOP_N]]
+    top_canonical = [_expand(s) for s in ranked
+                     if "AUX" not in s["clause_id"]][:TOP_N]
+    top_auxiliary = [_expand(s) for s in ranked
+                     if "AUX" in s["clause_id"]][:TOP_N]
 
     # ---- 著作引用廣度 ----------------------------------------------------
     work_stats: Dict[str, Dict] = {}
@@ -172,9 +180,9 @@ def build_network(edges: List[Dict], book_stats: List[Dict]) -> Dict:
     bursts.sort(key=lambda b: (-b["lift"], b["clause_id"], b["dynasty"]))
     bursts = bursts[:30]
 
-    # ---- 主路徑：被引最多條文的跨朝代傳播鏈 ------------------------------
+    # ---- 主路徑：被引最多正文條文的跨朝代傳播鏈 --------------------------
     main_paths = [main_path_for(cid["clause_id"], clause_edges)
-                  for cid in top_clauses[:10]]
+                  for cid in top_canonical[:10]]
 
     mode_counts: Dict[str, int] = {}
     for e in edges:
@@ -194,6 +202,11 @@ def build_network(edges: List[Dict], book_stats: List[Dict]) -> Dict:
                                        for b in book_stats),
         },
         "top_cited_clauses": top_clauses,
+        "top_cited_canonical": top_canonical,
+        "top_cited_auxiliary": top_auxiliary,
+        "ranking_note": "混排榜中輔助篇章（AUX，辨脈法/傷寒例等）因篇幅長、"
+                        "被整段徵引而居前，不代表其學術中心性高於正文條文；"
+                        "展示時應按 scope（canonical/auxiliary/all）分榜。",
         "citing_works": works_out,
         "cocitation_pairs": cocitation,
         "bibliographic_coupling": coupling,

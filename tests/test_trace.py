@@ -225,12 +225,34 @@ class TestTraceTools(unittest.TestCase):
         from hermes_shanghan.agent.tools import get_registry
         cls.reg = get_registry()
 
-    def test_trace_tool_stamped(self):
+    def test_trace_tool_stamped_mixed_with_sections(self):
         out = self.reg.call("shanghan_trace", {"query_type": "clause", "ref": "12"})
         self.assertEqual(out["tool"], "shanghan_trace")
-        self.assertEqual(out["evidence_level"], "C")
+        # 整體 mixed，逐節單獨標層（審核意見 1）
+        self.assertEqual(out["evidence_level"], "mixed")
         self.assertIn("limitations", out)
+        sections = out["trace"]["section_evidence_levels"]
+        self.assertEqual(sections["clause"], "A 原文直述")
+        self.assertEqual(sections["commentaries"], "C 注家解釋")
         self.assertIn("clause_id", json.dumps(out, ensure_ascii=False))
+
+    def test_network_scope_separation(self):
+        # 正文/輔助篇章分榜（審核意見 2）：默認 canonical 不得混入 AUX
+        out = self.reg.call("shanghan_citation_network", {})
+        self.assertEqual(out["scope"], "canonical")
+        ids = [c["clause_id"] for c in out["top_cited_clauses"]]
+        self.assertTrue(ids)
+        self.assertFalse([i for i in ids if "AUX" in i])
+        aux = self.reg.call("shanghan_citation_network", {"scope": "auxiliary"})
+        aux_ids = [c["clause_id"] for c in aux["top_cited_clauses"]]
+        self.assertTrue(aux_ids)
+        self.assertTrue(all("AUX" in i for i in aux_ids))
+        self.assertTrue(aux.get("ranking_note"))
+        # 主路徑基於正文榜
+        from hermes_shanghan.trace.builder import load_network
+        net = load_network()
+        self.assertFalse([m for m in net["main_paths"]
+                          if "AUX" in m["clause_id"]])
 
     def test_network_tool_formula_target(self):
         out = self.reg.call("shanghan_citation_network", {"target": "桂枝湯"})
@@ -249,6 +271,40 @@ class TestTraceTools(unittest.TestCase):
         r = load_modern_trace()
         self.assertFalse(r["available"])
         self.assertIn("不隨庫分發", r["note"])
+
+    def test_scan_library_with_fixture(self):
+        # 全庫掃描（引用方=任意醫籍）：合成最小庫驗證端到端，不依賴真實下載
+        import tempfile
+        from pathlib import Path
+
+        from hermes_shanghan.trace.builder import _clause_texts
+        from hermes_shanghan.trace.quotation import scan_library
+        texts = _clause_texts()
+        clause1 = texts["SHL_SONGBEN_0001"]
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            book = root / "books" / "測試醫籍"
+            book.mkdir(parents=True)
+            (book / "index.txt").write_text(
+                "======測試醫籍======\n\n<book>\n書名=測試醫籍\n作者=測者\n"
+                "朝代=清\n分類=傷寒\n</book>\n\n=====卷一=====\n\n"
+                f"仲景曰：{clause1}。此論太陽之綱領也。\n",
+                encoding="utf-8")
+            (root / "catalog.json").write_text(json.dumps({
+                "units": [{"id": "測試醫籍", "title": "測試醫籍", "author": "測者",
+                           "dynasty": "清", "category": "傷寒",
+                           "files": ["index.txt"], "parent": "", "sub_books": []}],
+            }, ensure_ascii=False), encoding="utf-8")
+            res = scan_library(texts, root=root)
+            self.assertTrue(res["available"])
+            hit = next(e for e in res["edges"]
+                       if e["clause_id"] == "SHL_SONGBEN_0001")
+            self.assertEqual(hit["mode"], "明引")
+            self.assertEqual(hit["layer"], "旁證")
+            self.assertEqual(hit["book"], "測試醫籍")
+        with tempfile.TemporaryDirectory() as td:
+            res = scan_library(texts, root=Path(td))
+            self.assertFalse(res["available"])   # 未下載時如實返回，不觸發下載
 
     def test_research_loop_covers_citation_dimension(self):
         from hermes_shanghan.agent.research_loop import DeepResearcher
