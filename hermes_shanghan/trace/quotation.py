@@ -480,6 +480,94 @@ def formula_mentions(formula_names: Iterable[str], verbose: bool = False) -> Dic
 
 
 # ---------------------------------------------------------------------------
+# 全庫掃描（中醫笈成 800+ 部，文獻旁證層；`library fetch` 後可用）
+# ---------------------------------------------------------------------------
+def scan_library(clause_texts: Dict[str, str],
+                 category: str = "", limit: int = 0,
+                 root=None, verbose: bool = False) -> Dict:
+    """把引文掃描的「引用方」擴展到中醫笈成全庫（803 部醫籍）。
+
+    被引靶集仍為傷寒論條文；引用方覆蓋全庫任意分類（本草/方書/醫案/
+    溫病/內科…），故可回答「傷寒條文在整個醫籍傳統中的傳播」。庫屬
+    文獻旁證層：邊照常逐字回源，但出處標 layer=旁證，不進入經文閘門。
+    庫未下載時如實返回不可用狀態（不自動觸發 69MB 下載）。"""
+    from ..corpus import library
+
+    if not library.is_available(root):
+        return {"available": False,
+                "note": "中醫笈成全庫未下載：運行 `python3 -m hermes_shanghan "
+                        "library fetch`（約 69MB，sha256 校驗）後重試。",
+                "edges": [], "book_stats": []}
+    import json as _json
+    catalog = _json.loads((library.library_root(root) / library.CATALOG_NAME)
+                          .read_text(encoding="utf-8"))
+    from ..corpus.catalog import parse_sections
+    from ..textutil import strip_markup
+    scanner = QuotationScanner(clause_texts)
+
+    # 每個 unit 只讀自身文件（非遞歸），父書與子書不會重複掃描
+    units = list(catalog.get("units", []))
+    if category:
+        units = [u for u in units if category in (u.get("category") or "")]
+    units.sort(key=lambda u: u["id"])
+    if limit:
+        units = units[:limit]
+
+    edges: List[Dict] = []
+    book_stats: List[Dict] = []
+    n_edge = 0
+    for u in units:
+        unit_dir = library.books_dir(root) / u["id"]
+        try:
+            text = library.read_unit_text(unit_dir)
+        except OSError:
+            continue
+        n_book_edges = 0
+        n_unresolved = 0
+        seq = 0
+        for sec in parse_sections(text):
+            for para in sec.paragraphs:
+                clean = strip_markup(para)
+                if len(clean) < SHINGLE_CLAUSE:
+                    seq += 1
+                    continue
+                para_edges, unresolved = scanner.scan_paragraph(clean)
+                n_unresolved += len(unresolved)
+                for e in para_edges:
+                    n_edge += 1
+                    e.update({
+                        "citation_edge_id": f"LCITE_{n_edge:06d}",
+                        "book_dir": u["id"],
+                        "book": u.get("title", u["id"]),
+                        "author": u.get("author", ""),
+                        "dynasty": u.get("dynasty", ""),
+                        "category": u.get("category", ""),
+                        "layer": "旁證",
+                        "chapter": sec.title,
+                        "para_seq": seq,
+                    })
+                    edges.append(e)
+                    n_book_edges += 1
+                seq += 1
+        if n_book_edges or verbose:
+            book_stats.append({
+                "book_id": u["id"], "book": u.get("title", u["id"]),
+                "author": u.get("author", ""), "dynasty": u.get("dynasty", ""),
+                "category": u.get("category", ""),
+                "n_edges": n_book_edges,
+                "n_marker_unresolved": n_unresolved,
+            })
+        if verbose and n_book_edges:
+            print(f"    [trace/library] {u['id']}: {n_book_edges} 邊")
+    book_stats.sort(key=lambda b: (-b["n_edges"], b["book_id"]))
+    return {"available": True, "n_units_scanned": len(units),
+            "n_edges": len(edges), "edges": edges, "book_stats": book_stats,
+            "note": "全庫掃描屬文獻旁證層（layer=旁證）：邊逐字回源到條文，"
+                    "但出處不進入經文層證據閘門。朝代為漢/東漢的單元是仲景書"
+                    "自身的庫內版本（版本見證），其邊不是後世引用，按朝代過濾。"}
+
+
+# ---------------------------------------------------------------------------
 # 引文識別自檢基準（評價體系：引文識別能力）
 # ---------------------------------------------------------------------------
 def selfcheck(clause_texts: Dict[str, str], step: int = 20) -> Dict:

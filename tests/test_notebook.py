@@ -43,13 +43,26 @@ class TestColabNotebook(unittest.TestCase):
         from hermes_shanghan.paper.writer import PaperWriter             # noqa
         from hermes_shanghan.server.http_server import serve             # noqa
         from hermes_shanghan.server.service import ServiceContext        # noqa
+        from hermes_shanghan.trace.builder import _clause_texts          # noqa
+        from hermes_shanghan.trace.chains import (claim_chain,           # noqa
+                                                  commentator_chain,
+                                                  formula_chain,
+                                                  school_chain, text_trace)
+        from hermes_shanghan.trace.quotation import scan_library         # noqa
 
     def test_research_assets_referenced_exist(self):
         blob = "".join("".join(c["source"]) for c in self.nb["cells"]
                        if c["cell_type"] == "code")
         for name in ("commentary_divergence.json", "dose_ratios.json",
-                     "dose_family_evolution.json"):
+                     "dose_family_evolution.json", "citation_network.json",
+                     "claims.json", "schools.json"):
             self.assertIn(name, blob)
+
+    def test_trace_section_present(self):
+        blob = "".join("".join(c["source"]) for c in self.nb["cells"])
+        for feature in ("text_trace", "formula_chain", "claim_chain",
+                        "shanghan_citation_network", "scan_library"):
+            self.assertIn(feature, blob)
 
 
 if __name__ == "__main__":

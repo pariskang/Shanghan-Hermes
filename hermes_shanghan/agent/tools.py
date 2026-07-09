@@ -65,8 +65,9 @@ TOOL_META: Dict[str, Dict] = {
         "evidence_level": "D",
         "limitations": ["多假設分析為規則歸納（D層），置信度為啟發式評分；不替代臨床判斷"]},
     "shanghan_trace": {
-        "evidence_level": "C",
-        "limitations": ["溯源鏈混合 A/B/C/D 層與引文邊，各節攜帶自身層級；"
+        "evidence_level": "mixed",
+        "limitations": ["溯源鏈混合 A 原文/B 異文/C 注家/D 歸納/引文邊/計量，"
+                        "整體標 mixed，逐節層級見 section_evidence_levels；"
                         "學派歸屬與方證觀點命題屬後世歸納（posthoc_induction）"]},
     "shanghan_citation_network": {
         "evidence_level": "D",
@@ -313,10 +314,15 @@ class ToolRegistry:
             "shanghan_citation_network",
             "學術計量網絡（確定性科學計量）：歷代著作→條文引文邊的引用網絡、"
             "被引最多條文、共引條文對、著作文獻耦合、朝代時間切片、突現分析、"
-            "主路徑。可選 target（條文號或方名）返回該對象的傳播計量。",
+            "主路徑。可選 target（條文號或方名）返回該對象的傳播計量；"
+            "scope 控制被引榜範圍（canonical=正文398條[默認]/auxiliary=輔助篇章/all）。",
             {"type": "object", "properties": {
                 "target": {"type": "string",
                            "description": "可選：條文號（如 12）或方名（如 桂枝湯）"},
+                "scope": {"type": "string",
+                          "enum": ["canonical", "auxiliary", "all"],
+                          "default": "canonical",
+                          "description": "被引榜範圍：正文/輔助篇章/混排"},
                 "top_k": {"type": "integer", "default": 8}},
              "required": []},
             self._t_citation_network)
@@ -609,12 +615,13 @@ class ToolRegistry:
             return {"tool": "shanghan_trace", **res}
         return {"tool": "shanghan_trace", "trace": res}
 
-    def _t_citation_network(self, target=None, top_k=8):
+    def _t_citation_network(self, target=None, top_k=8, scope="canonical"):
         from ..textutil import fold_variants, normalize_query
         from ..trace import builder as trace_builder
         net = trace_builder.load_network()
         out = {"tool": "shanghan_citation_network",
                "overview": net["overview"],
+               "scope": scope,
                "time_slices": net["time_slices"],
                "note": net.get("note", "")}
         if target:
@@ -643,7 +650,12 @@ class ToolRegistry:
             out["target"] = {"kind": "unknown",
                              "note": f"未識別 target {target}（可用條文號或方名）"}
             return out
-        out["top_cited_clauses"] = net["top_cited_clauses"][:top_k]
+        ranking_key = {"canonical": "top_cited_canonical",
+                       "auxiliary": "top_cited_auxiliary",
+                       "all": "top_cited_clauses"}.get(scope, "top_cited_canonical")
+        out["top_cited_clauses"] = net.get(ranking_key,
+                                           net["top_cited_clauses"])[:top_k]
+        out["ranking_note"] = net.get("ranking_note", "")
         out["cocitation_pairs"] = net["cocitation_pairs"][:top_k]
         out["bibliographic_coupling"] = net["bibliographic_coupling"][:top_k]
         return out

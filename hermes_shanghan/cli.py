@@ -250,7 +250,8 @@ def cmd_trace_network(args):
     _need_pipeline()
     from .agent.tools import get_registry
     _print(get_registry().call("shanghan_citation_network",
-                               {"target": args.target, "top_k": args.top_k}))
+                               {"target": args.target, "top_k": args.top_k,
+                                "scope": args.scope}))
 
 
 def cmd_trace_scan_full(args):
@@ -266,6 +267,29 @@ def cmd_trace_scan_full(args):
     out = Path(args.out)
     n = write_jsonl(out, scan["edges"])
     _print({"out": str(out), "n_edges": n, "params": scan["params"]})
+
+
+def cmd_trace_scan_library(args):
+    """全庫（中醫笈成 800+ 部）引文掃描；庫未下載時如實提示。"""
+    _need_pipeline()
+    from pathlib import Path
+
+    from .schemas import write_jsonl
+    from .trace.builder import _clause_texts
+    from .trace.quotation import scan_library
+    res = scan_library(_clause_texts(), category=args.category,
+                       limit=args.limit, verbose=True)
+    if not res.get("available"):
+        _print(res)
+        sys.exit(1)
+    payload = {k: res[k] for k in ("available", "n_units_scanned",
+                                   "n_edges", "note")}
+    payload["top_books"] = res["book_stats"][:20]
+    if args.out:
+        n = write_jsonl(Path(args.out), res["edges"])
+        payload["out"] = args.out
+        payload["n_written"] = n
+    _print(payload)
 
 
 def cmd_solve(args):
@@ -612,6 +636,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     sp = sub.add_parser("trace-network", help="學術計量網絡：引文/共引/耦合/切片/突現/主路徑")
     sp.add_argument("--target", default="", help="可選：條文號或方名")
+    sp.add_argument("--scope", default="canonical",
+                    choices=["canonical", "auxiliary", "all"],
+                    help="被引榜範圍：正文398條（默認）/輔助篇章/混排")
     sp.add_argument("--top-k", type=int, default=8)
     sp.set_defaults(func=cmd_trace_network)
 
@@ -619,6 +646,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="導出段落級全量引文邊 jsonl（~4 萬條，體積大不入庫）")
     sp.add_argument("--out", required=True, help="輸出 jsonl 路徑")
     sp.set_defaults(func=cmd_trace_scan_full)
+
+    sp = sub.add_parser("trace-scan-library",
+                        help="全庫引文掃描（中醫笈成 800+ 部，旁證層；需先 library fetch）")
+    sp.add_argument("--category", default="", help="分類過濾：本草/方書/醫案/溫病…")
+    sp.add_argument("--limit", type=int, default=0, help="只掃前 N 個文本單元（0=全部）")
+    sp.add_argument("--out", default="", help="可選：導出邊 jsonl 路徑")
+    sp.set_defaults(func=cmd_trace_scan_library)
 
     sp = sub.add_parser("solve", help="複合問題編排：任務分解→作用域子代理→綜合核驗")
     sp.add_argument("question")

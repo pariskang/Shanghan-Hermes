@@ -50,7 +50,15 @@ class TestService(unittest.TestCase):
         self.assertTrue(r["lesson"]["七、練習題"])
 
     def test_paper(self):
-        r = self.svc.paper("mistreatment", "誤治路徑")
+        # 重定向 PAPER_DIR 到臨時目錄：測試不得往倉庫資產區寫論文產物
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        from hermes_shanghan import config
+        with tempfile.TemporaryDirectory() as td:
+            with patch.object(config, "PAPER_DIR", Path(td)):
+                r = self.svc.paper("mistreatment", "誤治路徑")
         self.assertIn("摘要", r["manuscript"])
         self.assertTrue(r["meta"]["figures"])
 
@@ -94,6 +102,8 @@ class TestHTTP(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.httpd.shutdown()
+        cls.httpd.server_close()      # 關閉監聽 socket，消除 ResourceWarning
+        cls.thread.join(timeout=5)
 
     def _get(self, path):
         with urllib.request.urlopen(f"http://127.0.0.1:{self.port}{path}", timeout=10) as r:
