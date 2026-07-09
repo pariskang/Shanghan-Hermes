@@ -259,6 +259,10 @@ class ServiceContext:
     def tool_call(self, name: str, arguments: Dict) -> Dict:
         return self.registry.call(name, arguments or {})
 
+    def trace(self, query_type: str, ref: str) -> Dict:
+        from ..trace.chains import trace_dispatch
+        return trace_dispatch(query_type, ref)
+
 
 _SERVICE: Optional[ServiceContext] = None
 

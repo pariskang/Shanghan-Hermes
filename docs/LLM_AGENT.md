@@ -206,12 +206,12 @@ python3 -m hermes_shanghan pipeline --llm-extract --llm-critic
 「⚠️ 含未核實條文編號」。可用 `Council(llm_specialists=False)` 關閉，
 離線 `local` 後端自動跳過。
 
-## 20 個可調用工具（智能體 / harness 共用同一能力面）
+## 22 個可調用工具（智能體 / harness 共用同一能力面）
 
 `shanghan_search`、`shanghan_get_clause`、`shanghan_match_formula`、
 `shanghan_hypotheses`（多假設方證分析+鑒別追問）、
 `shanghan_differential`、`shanghan_six_channel`、`shanghan_formula_rule`、
-`shanghan_mistreatment`、`shanghan_list_formulas`，以及十一個**研究/推理/文獻模塊**：
+`shanghan_mistreatment`、`shanghan_list_formulas`，以及十三個**研究/推理/文獻模塊**：
 `shanghan_divergence_atlas`（注家分歧圖譜）、`shanghan_dose`（劑量計量）、
 `shanghan_corpus_stats`（全庫統計）、`shanghan_eval_metrics`（評測指標）、
 `shanghan_variants`（B層異文對勘）、`shanghan_relations`（關係圖譜遍歷，
@@ -220,14 +220,19 @@ python3 -m hermes_shanghan pipeline --llm-extract --llm-critic
 `shanghan_dose_convert`（漢制劑量換算計算器，確定性）、
 `shanghan_case_search`（經方實驗錄醫案，旁證層+經文錨點）、
 `shanghan_library`（中醫笈成全庫 800+ 部快速查閱：編目/全文/按章閱讀，
-文獻旁證層；`library fetch` 一鍵自動下載）。
+文獻旁證層；`library fetch` 一鍵自動下載）、
+`shanghan_trace`（深度溯源鏈：條文/方劑/方證觀點/注家/學派五類鏈 +
+任意文本回源，見 [`docs/TRACE.md`](TRACE.md)）、
+`shanghan_citation_network`（學術計量網絡：歷代引文/共引/文獻耦合/
+朝代切片/突現/主路徑）。
 全部只讀、回源 clause_id；模型經 function-calling 自主選擇調用。
+溯源兩工具**不在患者白名單**（方劑鏈含組成/劑量）。
 
 ## 深度研究循環（deep-research）
 
 `DeepResearcher`（`agent/research_loop.py`）實現 loop engineering：規劃器
 （真模型 JSON 規劃 / local 覆蓋驅動）→ 子代理逐模塊取證並寫出引用核驗的
-發現 → 批評家查六維度缺口（含醫案例證）→ 迭代收斂。產出的溯源檔案驅動
+發現 → 批評家查七維度缺口（含醫案例證、引文傳播）→ 迭代收斂。產出的溯源檔案驅動
 `paper --type provenance` 一鍵生成學術溯源論文（含 SVG 統計圖表）。
 檔案（dossier）另含：`research_questions`（研究問題細化器把裸主題展開為
 六個可回答的具體問題）、`gap_report`（每個未覆蓋維度附可執行補證建議，

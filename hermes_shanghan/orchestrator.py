@@ -260,6 +260,16 @@ def run_pipeline(verbose: bool = True, use_llm_extractor: bool = False,
     stats["dose_rows"] = table["n_rows"]
     stats["dose_unparsed"] = table["n_unparsed"]
 
+    # 溯源層：統一 ID / 跨書引文邊 / 計量網絡 / 學派 / 方證觀點
+    from .trace.builder import build_all as build_trace
+    trace_stats = build_trace(verbose=False)
+    stats["trace_citation_edges"] = trace_stats["citation_edges"]
+    stats["trace_citation_pairs"] = trace_stats["citation_pairs"]
+    stats["trace_claims"] = trace_stats["claims"]
+    log(f"    溯源層: {trace_stats['citation_edges']} 引文邊 → "
+        f"{trace_stats['citation_pairs']} 聚合對 · {trace_stats['schools']} 學派 · "
+        f"{trace_stats['claims']} 方證觀點")
+
     memory.paper_memory.set("last_pipeline_stats", {
         k: v for k, v in stats.items() if isinstance(v, (int, str))})
     memory.save_all()

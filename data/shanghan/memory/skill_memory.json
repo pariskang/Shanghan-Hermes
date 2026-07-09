@@ -1,62 +1,62 @@
 {
  "catalog": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "six_channels": {
   "built": 8,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "formula_patterns": {
   "built": 113,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "mistreatment": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "contraindications": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "therapy": {
   "built": 9,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "transformation": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "differential": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "clause_explainer": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "variants": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "paper_writer": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  },
  "patient_education": {
   "built": 1,
-  "built_at": "2026-07-07T12:32:12",
-  "updated_at": "2026-07-07T12:32:12"
+  "built_at": "2026-07-09T06:10:43",
+  "updated_at": "2026-07-09T06:10:43"
  }
 }

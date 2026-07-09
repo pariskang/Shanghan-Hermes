@@ -64,6 +64,14 @@ TOOL_META: Dict[str, Dict] = {
     "shanghan_hypotheses": {
         "evidence_level": "D",
         "limitations": ["多假設分析為規則歸納（D層），置信度為啟發式評分；不替代臨床判斷"]},
+    "shanghan_trace": {
+        "evidence_level": "C",
+        "limitations": ["溯源鏈混合 A/B/C/D 層與引文邊，各節攜帶自身層級；"
+                        "學派歸屬與方證觀點命題屬後世歸納（posthoc_induction）"]},
+    "shanghan_citation_network": {
+        "evidence_level": "D",
+        "limitations": ["計量指標由逐字引文邊確定性推導；語料最晚傳播層為民國，"
+                        "現代引用需經 modern 接口導入"]},
 }
 
 _RELEASE_CONFIDENCE = {"gold": 0.9, "silver": 0.75, "bronze": 0.6}
@@ -79,7 +87,8 @@ PATIENT_SAFE_TOOLS: List[str] = [
 
 
 class ToolRegistry:
-    """Lazy-loads pipeline artifacts once, exposes 8 grounded tools."""
+    """Lazy-loads pipeline artifacts once, exposes the grounded tool surface
+    (see `_register_all`; every result carries clause_id evidence)."""
 
     def __init__(self, cache_size: int = 256):
         self._art = None
@@ -285,6 +294,32 @@ class ToolRegistry:
                 "top_k": {"type": "integer", "default": 5}},
              "required": []},
             self._t_library)
+        self._add(
+            "shanghan_trace",
+            "深度溯源鏈：條文（原文→異文→注家→歷代引用→計量）、方劑（首見→組成"
+            "→類方劑量演化→方名傳播）、方證觀點（原文直述檢驗→注家首倡時間線→"
+            "學派立場）、注家（學派/指紋/被轉引樞紐度）、學派（範式/一致度）、"
+            "任意文本回源。多觀點並存，證據分級標註。",
+            {"type": "object", "properties": {
+                "query_type": {"type": "string",
+                               "enum": ["clause", "formula", "claim",
+                                        "school", "commentator", "text"],
+                               "description": "溯源對象類型"},
+                "ref": {"type": "string",
+                        "description": "條文號/方名/觀點關鍵詞/注家名/學派名/原文片段"}},
+             "required": ["query_type", "ref"]},
+            self._t_trace)
+        self._add(
+            "shanghan_citation_network",
+            "學術計量網絡（確定性科學計量）：歷代著作→條文引文邊的引用網絡、"
+            "被引最多條文、共引條文對、著作文獻耦合、朝代時間切片、突現分析、"
+            "主路徑。可選 target（條文號或方名）返回該對象的傳播計量。",
+            {"type": "object", "properties": {
+                "target": {"type": "string",
+                           "description": "可選：條文號（如 12）或方名（如 桂枝湯）"},
+                "top_k": {"type": "integer", "default": 8}},
+             "required": []},
+            self._t_citation_network)
 
     # -- research-layer helpers -----------------------------------------
     @staticmethod
@@ -567,6 +602,52 @@ class ToolRegistry:
                 "n_text_hits": text.get("n_hits", 0),
                 "scan_capped": text.get("scan_capped", False)}
 
+    def _t_trace(self, query_type, ref):
+        from ..trace.chains import trace_dispatch
+        res = trace_dispatch(query_type, ref)
+        if "error" in res:
+            return {"tool": "shanghan_trace", **res}
+        return {"tool": "shanghan_trace", "trace": res}
+
+    def _t_citation_network(self, target=None, top_k=8):
+        from ..textutil import fold_variants, normalize_query
+        from ..trace import builder as trace_builder
+        net = trace_builder.load_network()
+        out = {"tool": "shanghan_citation_network",
+               "overview": net["overview"],
+               "time_slices": net["time_slices"],
+               "note": net.get("note", "")}
+        if target:
+            from ..trace.chains import (_citations_by_dynasty, _clauses,
+                                        _main_path, _resolve_clause)
+            c = _resolve_clause(target, _clauses())
+            if c is not None:
+                cid = c["clause_id"]
+                out["target"] = {
+                    "kind": "clause", "clause_id": cid,
+                    "citations": _citations_by_dynasty([cid]),
+                    "main_path": _main_path(cid),
+                    "bursts": [b for b in net.get("bursts", [])
+                               if b["clause_id"] == cid]}
+                return out
+            q = normalize_query(target)
+            fm = next((f for f in trace_builder.load_formula_mentions()
+                       .get("formulas", [])
+                       if fold_variants(f.get("formula", "")) == q), None)
+            if fm is not None:
+                out["target"] = {"kind": "formula", "formula": fm["formula"],
+                                 "total_mentions": fm["total_mentions"],
+                                 "n_books": fm["n_books"],
+                                 "by_book": fm["by_book"][:top_k]}
+                return out
+            out["target"] = {"kind": "unknown",
+                             "note": f"未識別 target {target}（可用條文號或方名）"}
+            return out
+        out["top_cited_clauses"] = net["top_cited_clauses"][:top_k]
+        out["cocitation_pairs"] = net["cocitation_pairs"][:top_k]
+        out["bibliographic_coupling"] = net["bibliographic_coupling"][:top_k]
+        return out
+
     # -- tool implementations ------------------------------------------
     def _t_search(self, query, top_k=6, six_channel=None, formula=None, expand=False):
         hits = self.clause_rag.search(query, top_k=top_k, six_channel=six_channel,
@@ -815,6 +896,8 @@ class ToolRegistry:
                     "shanghan_corpus_stats", "shanghan_eval_metrics",
                     "shanghan_list_formulas"):
             return 0.95        # deterministic lookup / computation
+        if name in ("shanghan_trace", "shanghan_citation_network"):
+            return 0.9         # deterministic derivation over verbatim edges
         return 0.8
 
 

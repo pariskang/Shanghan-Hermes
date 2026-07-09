@@ -47,8 +47,11 @@ MODULES = {
     "shanghan_relations": ("原文源流", "條文關係圖譜鄰接邊"),
     "shanghan_therapy": ("方證計量", "治法法度：適應/禁例/誤施"),
     "shanghan_case_search": ("醫案例證", "經方實驗錄真實診案（旁證+經文錨點）"),
+    "shanghan_trace": ("引文傳播", "深度溯源鏈：條文/方劑/方證觀點/注家/學派"),
+    "shanghan_citation_network": ("引文傳播", "歷代引文網絡/共引/時間切片/主路徑"),
 }
-DIMENSIONS = ["原文源流", "異文注家", "方證計量", "劑量計量", "客觀評測", "醫案例證"]
+DIMENSIONS = ["原文源流", "異文注家", "方證計量", "劑量計量", "客觀評測",
+              "醫案例證", "引文傳播"]
 
 # actionable follow-ups per uncovered dimension — a research gap is only
 # useful if it says HOW to close it
@@ -59,6 +62,7 @@ GAP_SUGGESTIONS = {
     "劑量計量": "調用 shanghan_dose（藥量比/家族演化）或 shanghan_dose_convert",
     "客觀評測": "先運行 evaluate 生成基準，再調 shanghan_eval_metrics",
     "醫案例證": "調用 shanghan_case_search（經方實驗錄旁證 + 經文錨點）",
+    "引文傳播": "調用 shanghan_trace（溯源鏈）或 shanghan_citation_network（歷代引文計量）",
 }
 
 
@@ -192,7 +196,12 @@ class DeepResearcher:
             tasks.append({"module": "shanghan_case_search",
                           "args": {"formula": f0} if f0 else {},
                           "reason": "歷史醫案旁證"})
-        return tasks[:6]
+        if "引文傳播" in gaps:
+            tasks.append({"module": "shanghan_trace",
+                          "args": ({"query_type": "formula", "ref": f0} if f0
+                                   else {"query_type": "text", "ref": topic}),
+                          "reason": "歷代引用與傳播路徑"})
+        return tasks[:7]
 
     # ------------------------------------------------------------------
     def _subagent(self, topic: str, task: Dict) -> Dict:
@@ -273,6 +282,22 @@ class DeepResearcher:
                     f"如「{c0.get('title', '')[:16]}」證見 "
                     f"{'、'.join(c0.get('symptoms', [])[:3])}，經文錨點 "
                     f"{'、'.join(c0.get('canonical_support', [])[:2])}。")
+        if module == "shanghan_trace":
+            t = r.get("trace", {}) or {}
+            cit = t.get("citations") or t.get("citations_of_clauses") or {}
+            anchors = (t.get("earliest_source", {}).get("clause_ids")
+                       or [t.get("clause", {}).get("clause_id", "")])
+            anchors = [a for a in anchors if a][:3]
+            return (f"{t.get('chain_type', '溯源鏈')}（{t.get('formula', '') or t.get('query', '')}）："
+                    f"歷代 {cit.get('n_citing_books', 0)} 部著作存在逐字引文邊；"
+                    f"錨點條文 {'、'.join(anchors) or '—'}；證據分級 "
+                    f"{'；'.join(t.get('evidence_grade', [])[:3])}。")
+        if module == "shanghan_citation_network":
+            ov = r.get("overview", {})
+            return (f"引文網絡：{ov.get('n_clause_edges', 0)} 條條文引文邊、"
+                    f"{ov.get('n_citing_works', 0)} 部引用著作、"
+                    f"覆蓋條文 {ov.get('n_clauses_cited', 0)} 條；"
+                    f"存疑標記 {ov.get('n_marker_unresolved', 0)} 處（多為引他書）。")
         if module in ("shanghan_six_channel", "shanghan_differential"):
             d = r.get("differential") or {}
             if d:

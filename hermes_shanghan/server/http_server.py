@@ -175,6 +175,12 @@ def _tool(svc, body, m, q):
     return svc.tool_call(body.get("name", ""), body.get("arguments", {}))
 
 
+@route("POST", r"/api/trace")
+def _trace(svc, body, m, q):
+    return svc.trace(body.get("type", body.get("query_type", "text")),
+                     body.get("ref", ""))
+
+
 # --------------------------------------------------------------------------
 def make_handler(service: ServiceContext):
     class Handler(BaseHTTPRequestHandler):
