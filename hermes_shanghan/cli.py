@@ -144,7 +144,8 @@ def cmd_library(args):
     from .corpus import library
     act = args.action
     if act == "fetch":
-        library.fetch(url=args.url or None, force=args.force)
+        library.fetch(url=args.url or None, force=args.force,
+                      sha256=getattr(args, "sha256", "") or "")
         print(json.dumps(library.status(), ensure_ascii=False, indent=1))
         return
     if act == "status":
@@ -319,15 +320,18 @@ def cmd_run(args):
     st = HarnessRunner().start(args.query, mode=args.mode, role=args.role or
                                ("doctor" if args.mode != "deep-research"
                                 else "researcher"),
-                               max_steps=args.max_steps)
+                               max_steps=args.max_steps,
+                               max_tool_calls=args.max_tool_calls)
     _print({"run_id": st.spec.run_id, "status": st.status,
             "release": st.release, "pending_review": st.pending_review,
+            "approval_requests": st.approval_requests,
             "answer": st.final_answer,
             "nodes": {k: v.status for k, v in st.nodes.items()},
             "n_tool_calls": len(st.tool_calls),
+            "budget": st.budget_snapshot,
             "hint": (f"人工審核：python3 -m hermes_shanghan run-resume "
-                     f"{st.spec.run_id} --approve" if st.status == "paused"
-                     else "")})
+                     f"{st.spec.run_id} --approve（或 --reject）"
+                     if st.status == "paused" else "")})
 
 
 def cmd_run_list(args):
@@ -339,7 +343,7 @@ def cmd_run_resume(args):
     _need_pipeline()
     from .agent.harness import HarnessRunner
     st = HarnessRunner().resume(args.run_id, approve=args.approve,
-                                approver=args.approver)
+                                reject=args.reject, approver=args.approver)
     if st is None:
         print(f"未找到 run {args.run_id}", file=sys.stderr)
         sys.exit(1)
@@ -369,6 +373,14 @@ def cmd_run_export(args):
         print(f"已導出 {args.out}")
     else:
         print(out)
+
+
+def cmd_readyz(args):
+    """就緒探針：數據能力逐項校驗（拒絕假健康）。exit 0=ready, 2=not。"""
+    from .health import readyz
+    out = readyz(include_runtime=args.runtime)
+    _print(out)
+    sys.exit(0 if out["ready"] else 2)
 
 
 def cmd_intake(args):
@@ -764,7 +776,11 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp.add_argument("--category", default="", help="按分類過濾，如 醫案/本草/溫病")
     sp.add_argument("--section", default="", help="read：只讀某一章節")
     sp.add_argument("--limit", type=int, default=12)
-    sp.add_argument("--url", default="", help="fetch：覆蓋默認庫源 URL")
+    sp.add_argument("--url", default="",
+                    help="fetch：覆蓋默認庫源 URL（須 HERMES_LIBRARY_ALLOW_CUSTOM=1"
+                         " 並提供 --sha256，fail-closed）")
+    sp.add_argument("--sha256", default="",
+                    help="fetch：自定義庫源的 SHA-256（64 位十六進制，必填）")
     sp.add_argument("--force", action="store_true", help="fetch：強制重建")
     sp.set_defaults(func=cmd_library)
 
@@ -782,9 +798,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp.add_argument("--type", "-t", default="text",
                     choices=["clause", "formula", "claim", "school",
                              "commentator", "text", "quote", "term",
-                             "dispute", "compare"],
+                             "dispute", "compare", "argument"],
                     help="溯源對象類型（默認 text：任意文本回源；"
-                         "quote：誤引檢測；term：術語譜系；dispute：注家爭議結構化；compare：學派/注家比較（A vs B））")
+                         "quote：誤引檢測；term：術語譜系；dispute：注家爭議結構化；"
+                         "compare：學派/注家比較（A vs B）；"
+                         "argument：方證論證結構（支持/反證/異文分叉/注家共同與"
+                         "爭議/隱含假設/不可裁決，七段分層））")
     sp.set_defaults(func=cmd_trace)
 
     sp = sub.add_parser("trace-build", help="重建溯源層資產（引文邊/計量網絡/學派/觀點）")
@@ -833,14 +852,19 @@ def main(argv: Optional[List[str]] = None) -> int:
                     choices=["agent", "council", "deep-research", "solve"])
     sp.add_argument("--role", choices=list(safety.ROLES))
     sp.add_argument("--max-steps", type=int, default=6)
+    sp.add_argument("--max-tool-calls", type=int, default=12,
+                    help="統一工具預算（Harness 控制器原子扣減，批量調用不可突破）")
     sp.set_defaults(func=cmd_run)
 
     sp = sub.add_parser("run-list", help="列出 harness 運行")
     sp.set_defaults(func=cmd_run_list)
 
-    sp = sub.add_parser("run-resume", help="恢復中斷的運行 / --approve 人工審核放行")
+    sp = sub.add_parser("run-resume",
+                        help="恢復中斷的運行 / --approve 批准（重跑下游閘門後放行）"
+                             " / --reject 駁回")
     sp.add_argument("run_id")
     sp.add_argument("--approve", action="store_true")
+    sp.add_argument("--reject", action="store_true")
     sp.add_argument("--approver", default="")
     sp.set_defaults(func=cmd_run_resume)
 
@@ -853,6 +877,13 @@ def main(argv: Optional[List[str]] = None) -> int:
     sp.add_argument("--format", default="md", choices=["md", "json"])
     sp.add_argument("--out", default="")
     sp.set_defaults(func=cmd_run_export)
+
+    sp = sub.add_parser("readyz",
+                        help="就緒探針：manifest/398條/規則庫/索引/工具規格逐項"
+                             "校驗（拒絕假健康空運行；exit 2=未就緒）")
+    sp.add_argument("--runtime", action="store_true",
+                    help="額外對比運行時工具註冊表與提交的 tool_specs.json")
+    sp.set_defaults(func=cmd_readyz)
 
     sp = sub.add_parser("intake",
                         help="四診信息採集：自然敘述→結構化四診表+缺失信息+追問（非診斷）")
