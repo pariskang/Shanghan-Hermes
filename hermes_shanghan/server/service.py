@@ -269,22 +269,31 @@ class ServiceContext:
             self._gc_sessions()
             entry = self._sessions.get(key)
             if entry is None:
-                entry = {"sess": AgentSession(client=self.llm,
-                                              registry=self.registry,
-                                              namespace=subject),
-                         "last": time.time(),
+                sess = AgentSession(client=self.llm, registry=self.registry,
+                                    namespace=subject)
+                # 語義恢復（十四輪 九）：服務重啟/新實例對已持久化會話
+                # 重建真實上下文（history/主語/錨點/糾正），不只展示記錄
+                try:
+                    self._restore_session(sess, subject, sid)
+                except Exception:
+                    pass
+                entry = {"sess": sess, "last": time.time(),
                          "lock": threading.Lock()}
                 self._sessions[key] = entry
             entry["last"] = time.time()
         with entry["lock"]:
             out = entry["sess"].ask(question, role=role)
-        out.setdefault("session", {})
-        out["session"]["session_id"] = sid
-        out["session"]["namespace"] = subject
-        try:
-            self._persist_turn(subject, sid, question, out)
-        except Exception:
-            pass          # 持久化盡力而為，不阻斷回答
+            out.setdefault("session", {})
+            out["session"]["session_id"] = sid
+            out["session"]["namespace"] = subject
+            # 持久化在 per-session 鎖內（十四輪 十：並發寫不再丟回合/
+            # 競態 FileNotFoundError）；失敗如實暴露在響應元數據
+            try:
+                self._persist_turn(subject, sid, question, out)
+                out["session"]["persisted"] = True
+            except Exception as exc:
+                out["session"]["persisted"] = False
+                out["session"]["persist_error"] = str(exc)[:120]
         if generated:
             out["session"]["note"] = ("服務端已生成獨立 session_id；"
                                       "續接上下文請在後續請求回傳該 id")
@@ -346,31 +355,75 @@ class ServiceContext:
         return {"runs": list_runs(limit=limit)}
 
     def run_detail(self, run_id: str) -> Dict:
+        """Run 摘要（十四輪 十二：不再全量返回 node_outputs/全部台賬/
+        全部 spans——大字段走 /spans /evidence /output/<node> 端點）。"""
         from ..agent.harness.runner import load_run, run_dir
         from ..agent.harness.tracing import TraceStore
+        try:
+            st = load_run(run_id)
+        except Exception:
+            return {"run_id": run_id, "status": "corrupt",
+                    "error": "state.json 損壞（可修復性見磁盤文件）"}
+        if st is None:
+            return {"error": f"未找到 run {run_id}", "_status": 404}
+        n_ledger = sum(len(v) for v in st.evidence_ledger.values())
+        n_spans = len(TraceStore(run_dir(run_id)).read())
+        return {
+            "spec": st.spec.to_dict(), "status": st.status,
+            "trace_id": st.trace_id,
+            "nodes": {k: v.to_dict() for k, v in st.nodes.items()},
+            "tool_calls": st.tool_calls[-60:],
+            "guardrail_events": st.guardrail_events[-30:],
+            "errors": st.errors[-10:],
+            "final_answer": (st.final_answer or "")[:4000],
+            "release": st.release,
+            "pending_review": st.pending_review,
+            "approval_requests": st.approval_requests,
+            "budget_snapshot": st.budget_snapshot,
+            "counts": {"evidence_records": n_ledger, "spans": n_spans,
+                       "node_outputs": len(st.node_outputs)},
+            "links": {"spans": f"/api/runs/{run_id}/spans?offset=0&limit=60",
+                      "evidence": f"/api/runs/{run_id}/evidence?limit=100",
+                      "output": f"/api/runs/{run_id}/output/<node_id>"},
+        }
+
+    def run_node_output(self, run_id: str, node_id: str) -> Dict:
+        from ..agent.harness.runner import load_run
         st = load_run(run_id)
         if st is None:
-            return {"error": f"未找到 run {run_id}"}
-        d = st.to_dict()
-        events = TraceStore(run_dir(run_id)).read()
-        d["spans"] = [{k: e.get(k) for k in
-                       ("span_id", "parent_span_id", "span_type", "name",
-                        "duration_ms", "error", "evidence_ids", "metadata")}
-                      for e in events][-120:]
-        return d
+            return {"error": f"未找到 run {run_id}", "_status": 404}
+        if node_id not in st.node_outputs:
+            return {"error": f"節點 {node_id} 無輸出",
+                    "available": list(st.node_outputs), "_status": 404}
+        return {"run_id": run_id, "node_id": node_id,
+                "output": st.node_outputs[node_id]}
 
     # 有界執行器（十三輪 九：後台線程→受控任務池；隊列/lease/多 worker
     # 屬 SQLite 路線，見 PLATFORM.md）
     RUN_WORKERS = int(os.environ.get("HERMES_RUN_WORKERS", "2"))
     MAX_QUERY_CHARS = 20_000
 
+    RUN_QUEUE_SIZE = int(os.environ.get("HERMES_RUN_QUEUE", "8"))
+
     def _run_executor(self):
         if not hasattr(self, "_executor"):
+            import threading
             from concurrent.futures import ThreadPoolExecutor
             self._executor = ThreadPoolExecutor(
                 max_workers=self.RUN_WORKERS,
                 thread_name_prefix="hermes-run")
+            # 背壓（十四輪 七）：ThreadPoolExecutor 的內部隊列無界——
+            # 用提交信號量限容量（workers+queue），滿載回 429 而非默默排隊
+            self._run_slots = threading.BoundedSemaphore(
+                self.RUN_WORKERS + self.RUN_QUEUE_SIZE)
         return self._executor
+
+    def close(self) -> None:
+        """關閉任務池（十四輪 八：測試 tearDown/serve finally/Notebook
+        清理均應調用，避免線程滯留與進程無法退出）。"""
+        if hasattr(self, "_executor"):
+            self._executor.shutdown(wait=False, cancel_futures=True)
+            del self._executor
 
     def run_start(self, query: str, mode: str = "agent",
                   role: str = "researcher", max_steps: int = 6,
@@ -390,31 +443,69 @@ class ServiceContext:
                     "_status": 400}
         max_steps = max(1, min(50, int(max_steps)))
         max_tool_calls = max(0, min(100, int(max_tool_calls)))
-        runner = HarnessRunner()
-        state = runner.prepare(query, mode=mode, role=role,
-                               max_steps=max_steps,
-                               max_tool_calls=max_tool_calls)
+        executor = self._run_executor()
+        # 背壓在建立 run 目錄**之前**：拒絕時不留幽靈 queued
+        if not self._run_slots.acquire(blocking=False):
+            return {"error": "任務隊列已滿（workers+queue 容量耗盡），"
+                             "請稍後重試", "_status": 429}
+        try:
+            runner = HarnessRunner()
+            state = runner.prepare(query, mode=mode, role=role,
+                                   max_steps=max_steps,
+                                   max_tool_calls=max_tool_calls)
+        except ValueError as exc:
+            self._run_slots.release()
+            return {"error": str(exc), "_status": 400}
+        except Exception:
+            self._run_slots.release()
+            raise
         rid = state.spec.run_id           # 此刻 state.json 已持久化（queued）
 
         def _work():
+            import threading
+            import time as _time
+            import traceback
             try:
                 runner.execute_prepared(rid)
-            except Exception:
-                import traceback
+            except Exception as exc:
+                # 十四輪 六：worker 崩潰必須落盤——不留永久 queued 幽靈
                 traceback.print_exc()
+                try:
+                    from ..agent.harness.runner import load_run, save_state
+                    from ..agent.harness.tracing import sanitize_error
+                    st = load_run(rid)
+                    if st is not None and st.status in ("queued", "created",
+                                                        "running"):
+                        st.status = "failed"
+                        st.errors.append(sanitize_error(exc))
+                        st.guardrail_events.append(
+                            {"event": "worker_crash",
+                             "worker_id": threading.current_thread().name,
+                             "at": _time.strftime("%Y-%m-%dT%H:%M:%S"),
+                             "error": sanitize_error(exc)})
+                        st.release = {"decision": "failed_closed",
+                                      "reasons": ["worker 異常，運行未完成"]}
+                        save_state(st)
+                except Exception:
+                    traceback.print_exc()
+            finally:
+                self._run_slots.release()
 
-        self._run_executor().submit(_work)
+        executor.submit(_work)
         return {"run_id": rid, "status": "queued",
                 "hint": "輪詢 GET /api/runs/<run_id> 查看節點軌跡與發布裁定"}
 
     def run_action(self, run_id: str, action: str, approver: str = "",
-                   reason: str = "") -> Dict:
+                   reason: str = "", trigger: str = "") -> Dict:
+        self._approve_trigger = trigger
         from ..agent.harness import HarnessRunner
         from ..agent.harness.runner import export_run
         if action == "approve":
             st = HarnessRunner().resume(run_id, approve=True,
                                         approver=approver or "console",
-                                        reason=reason)
+                                        reason=reason,
+                                        trigger=getattr(self, "_approve_trigger",
+                                                        ""))
         elif action == "reject":
             st = HarnessRunner().resume(run_id, reject=True,
                                         approver=approver or "console",
@@ -422,10 +513,14 @@ class ServiceContext:
         elif action == "resume":
             st = HarnessRunner().resume(run_id)
         elif action == "cancel":
-            ok = HarnessRunner.request_cancel(run_id)
-            return {"run_id": run_id, "cancel_requested": ok,
-                    "note": "協作式取消：節點邊界生效（節點內工具只讀原子）"} \
-                if ok else {"error": f"未找到 run {run_id}"}
+            ok, why = HarnessRunner.request_cancel(run_id)
+            if ok:
+                return {"run_id": run_id, "cancel_requested": True,
+                        "note": "協作式取消：節點邊界生效（節點內工具只讀原子）"}
+            if why == "not_found":
+                return {"error": f"未找到 run {run_id}", "_status": 404}
+            return {"run_id": run_id, "cancel_requested": False,
+                    "reason": why, "_status": 409}
         elif action == "replay":
             out = HarnessRunner().replay(run_id)
             return out or {"error": f"未找到 run {run_id}"}
@@ -519,13 +614,37 @@ class ServiceContext:
         target = self._artifact_target(rel_path)
         if target is None:
             return {"error": "路徑不合法或文件不存在（僅限 papers/ 與 runs/）"}
-        from ..agent.harness.state import spec_versions
-        return {"path": rel_path, "filename": target.name,
+        meta = {"path": rel_path, "filename": target.name,
                 "bytes": target.stat().st_size,
                 "mime_type": mimetypes.guess_type(target.name)[0]
                 or "text/plain",
-                "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
-                "corpus_fingerprint": spec_versions()["corpus_version"]}
+                "sha256": hashlib.sha256(target.read_bytes()).hexdigest()}
+        # 生成時指紋（十四輪 十七）：runs/ 下的 Artifact 從其 run state 讀
+        # 創建時語料/代碼指紋；讀不到時如實標 current（不冒充生成時值）
+        frozen = None
+        parts = rel_path.replace("\\", "/").split("/")
+        if parts and parts[0] == "runs" and len(parts) > 1:
+            try:
+                from ..agent.harness.runner import load_run
+                st = load_run(parts[1])
+                if st is not None:
+                    frozen = {"corpus_fingerprint_at_creation":
+                              st.spec.corpus_version,
+                              "code_fingerprint_at_creation":
+                              st.spec.code_fingerprint,
+                              "created_by_run": parts[1],
+                              "created_at": st.spec.created_at}
+            except Exception:
+                frozen = None
+        if frozen:
+            meta.update(frozen)
+        else:
+            from ..agent.harness.state import spec_versions
+            meta["corpus_fingerprint_current"] = \
+                spec_versions()["corpus_version"]
+            meta["provenance_note"] = ("無生成時記錄——此為**當前**語料指紋，"
+                                       "不代表生成時版本")
+        return meta
 
     def artifact_download(self, rel_path: str):
         """返回 (filename, mime, bytes)——http 層以 Content-Disposition:
@@ -540,8 +659,10 @@ class ServiceContext:
 
     # -- 會話持久化（十三輪 十五：刷新不丟、可列可刪可複核逐輪解析）------
     def _session_file(self, subject: str, sid: str):
-        import re as _re
-        safe = _re.sub(r"[^A-Za-z0-9_\-]", "_", f"{subject}__{sid}")[:80]
+        # 十四輪 十一：哈希文件名——長 subject 截斷不會使不同 session
+        # 碰撞同一文件；可讀元數據在文件內容（namespace/session_id）
+        import hashlib
+        safe = hashlib.sha256(f"{subject}\0{sid}".encode()).hexdigest()[:32]
         d = config.SHANGHAN_DIR / "sessions"
         d.mkdir(parents=True, exist_ok=True)
         return d / f"{safe}.json"
@@ -568,10 +689,27 @@ class ServiceContext:
             "evidence_ids": out.get("evidence_clause_ids", [])[:12],
         })
         doc["turns"] = doc["turns"][-50:]
-        tmp = p.with_suffix(".json.tmp")
+        import uuid
+        tmp = p.with_suffix(f".{uuid.uuid4().hex[:8]}.tmp")   # 唯一 tmp 防競態
         tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=1),
                        encoding="utf-8")
         tmp.replace(p)
+
+    def _restore_session(self, sess, subject: str, sid: str) -> None:
+        import json
+        p = self._session_file(subject, sid)
+        if not p.exists():
+            return
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        if doc.get("namespace") != subject:
+            return
+        for t in doc.get("turns", [])[-8:]:
+            q = t.get("user_message", "")
+            sess._record_corrections(q)
+            sess._remember(q, {"answer": t.get("answer", ""),
+                               "evidence_clause_ids":
+                               t.get("evidence_ids", [])})
+        sess.restored_turns = len(doc.get("turns", []))
 
     def sessions_list(self, subject: str) -> Dict:
         import json

@@ -1063,6 +1063,42 @@ class ToolRegistry:
             raise box["exc"]
         return box.get("result")
 
+    # 這些工具以 supporting_clauses 等 id 列表作核心證據——把條文正文
+    # 摘錄一併放進結果（十四輪 P0-四：模型必須真的讀到正文，證據才算
+    # 返回；純導航類工具如 relations/trace 不附，保持 id_mention_only）
+    EXCERPT_TOOLS = frozenset({
+        "shanghan_formula_rule", "shanghan_differential",
+        "shanghan_six_channel", "shanghan_mistreatment", "shanghan_therapy",
+        "shanghan_match_formula", "shanghan_hypotheses",
+        "shanghan_adjudicate", "shanghan_conflict_audit"})
+
+    def _attach_excerpts(self, name: str, result: Dict) -> Dict:
+        if name not in self.EXCERPT_TOOLS or not isinstance(result, dict) \
+                or "error" in result:
+            return result
+        import re as _re
+        rx = _re.compile(r"SHL_SONGBEN_(?:AUX_)?\d{4}")
+        blob = json.dumps(result, ensure_ascii=False, default=str)
+        ids = list(dict.fromkeys(rx.findall(blob)))[:12]
+        if not ids:
+            return result
+        try:
+            store = self.art.clause_store()
+        except Exception:
+            return result
+        excerpts = []
+        for cid in ids:
+            c = store.get(cid)
+            text = getattr(c, "clean_text", "") if c else ""
+            if text and text[:12] not in blob:
+                excerpts.append({"clause_id": cid, "text": text[:100]})
+        if excerpts:
+            result["evidence_excerpts"] = excerpts
+            result.setdefault("evidence_excerpts_note",
+                              "支持條文正文摘錄（隨結果進入模型上下文，"
+                              "使引用可按 primary_text_returned 核驗）")
+        return result
+
     @staticmethod
     def _safe_exc(exc: BaseException) -> str:
         """異常信息進錯誤信封前脫敏：去倉庫絕對路徑 + 截斷（信封可能
@@ -1130,6 +1166,7 @@ class ToolRegistry:
                            "error": f"tool {name} 輸出契約違例：期望 dict，"
                                     f"得到 {type(result).__name__}"})
         result = self._stamp(name, result)
+        result = self._attach_excerpts(name, result)
         # 輸出大小護欄（工具契約 max_result_bytes）：超限如實報錯而非靜默截斷
         blob = json.dumps(result, ensure_ascii=False, default=str)
         if len(blob.encode("utf-8")) > MAX_RESULT_BYTES:

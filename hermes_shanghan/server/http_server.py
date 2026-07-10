@@ -281,6 +281,12 @@ def _run_spans(svc, body, m, q, ctx=None):
     return svc.run_spans(m.group(1), offset=offset, limit=limit)
 
 
+@route("GET", r"/api/runs/([A-Za-z0-9_\-]+)/output/([A-Za-z0-9_\-]+)",
+       min_role="student")
+def _run_output(svc, body, m, q, ctx=None):
+    return svc.run_node_output(m.group(1), m.group(2))
+
+
 @route("GET", r"/api/runs/([A-Za-z0-9_\-]+)/evidence", min_role="student")
 def _run_evidence(svc, body, m, q, ctx=None):
     offset = _qint(q, "offset", 0, 0, 100000)
@@ -311,7 +317,8 @@ def _run_action(svc, body, m, q, ctx=None):
     return svc.run_action(m.group(1), m.group(2),
                           approver=str(body.get("approver", ""))
                           or ctx.principal_id,
-                          reason=str(body.get("reason", ""))[:400])
+                          reason=str(body.get("reason", ""))[:400],
+                          trigger=str(body.get("trigger", ""))[:60])
 
 
 @route("POST", r"/api/eval/trajectory", min_role="researcher")

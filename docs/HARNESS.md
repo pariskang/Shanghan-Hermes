@@ -2,6 +2,16 @@
 
 回應「頂級 harness」評審（八輪十二方向 + 九輪動態審計 + 十一輪 P0 復現）。
 
+## 〇-0、十四輪 P0 修復（「無證據鏈，不成回答」補完最後缺口）
+
+| P0 | 修復 |
+|---|---|
+| 無證據審批豁免 | 審批類型學落地：`ADJUDICATION_TRIGGERS`（doctor_formula_candidates / unresolved_conflict / paper_generation——**裁量問題**，人可批）與 `NON_APPROVABLE_TRIGGERS`（citation_failure——**事實問題**，人批不掉）分離；閘門硬不變量 `證據閘不過 且 非拒答 → 永不 pass*`，approved 集合先與可裁量集求交。全批准也只能 review_required（測試：`test_citation_failure_cannot_be_approved`、`test_evidence_gate_failure_never_passes_even_all_approved`） |
+| 僅編號證據入允許集 | 允許集只收 `evidence_role == "primary_text_returned"` 的台賬記錄——「工具提了編號」≠「證據被返回」；同時摘錄類工具（EXCERPT_TOOLS）在結果中附 evidence_excerpts（條文正文前 100 字），讓真證據以正文形態進入模型上下文（測試：`test_id_only_evidence_cannot_pass_strict_round`） |
+| RUN_MODES 聲明未實現的 tool 模式 | tool 模式**真實實現**：query=JSON `{"name","arguments"}` 創建前校驗（400），執行經 `ScopedRegistry.for_role(role).call()` 全鏈路過 Broker 台賬與發布閘門；守衛測試逐一斷言五個聲明模式都有 dispatch（`test_every_declared_mode_has_dispatch`） |
+
+同輪 P1：worker 崩潰落盤 failed（不再永久 queued）+ BoundedSemaphore 隊列背壓（滿載 429）+ executor close()；會話重啟**語義恢復**（錨點/歷史/糾偏重建，不只 turns 數對）+ 併發持久化鎖 + uuid 臨時文件 + sha256 文件名防碰撞；run 詳情瘦身為 summary、大字段走 /spans /evidence /output/{node} 分頁端點（控制台已接線）；span 字段更名 `mentioned_clause_ids`（提及≠核驗）；工具規格指紋=內容哈希 `{n}tools@{hash}`、新增 code_tree_fingerprint；runs Artifact 元數據用**創建時**指紋；下載走認證 fetch；逐 trigger 審批 + 陳舊 digest 拒絕；終態不可取消（409）；損壞 run 文件/殘缺 trace 行不再炸列表。
+
 ## 〇-1、十三輪 P0 修復（不變量閉環，tests/test_invariants.py 鏡像守衛）
 
 | P0 | 修復 |

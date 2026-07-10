@@ -41,6 +41,9 @@ class RunSpec:
     python_version: str = ""
     backend: str = ""                      # llm 後端（local / litellm 模型名）
     code_fingerprint: str = ""             # git HEAD（不可得時為空，如實）
+    # 代碼樹內容哈希：覆蓋 dirty 工作區與 ZIP（無 git）場景——同 commit
+    # 本地改動/解壓包改動都會變（十四輪 十六）
+    code_tree_fingerprint: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -169,6 +172,29 @@ class RunState:
         return st
 
 
+_CODE_TREE_CACHE: Dict[str, str] = {}
+
+
+def _code_tree_fingerprint() -> str:
+    """hermes_shanghan/ 全部 .py 內容的聚合哈希（進程內緩存）。
+    覆蓋 git dirty 與 archive 場景；prompts/路由/發布策略都在代碼樹內，
+    其變更均反映於此。語料內容指紋=manifest（含逐文件 sha256）——直接
+    改數據文件而不重建 manifest 的漂移由 readyz 條數/規則檢查兜底（如實
+    標注局限）。"""
+    if "v" in _CODE_TREE_CACHE:
+        return _CODE_TREE_CACHE["v"]
+    h = hashlib.sha256()
+    pkg = config.REPO_ROOT / "hermes_shanghan"
+    try:
+        for f in sorted(pkg.rglob("*.py")):
+            h.update(str(f.relative_to(pkg)).encode())
+            h.update(f.read_bytes())
+        _CODE_TREE_CACHE["v"] = h.hexdigest()[:12]
+    except OSError:
+        _CODE_TREE_CACHE["v"] = ""
+    return _CODE_TREE_CACHE["v"]
+
+
 def spec_versions() -> Dict[str, str]:
     """RunSpec 的環境指紋（審計/replay 可追）。code_fingerprint 在非 git
     環境如實留空，不編造。"""
@@ -183,8 +209,11 @@ def spec_versions() -> Dict[str, str]:
     spec_path = config.SHANGHAN_DIR / "tool_specs.json"
     if spec_path.exists():
         try:
-            n = len(json.loads(spec_path.read_text(encoding="utf-8"))["openai_tools"])
-            tool_v = f"v1+{n}tools"
+            raw = spec_path.read_bytes()
+            n = len(json.loads(raw.decode("utf-8"))["openai_tools"])
+            # 內容哈希（十四輪 十六）：28 個工具的 Schema/契約變更即使
+            # 數量不變也會改變指紋——「數量相同≠規格相同」
+            tool_v = f"{n}tools@{hashlib.sha256(raw).hexdigest()[:12]}"
         except Exception:
             tool_v = "unknown"
     code = ""
@@ -201,5 +230,6 @@ def spec_versions() -> Dict[str, str]:
     except Exception:
         backend = ""
     return {"corpus_version": corpus, "tool_spec_version": tool_v,
+            "code_tree_fingerprint": _code_tree_fingerprint(),
             "python_version": platform.python_version(),
             "backend": backend, "code_fingerprint": code}

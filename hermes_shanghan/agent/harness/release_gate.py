@@ -25,9 +25,18 @@ HUMAN_REVIEW_TRIGGERS = {
                                  "工具產出）——輔助定位，需人工確認後發布",
     "unresolved_conflict": "方證衝突/鑒別未決——暫停並生成追問",
     "paper_generation": "論文生成——標題/論點/參考證據需人工確認",
-    "citation_failure": "引用未能全部核驗（引用未接地/引文不匹配）——"
-                        "自動修復失敗時不得靜默發布",
+    "citation_failure": "引用未能全部核驗（引用未接地/無證據/引文不匹配）——"
+                        "須補錄證據/刪除無據結論後重跑，普通批准不能豁免",
 }
+
+# 十四輪 P0：審批類型學——普通 approve 只裁決**學術/臨床審核項**
+# （adjudication）。證據失敗不是「待裁決的爭議」而是「未完成的取證」：
+# 批准不能把 evidence_gate=false 變成發布成功（「無證據鏈，不成回答」
+# 是硬不變量）。exceptional_override 若未來需要，須獨立高權限流程
+# （雙確認/風險承擔/有效期），不沿用 approve——當前顯式不提供。
+ADJUDICATION_TRIGGERS = frozenset(
+    {"doctor_formula_candidates", "unresolved_conflict", "paper_generation"})
+NON_APPROVABLE_TRIGGERS = frozenset({"citation_failure"})
 
 # 結構化候選方信號：這些工具出現在調用台賬 = 本輪產生了方劑推薦類輸出
 FORMULA_CANDIDATE_TOOLS = frozenset(
@@ -159,7 +168,10 @@ def evaluate(spec, output: Dict[str, Any],
         reasons.append("回答未含任何可核驗條文編號（evidence_policy="
                        "strict_round：無證據鏈不放行）")
 
-    review = sorted(set(review) - set(approved))
+    # 批准集合只能消解可裁決項；citation_failure 等證據失敗**不受批准
+    # 影響**——只有證據真的補上（重跑後外層複核通過）才會自然消失
+    effective_approved = set(approved) & ADJUDICATION_TRIGGERS
+    review = sorted(set(review) - effective_approved)
     warnings: List[str] = []
     grounding = (output.get("claims") or {}).get("claim_grounding_rate")
     if grounding is not None and grounding < CLAIM_GROUNDING_WARN and not refused:
@@ -170,11 +182,18 @@ def evaluate(spec, output: Dict[str, Any],
         warnings.append(f"引文歸屬存疑 {len(attribution)} 處（文字錯掛條文）"
                         "——見 citation_report.attribution_warnings")
 
+    # 硬不變量（十四輪 P0-三）：strict_round 非拒答回答，evidence gate
+    # 不通過就**永遠不可能** pass*——與批准集合無關
+    evidence_ok = gates["evidence_gate"]["ok"] or refused
     if blocked:
         decision = "blocked"
     elif review:
         decision = "review_required"
-    elif approved:
+    elif not evidence_ok:
+        decision = "review_required"
+        if "citation_failure" not in review:
+            review = sorted(set(review) | {"citation_failure"})
+    elif effective_approved:
         decision = "pass_after_human_review"
     elif warnings:
         decision = "pass_with_warning"
