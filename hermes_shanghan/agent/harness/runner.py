@@ -155,10 +155,12 @@ class HarnessRunner:
 
     # ------------------------------------------------------------------
     def start(self, query: str, mode: str = "agent", role: str = "researcher",
-              max_steps: int = 6, max_tool_calls: int = 12) -> RunState:
+              max_steps: int = 6, max_tool_calls: int = 12,
+              run_id: str = "") -> RunState:
         versions = spec_versions()
-        spec = RunSpec(run_id=new_run_id(query), user_query=query, role=role,
-                       mode=mode, max_steps=max_steps,
+        # run_id 可由調用方預生成（運行中心異步啟動：先拿 id 再後台執行）
+        spec = RunSpec(run_id=run_id or new_run_id(query), user_query=query,
+                       role=role, mode=mode, max_steps=max_steps,
                        max_tool_calls=max_tool_calls, **versions)
         state = RunState(spec=spec, plan=_default_plan(mode))
         state.nodes = {n.node_id: NodeResult(node_id=n.node_id)

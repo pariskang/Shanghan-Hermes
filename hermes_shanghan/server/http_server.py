@@ -245,6 +245,69 @@ def _herb(svc, body, m, q, ctx=None):
     return svc.herb(body.get("name", body.get("herb", "")))
 
 
+# -- 運行中心 / 評測 / Artifact / 治理（十二輪新控制面）---------------------
+@route("GET", r"/api/whoami")
+def _whoami(svc, body, m, q, ctx=None):
+    # 前端角色選擇只是請求；真正的上限與生效角色由服務端裁定並回顯
+    return {"principal_id": ctx.principal_id, "tenant_id": ctx.tenant_id,
+            "role_ceiling": ctx.role_ceiling,
+            "effective_role": ctx.effective_role,
+            "request_id": ctx.request_id}
+
+
+@route("GET", r"/api/runs", min_role="student")
+def _runs(svc, body, m, q, ctx=None):
+    return svc.runs_list(limit=int((q.get("limit", ["30"]))[0]))
+
+
+@route("GET", r"/api/runs/([A-Za-z0-9_\-]+)", min_role="student")
+def _run_detail(svc, body, m, q, ctx=None):
+    return svc.run_detail(m.group(1))
+
+
+@route("POST", r"/api/runs", min_role="student")
+def _run_start(svc, body, m, q, ctx=None):
+    # 運行角色受服務端上限鉗制：ctx.effective_role 優先；全權主體可指定
+    role = ctx.effective_role or body.get("run_role") or "researcher"
+    return svc.run_start(body.get("query", ""),
+                         mode=body.get("mode", "agent"), role=role,
+                         max_steps=int(body.get("max_steps", 6)),
+                         max_tool_calls=int(body.get("max_tool_calls", 12)))
+
+
+@route("POST", r"/api/runs/([A-Za-z0-9_\-]+)/(approve|reject|resume|replay|export)",
+       min_role="doctor")
+def _run_action(svc, body, m, q, ctx=None):
+    return svc.run_action(m.group(1), m.group(2),
+                          approver=str(body.get("approver", ""))
+                          or ctx.principal_id)
+
+
+@route("POST", r"/api/eval/trajectory", min_role="researcher")
+def _eval_traj(svc, body, m, q, ctx=None):
+    return svc.eval_trajectory()
+
+
+@route("POST", r"/api/eval/perturbation", min_role="researcher")
+def _eval_pert(svc, body, m, q, ctx=None):
+    return svc.eval_perturbation()
+
+
+@route("GET", r"/api/artifacts", min_role="student")
+def _artifacts(svc, body, m, q, ctx=None):
+    return svc.artifacts()
+
+
+@route("GET", r"/api/artifact", min_role="student")
+def _artifact(svc, body, m, q, ctx=None):
+    return svc.artifact_read((q.get("path", [""]))[0])
+
+
+@route("GET", r"/api/governance", min_role="student")
+def _governance(svc, body, m, q, ctx=None):
+    return svc.governance()
+
+
 @route("POST", r"/api/formula-explain", min_role="student")
 def _formula_explain(svc, body, m, q, ctx=None):
     return svc.formula_explain(body.get("name", body.get("formula", "")))
