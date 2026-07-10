@@ -24,6 +24,7 @@ class TestRunCenterApi(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.svc.close()          # 關閉任務池（十四輪 八：測試不留線程）
         shutil.rmtree(config.RUNS_DIR, ignore_errors=True)
 
     def test_run_lifecycle_via_api(self):
@@ -41,16 +42,25 @@ class TestRunCenterApi(unittest.TestCase):
             time.sleep(0.25)
         self.assertEqual(detail["status"], "paused")
         self.assertTrue(detail["approval_requests"])
-        self.assertTrue(detail["spans"])            # span 軌跡隨詳情返回
-        # 台賬記錄帶 Broker 綁定字段
-        recs = [r for v in detail["evidence_ledger"].values() for r in v]
+        # 詳情=summary（十四輪 十二）：大字段走分頁端點
+        self.assertGreater(detail["counts"]["spans"], 0)
+        self.assertIn("links", detail)
+        self.assertNotIn("node_outputs", detail)
+        recs = self.svc.run_evidence(rid, limit=200)["records"]
         self.assertTrue(all(r["registered_by"] == "capability_broker"
                             for r in recs))
+        self.assertTrue(self.svc.run_spans(rid, limit=5)["spans"])
+        out_ep = self.svc.run_node_output(rid, "execute")
+        self.assertIn("output", out_ep)
         # 任務列表可見
         self.assertIn(rid, [r["run_id"] for r in
                             self.svc.runs_list()["runs"]])
-        # 審批 → 重跑下游閘門 → completed
-        acted = self.svc.run_action(rid, "approve", approver="console-test")
+        # 逐 trigger 審批 → 重跑下游閘門 → completed
+        acted = {}
+        for trig in list(detail["pending_review"]):
+            acted = self.svc.run_action(rid, "approve",
+                                        approver="console-test",
+                                        trigger=trig)
         self.assertEqual(acted["status"], "completed")
         # 導出
         md = self.svc.run_action(rid, "export")

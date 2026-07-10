@@ -57,8 +57,11 @@ class TestHarnessRun(unittest.TestCase):
 
     def test_resume_with_approval_completes(self):
         from hermes_shanghan.agent.harness import HarnessRunner
-        st2 = HarnessRunner().resume(self.run_id, approve=True,
-                                     approver="unit-test")
+        # 逐 trigger 審批（十四輪 十五）：多個待審項必須逐項批准
+        st2 = None
+        for trig in list(self.st.pending_review):
+            st2 = HarnessRunner().resume(self.run_id, approve=True,
+                                         approver="unit-test", trigger=trig)
         self.assertEqual(st2.status, "completed")
         # 批准≠改狀態：evidence_audit/release_gate 帶 approved 集合重新執行
         self.assertEqual(st2.release["decision"], "pass_after_human_review")
@@ -75,13 +78,15 @@ class TestHarnessRun(unittest.TestCase):
         for sp in events:
             for key in ("trace_id", "span_id", "span_type", "started_at",
                         "duration_ms", "input_hash", "output_hash",
-                        "error", "evidence_ids", "metadata"):
+                        "error", "mentioned_clause_ids", "metadata"):
+                # mentioned≠verified：span 記「文本提到的編號」，核驗證據
+                # 只在 Broker 台賬（十四輪 十四）
                 self.assertIn(key, sp)
         tool_spans = [s for s in events if s["span_type"] == "tool"]
         self.assertTrue(tool_spans)
         self.assertTrue(all(s["parent_span_id"] for s in tool_spans))
-        # 工具 span 攜帶證據 clause_id
-        self.assertTrue(any(s["evidence_ids"] for s in tool_spans))
+        # 工具 span 攜帶提及的 clause_id
+        self.assertTrue(any(s["mentioned_clause_ids"] for s in tool_spans))
 
     def test_evidence_ledger_and_tool_calls_recorded(self):
         self.assertTrue(self.st.evidence_ledger.get("execute"))

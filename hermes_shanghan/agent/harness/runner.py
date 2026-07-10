@@ -74,7 +74,11 @@ def _ledger_ids_verified(state) -> List[str]:
                     f"evidence ledger 完整性違例（node={node_id}）："
                     "記錄缺少 Broker 綁定字段或語料指紋不符——"
                     "台賬只能由工具執行後的 Broker 寫入")
-            ids.append(r["clause_id"])
+            # 十四輪 P0-四：只有「條文正文確實返回」的記錄才進發布允許集。
+            # id_mention_only 僅供關係導航/待檢索提示——編號在工具 JSON
+            # 出現過不構成發布依據（模型根本沒讀到正文）
+            if r.get("evidence_role") == "primary_text_returned":
+                ids.append(r["clause_id"])
     return sorted(set(ids))
 
 
@@ -99,7 +103,14 @@ def list_runs(limit: int = 30) -> List[Dict]:
         return []
     out = []
     for d in sorted(config.RUNS_DIR.iterdir(), reverse=True)[:limit]:
-        st = load_run(d.name)
+        try:
+            st = load_run(d.name)
+        except Exception:
+            # 損壞的 state.json 不得拖垮整個列表（十四輪 十九）
+            out.append({"run_id": d.name, "status": "corrupt",
+                        "mode": "?", "role": "?", "query": "（state.json 損壞）",
+                        "created_at": ""})
+            continue
         if st:
             out.append({"run_id": d.name, "status": st.status,
                         "mode": st.spec.mode, "role": st.spec.role,
@@ -197,6 +208,14 @@ class HarnessRunner:
         不創建注定失敗的後台任務。"""
         if mode not in RUN_MODES:
             raise ValueError(f"未知模式 {mode!r}（可用：{RUN_MODES}）")
+        if mode == "tool":
+            # Tool Run（十四輪 P0-五）：query 必須是 {"name","arguments"} JSON
+            try:
+                req = json.loads(query)
+                assert isinstance(req, dict) and req.get("name")
+            except Exception:
+                raise ValueError('tool 模式的 query 必須是 JSON：'
+                                 '{"name": "...", "arguments": {...}}')
         versions = spec_versions()
         spec = RunSpec(run_id=run_id or new_run_id(query), user_query=query,
                        role=role, mode=mode, max_steps=max_steps,
@@ -222,17 +241,23 @@ class HarnessRunner:
         return self._execute(state)
 
     @staticmethod
-    def request_cancel(run_id: str) -> bool:
+    def request_cancel(run_id: str):
         """協作式取消：寫 cancel.flag，執行器在節點邊界檢查（工具只讀
-        原子，無中斷點——與 MCP tasks 同一誠實口徑）。"""
+        原子，無中斷點）。終態 run 拒絕取消（十四輪 二十：不再對
+        completed 假成功）。返回 (ok, reason)。"""
         d = run_dir(run_id)
-        if not (d / "state.json").exists():
-            return False
+        st = load_run(run_id)
+        if st is None:
+            return False, "not_found"
+        if st.status in ("completed", "failed", "blocked", "rejected",
+                         "cancelled"):
+            return False, f"terminal_state:{st.status}"
         (d / "cancel.flag").write_text("cancel", encoding="utf-8")
-        return True
+        return True, "requested"
 
     def resume(self, run_id: str, approve: bool = False, reject: bool = False,
-               approver: str = "", reason: str = "") -> Optional[RunState]:
+               approver: str = "", reason: str = "",
+               trigger: str = "") -> Optional[RunState]:
         state = load_run(run_id)
         if state is None:
             return None
@@ -267,19 +292,65 @@ class HarnessRunner:
                 state.status = "failed"
                 save_state(state)
                 return state
+            from .release_gate import ADJUDICATION_TRIGGERS
+            # 證據失敗不可批（十四輪 P0-三）：pending 全是不可裁決項時，
+            # 普通批准無效——須補錄證據/刪除無據結論後重跑
+            approvable = [t for t in state.pending_review
+                          if t in ADJUDICATION_TRIGGERS]
+            if not approvable:
+                state.guardrail_events.append(
+                    {"event": "approval_refused_evidence_failure",
+                     "approver": approver or "cli",
+                     "at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                     "pending": state.pending_review,
+                     "note": "citation_failure 等證據失敗不可經普通批准"
+                             "豁免——需補證據後 resume 重跑"})
+                save_state(state)
+                return state
+            # 逐 trigger 審批（十四輪 十五）：多個待審項必須顯式指定
+            if trigger:
+                if trigger not in approvable:
+                    state.guardrail_events.append(
+                        {"event": "approval_refused_bad_trigger",
+                         "trigger": trigger, "pending": state.pending_review})
+                    save_state(state)
+                    return state
+                to_approve = [trigger]
+            elif len(approvable) == 1:
+                to_approve = approvable
+            else:
+                state.guardrail_events.append(
+                    {"event": "approval_refused_ambiguous",
+                     "pending": approvable,
+                     "note": "多個待審項：請按 trigger 逐項審批"
+                             "（--trigger / body.trigger），不做整批批准"})
+                save_state(state)
+                return state
+            # 審批對象一致性：digest 與申請創建時一致才可批
+            cur_digest = _digest(state.final_answer)
+            for a in state.approval_requests:
+                if a.get("trigger") in to_approve and                         a.get("action_digest") not in ("", cur_digest):
+                    state.guardrail_events.append(
+                        {"event": "approval_refused_stale_object",
+                         "trigger": a["trigger"],
+                         "note": "回答已變更，審批對象過期——請重新審閱"})
+                    save_state(state)
+                    return state
             # 批准 ≠ 改狀態：記錄審批人與理由，然後**重新執行**下游閘門
             state.guardrail_events.append(
                 {"event": "human_review_approved", "approver": approver or "cli",
                  "reason": reason or "（未填理由）",
                  "at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                 "review_items": state.pending_review})
+                 "review_items": to_approve})
             state.approved_items = sorted(
-                set(state.approved_items) | set(state.pending_review))
+                set(state.approved_items) | set(to_approve))
             for a in state.approval_requests:
-                if a.get("trigger") in state.approved_items:
+                if a.get("trigger") in to_approve:
                     a["status"] = "approved"
                     a["approver"] = approver or "cli"
-            state.pending_review = []
+                    a["approval_reason"] = reason or "（未填理由）"
+            state.pending_review = [t for t in state.pending_review
+                                    if t not in to_approve]
             for node_id in ("evidence_audit", "release_gate"):
                 if node_id in state.nodes:
                     state.nodes[node_id] = NodeResult(node_id=node_id)
@@ -386,6 +457,7 @@ class HarnessRunner:
                                  "answer_digest": _digest(state.final_answer)})
             state.budget_snapshot = budget.snapshot()
             save_state(state)
+            (run_dir(spec.run_id) / "cancel.flag").unlink(missing_ok=True)
         return state
 
     def _run_node(self, state: RunState, node: NodeSpec, res: NodeResult,
@@ -500,6 +572,21 @@ class HarnessRunner:
                 out = ComplexAgent(client=self.client,
                                    registry=reg).solve(spec.user_query,
                                                        role=spec.role)
+            elif spec.mode == "tool":
+                # Tool Run：單工具經 Broker（span/台賬/預算/角色裁剪）執行
+                req = json.loads(spec.user_query)
+                result = reg.for_role(spec.role).call(
+                    req["name"], req.get("arguments") or {})
+                summary = json.dumps(result, ensure_ascii=False,
+                                     default=str)[:2000]
+                out = {"answer": f"【工具 {req['name']} 結果】\n{summary}",
+                       "tools_used": [req["name"]],
+                       "tool_result": result,
+                       "refused": bool(isinstance(result, dict)
+                                       and result.get("error")),
+                       "backend": "tool-run"}
+                if out["refused"]:
+                    out["message"] = out["answer"]
             else:
                 raise ValueError(f"未知模式 {spec.mode}")
             state.final_answer = out.get("answer") or out.get("message", "")

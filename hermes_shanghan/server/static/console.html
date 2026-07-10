@@ -130,11 +130,16 @@ async function loadRuns(){
   }catch(e){$("#runlist").innerHTML=`<span class="dim">${esc(e.message)}</span>`;}
 }
 async function showRun(id){
+  // 十四輪 十二：詳情=summary；大字段走分頁端點懶加載（不再全量）
   const d=await GET("/api/runs/"+id);const c=$("#rundetail");c.style.display="block";
   if(d.error){c.innerHTML=`<div class="dim">${esc(d.error)}</div>`;return;}
+  const [sp,ev]=await Promise.all([
+    GET(`/api/runs/${id}/spans?offset=0&limit=40`).catch(()=>({spans:[]})),
+    GET(`/api/runs/${id}/evidence?limit=60`).catch(()=>({records:[]}))]);
+  d.spans=sp.spans||[];
   const nodes=Object.entries(d.nodes||{}).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${tag(v.status)}</td><td>${v.attempts}次/${v.duration_ms}ms</td><td class="dim">${esc(v.error||"")}</td></tr>`).join("");
   const tools=(d.tool_calls||[]).map(t=>`<tr><td>${esc(t.tool)}</td><td class="kv">${esc(t.span_id)}</td><td class="dim">${esc(t.error||"—")}</td></tr>`).join("");
-  const ledger=Object.values(d.evidence_ledger||{}).flat();
+  const ledger=ev.records||[];
   const led=ledger.map(r=>`<tr><td class="kv">${esc(r.clause_id)}</td><td class="kv">${esc(r.tool)}</td>
     <td>${r.evidence_role==="primary_text_returned"?"<span class='tag pass'>正文</span>":"<span class='tag paused'>僅編號</span>"}</td>
     <td class="dim">${esc(r.excerpt||"—")}</td><td class="kv">${esc(r.retrieval_query||"")}</td>
@@ -146,7 +151,8 @@ async function showRun(id){
     return `<div style="margin:1px 0 1px ${ind}px"><span class="kv">${esc(x.span_type)}·${esc(x.name)}</span>
     <span style="display:inline-block;height:8px;width:${w}px;background:${x.error?"var(--bad)":"var(--acc)"};border-radius:3px;vertical-align:middle;margin:0 6px"></span>
     <span class="dim">${x.duration_ms}ms${x.metadata&&x.metadata.cache_hit?" ·緩存":""}${x.error?" ·"+esc(String(x.error).slice(0,40)):""}</span></div>`;}).join("");
-  const appr=(d.approval_requests||[]).map(a=>`<tr><td>${esc(a.trigger)}</td><td>${tag(a.status)}</td><td class="dim">${esc(a.reason)}</td></tr>`).join("");
+  const appr=(d.approval_requests||[]).map(a=>`<tr><td>${esc(a.trigger)}</td><td>${tag(a.status)}</td><td class="dim">${esc(a.reason)}</td>
+    <td>${a.status==="pending"?`<button onclick="approveTrigger('${esc(id)}','${esc(a.trigger)}')">✓ 批准此項</button>`:esc(a.approver||"")}</td></tr>`).join("");
   c.innerHTML=`<h2>Run ${esc(id)} ${tag(d.status)} · 發布：${tag((d.release||{}).decision||"—")}</h2>
     <div class="row">
       <button onclick="runActReason('${esc(id)}','approve')">✓ 批准（填理由，重跑下游閘門）</button>
@@ -160,7 +166,7 @@ async function showRun(id){
         <h2 style="margin-top:10px">審批請求</h2><table>${appr||"<tr><td class='dim'>（無）</td></tr>"}</table></div>
       <div><h2>工具調用（${(d.tool_calls||[]).length}）· 預算 ${esc(JSON.stringify(d.budget_snapshot||{}))}</h2><table>${tools||"<tr><td class='dim'>（無）</td></tr>"}</table>
         <h2 style="margin-top:10px">Span 瀑布（父子/耗時/錯誤/緩存）</h2><div style="max-height:220px;overflow:auto">${water||"<span class='dim'>（無）</span>"}</div>
-        <h2 style="margin-top:10px">證據台賬（Broker 登記 ${ledger.length} 條 · 正文/僅編號分列）</h2>
+        <h2 style="margin-top:10px">證據台賬（Broker 登記 ${(d.counts||{}).evidence_records??ledger.length} 條 · 顯示前 ${ledger.length} · 僅「正文」可作發布依據）</h2>
         <div style="max-height:240px;overflow:auto"><table><tr><th>clause</th><th>tool</th><th>角色</th><th>摘錄</th><th>query</th><th>hash</th></tr>${led||"<tr><td class='dim'>（空）</td></tr>"}</table></div></div></div>
     <h2 style="margin-top:10px">最終回答</h2><pre>${esc(d.final_answer||"（無）")}</pre>
     <h2>發布裁定</h2><pre>${esc(JSON.stringify(d.release||{},null,1))}</pre>`;
@@ -168,6 +174,10 @@ async function showRun(id){
 }
 async function runAct(id,act,reason){try{const o=await POST(`/api/runs/${id}/${act}`,{approver:WHO.principal_id||"console",reason:reason||""});alert(JSON.stringify(o,null,1).slice(0,600));showRun(id);loadRuns();}catch(e){alert(e.message);}}
 function runActReason(id,act){const r=prompt(act==="approve"?"審批理由（記錄於 guardrail 審計）":"駁回理由");if(r===null)return;runAct(id,act,r);}
+async function approveTrigger(id,trig){
+  const r=prompt(`批准「${trig}」的理由（逐項審批：不會連帶批准其他待審項）`);if(r===null)return;
+  try{const o=await POST(`/api/runs/${id}/approve`,{approver:WHO.principal_id||"console",reason:r,trigger:trig});
+    alert(JSON.stringify(o,null,1).slice(0,500));showRun(id);loadRuns();}catch(e){alert(e.message);}}
 async function runExport(id){const o=await POST(`/api/runs/${id}/export`,{});const w=window.open("");w.document.write("<pre>"+esc(o.markdown||o.error)+"</pre>");}
 
 // ─── 會話（真多輪：session_id 回傳續接 + 結構化指代解析）─────────────────
@@ -243,10 +253,18 @@ views.artifacts=async()=>{
     $("#arts").innerHTML=o.artifacts.length?`<table><tr><th>類型</th><th>路徑</th><th>大小</th><th></th></tr>`+
       o.artifacts.map(a=>`<tr><td>${esc(a.kind)}</td><td class="kv">${esc(a.path)}</td><td>${a.bytes}B</td>
       <td><button onclick="viewArt('${esc(a.path)}')">查看</button>
-      <a href="/api/artifact/download?path=${encodeURIComponent(a.path)}" download><button>下載</button></a></td></tr>`).join("")+"</table>":
+      <button onclick="downloadArt('${esc(a.path)}')">下載</button></td></tr>`).join("")+"</table>":
       "<span class='dim'>（暫無——生成論文或運行 Harness 後出現）</span>";
   }catch(e){$("#arts").innerHTML=esc(e.message);}
 };
+async function downloadArt(p){
+  // 帶 Authorization 的下載（裸 <a href> 不會攜帶 localStorage token）
+  const r=await fetch("/api/artifact/download?path="+encodeURIComponent(p),{headers:hdrs()});
+  if(!r.ok){alert("下載失敗 "+r.status);return;}
+  const blob=await r.blob();const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=p.split("/").pop();a.click();
+  URL.revokeObjectURL(a.href);
+}
 async function viewArt(p){const o=await GET("/api/artifact?path="+encodeURIComponent(p));const c=$("#artview");c.style.display="block";
   c.innerHTML=`<h2>${esc(p)}</h2><pre>${esc(o.content||o.error)}</pre>`;c.scrollIntoView();}
 

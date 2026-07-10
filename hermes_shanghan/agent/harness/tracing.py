@@ -53,10 +53,28 @@ class TraceStore:
         return Span(self, span_type, name, parent_span_id)
 
     def read(self) -> List[Dict]:
+        """讀取 span 事件；損壞行**跳過並計數**，不拖垮整個詳情/列表
+        （十四輪 十九：一個殘行不應讓 Run Detail 500）。"""
         if not self.path.exists():
             return []
-        return [json.loads(x) for x in
-                self.path.read_text(encoding="utf-8").splitlines() if x.strip()]
+        out: List[Dict] = []
+        corrupt = 0
+        for line in self.path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError:
+                corrupt += 1
+        if corrupt:
+            out.append({"span_type": "corrupt_records", "name": "trace",
+                        "corrupt_lines": corrupt, "trace_id": self.trace_id,
+                        "span_id": "corrupt", "parent_span_id": None,
+                        "started_at": "", "ended_at": "", "duration_ms": 0,
+                        "input_hash": "", "output_hash": "", "tokens": None,
+                        "cost": None, "error": f"{corrupt} 行損壞已跳過",
+                        "mentioned_clause_ids": [], "metadata": {}})
+        return out
 
 
 class Span:
@@ -111,7 +129,9 @@ class Span:
             "tokens": self.tokens,
             "cost": self.cost,
             "error": self._error,
-            "evidence_ids": self._evidence,
+            # 十四輪 十四：這是「文本中提到的編號」（含模型可能偽造的），
+            # 不是已核驗證據——核驗證據只在 Broker 台賬
+            "mentioned_clause_ids": self._evidence,
             "metadata": self.metadata,
         })
         return False   # 不吞異常，交由節點重試策略處理
