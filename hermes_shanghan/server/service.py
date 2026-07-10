@@ -250,27 +250,34 @@ class ServiceContext:
 
     def chat(self, question: str, session_id: str = "",
              role: str = None, subject: str = "anonymous") -> Dict:
+        import threading
         import time
         import uuid
         from ..agent.session import AgentSession
         if not hasattr(self, "_sessions"):
             self._sessions = {}
+            self._sessions_lock = threading.Lock()
         sid = str(session_id or "").strip()
         generated = False
         if not sid or sid == "default":
             sid = uuid.uuid4().hex[:16]
             generated = True
         key = f"{subject}:{sid}"
-        self._gc_sessions()
-        entry = self._sessions.get(key)
-        if entry is None:
-            entry = {"sess": AgentSession(client=self.llm,
-                                          registry=self.registry,
-                                          namespace=subject),
-                     "last": time.time()}
-            self._sessions[key] = entry
-        entry["last"] = time.time()
-        out = entry["sess"].ask(question, role=role)
+        # 併發安全（十一輪 九）：會話表加鎖；同一會話的兩個併發請求
+        # 經 per-session 鎖串行化（history/ledger 不被交叉寫壞）
+        with self._sessions_lock:
+            self._gc_sessions()
+            entry = self._sessions.get(key)
+            if entry is None:
+                entry = {"sess": AgentSession(client=self.llm,
+                                              registry=self.registry,
+                                              namespace=subject),
+                         "last": time.time(),
+                         "lock": threading.Lock()}
+                self._sessions[key] = entry
+            entry["last"] = time.time()
+        with entry["lock"]:
+            out = entry["sess"].ask(question, role=role)
         out.setdefault("session", {})
         out["session"]["session_id"] = sid
         out["session"]["namespace"] = subject
