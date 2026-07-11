@@ -160,6 +160,14 @@ def _mistreat(svc, body, m, q, ctx=None):
     return svc.mistreatment(body.get("query"))
 
 
+@route("POST", r"/api/teaching-case", min_role="student")
+def _teaching_case(svc, body, m, q, ctx=None):
+    return svc.teaching_case(str(body.get("mistreatment", ""))[:40],
+                             resulting_pattern=str(
+                                 body.get("resulting_pattern", ""))[:40],
+                             use_llm=bool(body.get("use_llm", True)))
+
+
 @route("POST", r"/api/formula", min_role="student")
 def _formula(svc, body, m, q, ctx=None):
     return svc.formula_rule(body.get("formula", ""))
@@ -267,6 +275,20 @@ def _trace_mentions(svc, body, m, q, ctx=None):
                               str(body.get("book_dir", ""))[:60],
                               offset=int(body.get("offset", 0) or 0),
                               limit=int(body.get("limit", 6) or 6))
+
+
+@route("POST", r"/api/library/read", min_role="student")
+def _library_read(svc, body, m, q, ctx=None):
+    # 分頁游標用 body["start"]（不叫 offset——通用 _INT_CAPS 會把 offset
+    # 鉗到 10 萬字以內，長書全文續讀會被截斷）
+    try:
+        start = max(0, int(body.get("start", 0) or 0))
+    except (TypeError, ValueError):
+        start = 0
+    return svc.library_read(body.get("book", ""),
+                            section=body.get("section", ""),
+                            offset=start,
+                            max_chars=int(body.get("max_chars", 3000) or 3000))
 
 
 @route("POST", r"/api/errata")

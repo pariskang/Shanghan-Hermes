@@ -246,6 +246,104 @@ class ServiceContext:
     def mistreatment(self, query: str = None) -> Dict:
         return self.registry.call("shanghan_mistreatment", {"query": query or ""})
 
+    def teaching_case(self, mistreatment: str, resulting_pattern: str = "",
+                      use_llm: bool = True) -> Dict:
+        """誤治傳變 → 教學案例（二十輪）：確定性骨架（規則+證據條文逐字
+        取證）恆有；接真模型時另生成敘事層病案，所引 clause_id 過
+        CitationGuard。案例為虛構教學情景，不構成診療建議。"""
+        from ..textutil import fold_variants, normalize_query
+        mt = normalize_query(mistreatment or "")
+        rp = normalize_query(resulting_pattern or "")
+        rules = [m for m in self.art.mistreatment_rules
+                 if (not mt or fold_variants(mt)
+                     in fold_variants(m.mistreatment_type))
+                 and (not rp or fold_variants(rp)
+                      in fold_variants(m.resulting_pattern))]
+        if not rules:
+            return {"error": f"未找到誤治規則：{mistreatment}"
+                             + (f" → {resulting_pattern}" if rp else ""),
+                    "available_types": sorted(
+                        {m.mistreatment_type
+                         for m in self.art.mistreatment_rules})}
+        r = rules[0]
+        store = self.art.clause_store()
+        evidence = []
+        for cid in r.supporting_clauses[:6]:
+            c = store.get(cid)
+            if c is not None:
+                evidence.append({"clause_id": cid, "chapter": c.chapter,
+                                 "text": c.clean_text})
+        channel = (r.six_channel_scope or ["太陽病"])[0]
+        rescue = "、".join(r.rescue_formulas) or "（無明文救逆方）"
+        manifest = "、".join(r.manifestations[:6]) or "（原文未列具體表現）"
+        path_desc = (f"{channel} 誤用「{r.mistreatment_type}」→ 變證"
+                     f"「{r.resulting_pattern}」（見證：{manifest}）"
+                     f"→ 救逆：{rescue}")
+        # 確定性骨架：情景/要點/思考題全部由規則字段拼裝，條文逐字附後
+        case = {
+            "title": f"{r.mistreatment_type}致{r.resulting_pattern}案（教學）",
+            "scenario": (f"【教學案例·虛構】患者初患{channel}，醫者誤用"
+                         f"「{r.mistreatment_type}」；隨後出現{manifest}，"
+                         f"轉為「{r.resulting_pattern}」。"
+                         f"救逆方向：{rescue}。"),
+            "key_manifestations": r.manifestations[:6],
+            "rescue_formulas": r.rescue_formulas,
+            "teaching_points": [
+                f"誤治環節：{channel}不當施以「{r.mistreatment_type}」",
+                f"變證辨識：{r.resulting_pattern}——關鍵見證 {manifest}",
+                f"救逆思路：{rescue}（依據見證據條文）"],
+            "discussion_questions": [
+                f"本案誤用「{r.mistreatment_type}」為何不當？"
+                "請從證據條文中找出原文依據。",
+                f"變證「{r.resulting_pattern}」與原證如何鑒別？"
+                "哪些表現是轉變的信號？",
+                f"為何以 {rescue} 救逆？其方證核心指徵是什麼？"],
+        }
+        out = {"mistreatment": r.mistreatment_type,
+               "resulting_pattern": r.resulting_pattern,
+               "channel": channel,
+               "release_level": r.release_level,
+               "n_matched_rules": len(rules),
+               "case": case,
+               "evidence": evidence,
+               "note": "教學案例為虛構情景：骨架由誤治規則（D 層）確定性"
+                       "拼裝、條文逐字回源；不構成診療建議。"}
+        if use_llm and self.llm.available:
+            out["model_narrative"] = self._teaching_case_narrative(
+                path_desc, evidence)
+        return out
+
+    def _teaching_case_narrative(self, path_desc: str,
+                                 evidence: List[Dict]) -> Dict:
+        """模型敘事層病案（E 層）：事實只取規則路徑與證據條文，引用核驗。"""
+        from ..agent.citation_guard import CitationGuard
+        from ..llm.prompts import (teaching_case_system_prompt,
+                                   teaching_case_user_prompt)
+        allowed = [e["clause_id"] for e in evidence]
+        block = "\n".join(f"- [{e['clause_id']}] {e['text'][:200]}"
+                          for e in evidence)
+        try:
+            res = self.llm.json_complete(teaching_case_system_prompt(),
+                                         teaching_case_user_prompt(path_desc,
+                                                                   block),
+                                         task="synthesize")
+        except Exception as exc:
+            return {"backend": "error", "error": type(exc).__name__}
+        narrative = str(res.get("narrative", ""))[:2500]
+        analysis = str(res.get("analysis", ""))[:2000]
+        guard = CitationGuard(self.art.clause_store())
+        rep = guard.check(narrative + "\n" + analysis, allowed_ids=allowed)
+        return {"backend": self.llm.backend,
+                "title": str(res.get("title", ""))[:60],
+                "narrative": narrative,
+                "analysis": analysis,
+                "discussion_questions":
+                    [str(q)[:160] for q in
+                     (res.get("discussion_questions") or [])[:4]],
+                "citation_report": rep.to_dict(),
+                "note": "敘事層屬 E 層模型生成；引用已逐一過 CitationGuard，"
+                        "未核實編號請勿採信。"}
+
     def patient(self, question: str) -> Dict:
         from ..apps.patient import PatientEducator
         edu = PatientEducator(self.art.six_channel_rules, self.art.clause_store())
@@ -535,6 +633,26 @@ class ServiceContext:
         rows = read_jsonl(config.SHANGHAN_DIR / "errata" / "errata.jsonl")
         return {"n_total": len(rows), "errata": rows[-max(1, limit):][::-1],
                 "note": "僅維護者（doctor 角色）可查閱；status 由人工複核更新"}
+
+    def library_read(self, book: str, section: str = "", offset: int = 0,
+                     max_chars: int = 3000) -> Dict:
+        """笈成全庫章節全文點閱（二十輪）：全文命中標題點擊 → 分頁續讀
+        該章節（或全書）原文。旁證層，僅供文獻查閱，不進入證據閘門。"""
+        from ..corpus import library
+        if not library.ensure_available(verbose=False):
+            return {"available": False,
+                    "error": "全庫未下載：運行 `python3 -m hermes_shanghan "
+                             "library fetch`（約 69MB）"}
+        lib = library.Library()
+        out = lib.read(str(book or "").strip()[:80],
+                       section=str(section or "").strip()[:80],
+                       max_chars=max(400, min(8000, int(max_chars or 3000))),
+                       offset=max(0, int(offset or 0)))
+        if "error" in out:
+            return {"available": True, **out}
+        return {"available": True, **out,
+                "evidence_layer": "文獻旁證層（非經文層）：出處僅供文獻查閱，"
+                                  "不進入證據閘門"}
 
     def trace_mentions(self, name: str, book_dir: str,
                        offset: int = 0, limit: int = 6) -> Dict:
