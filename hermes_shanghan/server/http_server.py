@@ -256,6 +256,24 @@ def _trace_passages(svc, body, m, q, ctx=None):
                               limit=int(body.get("limit", 8) or 8))
 
 
+@route("POST", r"/api/source/passage", min_role="student")
+def _source_passage(svc, body, m, q, ctx=None):
+    return svc.source_passage(body.get("book", ""), body.get("ref", ""))
+
+
+@route("POST", r"/api/quiz", min_role="student")
+def _quiz(svc, body, m, q, ctx=None):
+    return svc.quiz(channel=str(body.get("channel", ""))[:12],
+                    n=int(body.get("n", 8) or 8),
+                    seed=int(body.get("seed", 1) or 1),
+                    use_llm=bool(body.get("use_llm", False)))
+
+
+@route("GET", r"/api/charmap")
+def _charmap(svc, body, m, q, ctx=None):
+    return svc.charmap()
+
+
 @route("POST", r"/api/intake")
 def _intake(svc, body, m, q, ctx=None):
     return svc.intake(body.get("text", ""),

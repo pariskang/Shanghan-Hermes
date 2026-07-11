@@ -224,6 +224,35 @@ def adjudicate_review_user_prompt(adjudication_json: str,
 無補充時 missed_patterns/additional_questions 為空數組。"""
 
 
+def quiz_system_prompt() -> str:
+    return (EVIDENCE_CONTRACT + "\n\n任務：作為《傷寒論》教師，基於【給定條文】"
+            "自主命題。鐵律：\n"
+            "1. 每題的 evidence_clause 必須取自給定條文編號，答案須能從該條"
+            "原文推出；\n"
+            "2. 題型自選（選擇/判斷/病案分析/條文比較），鼓勵跨條綜合但證據"
+            "錨定單條；\n"
+            "3. 選擇題答案必須是 options 之一；\n"
+            "4. 不出劑量計算題，不出臨床處置題。嚴格輸出 JSON。")
+
+
+def quiz_user_prompt(channel: str, n: int, evidence_block: str) -> str:
+    return f"""範圍：{channel}　出題數：{n}
+
+【給定條文（evidence_clause 僅可取自其中）】
+{evidence_block}
+
+請輸出 JSON：
+{{
+  "questions": [
+    {{"type": "題型", "question": "題幹", "options": ["A", "B", "C", "D"],
+      "answer": "正確答案（須在 options 中）",
+      "explanation": "解析（引用原文）",
+      "evidence_clause": "SHL_SONGBEN_XXXX"}}
+  ]
+}}
+判斷題 options 用 ["正確", "錯誤"]；開放題 options 可為空數組。"""
+
+
 def synth_system_prompt(role: str) -> str:
     return (EVIDENCE_CONTRACT + "\n\n" + ROLE_GUIDANCE.get(role, ROLE_GUIDANCE["doctor"])
             + "\n\n任務：基於【已檢索證據】生成自然語言回答。只能使用證據中的事實；"

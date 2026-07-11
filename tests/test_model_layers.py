@@ -353,3 +353,108 @@ class TestBianzhengModelLayer(unittest.TestCase):
         self.assertIn("SHL_SONGBEN_9998", mp["unverified_clause_ids"])
         self.assertNotIn("SHL_SONGBEN_9998", mp["clause_ids"])
         self.assertEqual(mr["additional_questions"], ["有無煩躁？"])
+
+
+# ---------------------------------------------------------------------------
+# 十八輪：關係目標點閱 · 練習題引擎 · 簡繁映射 · 條文智能體問答
+# ---------------------------------------------------------------------------
+class TestSourcePassage(unittest.TestCase):
+    def test_paragraph_ref(self):
+        svc = ServiceContext()
+        r = svc.source_passage("註解傷寒論", "p1282")
+        self.assertNotIn("error", r)
+        self.assertTrue(r["paragraphs"][0]["text"])
+        self.assertTrue(r["chapter"])
+
+    def test_chapter_ref(self):
+        svc = ServiceContext()
+        r = svc.source_passage("傷寒雜病論_桂本", "辨少陽病脈證並治")
+        self.assertNotIn("error", r)
+        self.assertGreater(len(r["paragraphs"]), 2)
+
+    def test_errors_honest(self):
+        svc = ServiceContext()
+        self.assertIn("error", svc.source_passage("不存在的書", "p1"))
+        bad = svc.source_passage("註解傷寒論", "p999999")
+        self.assertIn("error", bad)
+        miss = svc.source_passage("註解傷寒論", "不存在的章節名")
+        self.assertIn("available_chapters", miss)
+
+
+class TestQuizEngine(unittest.TestCase):
+    def test_bank_multi_type_and_grounded(self):
+        svc = ServiceContext()
+        r = svc.quiz(channel="太陽", n=8, seed=1)
+        self.assertEqual(r["backend"], "bank")
+        self.assertGreaterEqual(len(r["types_present"]), 3)
+        store = ART.clause_store()
+        for q in r["questions"]:
+            if q.get("options"):
+                self.assertIn(q["answer"], q["options"],
+                              "選擇題答案必須在選項中")
+            if q.get("evidence_clause"):
+                self.assertIn(q["evidence_clause"], store,
+                              "證據條文必須真實存在")
+
+    def test_seed_changes_batch(self):
+        svc = ServiceContext()
+        a = [q["question"] for q in svc.quiz("太陽", n=8, seed=1)["questions"]]
+        b = [q["question"] for q in svc.quiz("太陽", n=8, seed=2)["questions"]]
+        self.assertNotEqual(a, b)
+        # 同 seed 確定性
+        a2 = [q["question"] for q in svc.quiz("太陽", n=8, seed=1)["questions"]]
+        self.assertEqual(a, a2)
+
+    def test_model_quiz_local_fallback(self):
+        svc = ServiceContext()
+        r = svc.quiz(channel="太陽", n=5, use_llm=True)
+        self.assertEqual(r["backend"], "local")
+        self.assertGreater(r["n"], 0)
+
+    def test_model_quiz_rejects_out_of_pool_evidence(self):
+        from hermes_shanghan.apps.quiz import QuizBuilder, model_quiz
+        qb = QuizBuilder(ART.clauses, ART.six_channel_rules,
+                         ART.formula_rules, ART.mistreatment_rules,
+                         ART.differential_rules)
+        scr = qb.scrs["太陽病"]
+        good = scr.outline_clause_id
+        scripted = ScriptedProvider([json.dumps({"questions": [
+            {"type": "選擇", "question": "合規題", "options": ["A", "B"],
+             "answer": "A", "evidence_clause": good},
+            {"type": "選擇", "question": "越池題", "options": ["A", "B"],
+             "answer": "A", "evidence_clause": "SHL_SONGBEN_0999"},
+            {"type": "選擇", "question": "答案不在選項", "options": ["A", "B"],
+             "answer": "C", "evidence_clause": good},
+        ]}, ensure_ascii=False)])
+        client = LLMClient(provider=scripted)
+        client._backend = "litellm"
+        client.settings.cache = False
+        out = model_quiz(qb, client, channel="太陽", n=5)
+        self.assertEqual(out["n"], 1, "只有合規題可以進卷")
+        reasons = [x["reject_reason"] for x in out["rejected_questions"]]
+        self.assertTrue(any("不在給定條文集" in r for r in reasons))
+        self.assertTrue(any("不在選項" in r for r in reasons))
+
+
+class TestCharmapAndT2S(unittest.TestCase):
+    def test_t2s_domain(self):
+        from hermes_shanghan.textutil import t2s
+        self.assertEqual(t2s("傷寒論"), "伤寒论")
+        self.assertEqual(t2s("觀其脈證，知犯何逆，隨證治之"),
+                         "观其脉证，知犯何逆，随证治之")
+
+    def test_charmap_endpoint_payload(self):
+        svc = ServiceContext()
+        cm = svc.charmap()
+        self.assertGreater(len(cm["t2s"]), 200)
+        self.assertEqual(cm["t2s"].get("傷"), "伤")
+        self.assertIn("繁體為準", cm["note"])
+
+
+class TestClauseAgentQA(unittest.TestCase):
+    def test_agent_resolves_and_cites_clause(self):
+        svc = ServiceContext()
+        r = svc.agent("請解讀第271條的辨證要點", role="student")
+        rep = r["citation_report"]
+        self.assertTrue(rep["ok"])
+        self.assertIn("SHL_SONGBEN_0271", rep["verified"])
