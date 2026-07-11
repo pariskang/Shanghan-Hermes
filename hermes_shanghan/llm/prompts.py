@@ -225,6 +225,34 @@ def adjudicate_review_user_prompt(adjudication_json: str,
 無補充時 missed_patterns/additional_questions 為空數組。"""
 
 
+def teaching_case_system_prompt() -> str:
+    return (EVIDENCE_CONTRACT + "\n\n任務：作為《傷寒論》教師，基於一條"
+            "【誤治傳變規則】及其【證據條文】撰寫一則教學病案。鐵律：\n"
+            "1. 病案情節只可由給定規則與條文推演——症狀、脈象、方劑均不得"
+            "超出給定材料；\n"
+            "2. 病案為虛構教學情景，narrative 開頭須標明「【教學案例·虛構】」；\n"
+            "3. 涉及條文處附 clause_id（僅可取給定條文編號）；\n"
+            "4. 不給劑量，不作真實診療建議；\n"
+            "5. narrative 講病程（初起→誤治→變證→救逆），analysis 講機理"
+            "與辨識要點並逐條回源。嚴格輸出 JSON。")
+
+
+def teaching_case_user_prompt(path_desc: str, evidence_block: str) -> str:
+    return f"""【誤治傳變路徑（規則庫確定性歸納）】
+{path_desc}
+
+【證據條文（clause_id 僅可取自其中）】
+{evidence_block}
+
+請輸出 JSON：
+{{
+  "title": "案例標題",
+  "narrative": "病案敘事（以【教學案例·虛構】開頭，描述初起→誤治→變證→救逆全程）",
+  "analysis": "教學分析：誤治為何不當、變證如何辨識、救逆方選擇依據（每處論斷附 clause_id）",
+  "discussion_questions": ["課堂討論題", ...]
+}}"""
+
+
 def quiz_system_prompt() -> str:
     return (EVIDENCE_CONTRACT + "\n\n任務：作為《傷寒論》教師，基於【給定條文】"
             "自主命題。鐵律：\n"

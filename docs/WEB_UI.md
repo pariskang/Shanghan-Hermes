@@ -89,6 +89,22 @@ python3 -m hermes_shanghan serve
 - **推薦處方列表**（十九輪）：多假設裁決輸出歸一化推薦度（反證/禁忌
   懲罰後排序）+ 各候選的支持/反證/缺失證據與該方專屬追問點；
   明示「推薦度為域內排序值，非療效概率，不構成處方」。
+- **非模態條文抽屜**（二十輪）：查閱右側條文時**左側界面保持可滾動可交互**
+  （桌面端不再全屏遮擋；≤820px 移動端全寬抽屜仍保留遮罩），Esc 可關閉；
+  抽屜右上角新增 **⤓ 一鍵跳到最下方**——直達「AI 解讀與對話」卡。
+- **方證匹配 AI 解讀 / 方證鑒別多輪對話**（二十輪）：兩視圖結果下方掛接
+  AI 對話面板——一鍵送智能體解讀本次匹配/鑒別，並可**多輪追問**（走
+  `POST /api/chat`，服務端 AgentSession 續接上下文，支持「它/該方」指代；
+  回答條文號逐一過 CitationGuard）。
+- **誤治傳變教學案例**（二十輪）：路徑表每行「生成教學案例」——確定性骨架
+  （虛構情景聲明+教學要點+討論題+證據條文逐字回源）恆有；接真模型另附
+  敘事層病案（引用核驗，`POST /api/teaching-case`）。
+- **笈成全庫章節全文點閱**（二十輪）：全文命中**點標題**在右側抽屜讀取
+  該章節全文，長章節分頁續讀（`POST /api/library/read`，body.start 為
+  續讀游標；旁證層，不進證據閘門）。
+- **四診採集多輪追問**（二十輪）：追問卡新增回答輸入——每輪回答併入
+  敘述**重新整理**（顯示敘述累積輪次），追問隨信息補齊逐輪收斂；
+  仍為患者端安全口徑（只整理不診斷）。裁決按鈕的「裁決中…」殘留已修復。
 - **多智能體可視化**：合議模式把「調度規劃師 → 原文取證師 → 方證/鑒別/六經/
   誤治專家 → 安全治理官 → 合議綜合官」逐步呈現為時間線，每步附其證據條文。
 - **引用核驗橫幅**：每條回答下方顯示綠色「✓ 證據核驗通過」或紅色
@@ -100,8 +116,8 @@ python3 -m hermes_shanghan serve
 
 `GET /api/stats`、`/api/llm/status`、`/api/skills`、`/api/formulas`、`/api/channels`、
 `GET /api/clause/<ref>`；`POST /api/search|match|differential|teach|mistreatment|`
-`research|paper|agent|council|patient|tool|trace|herb|formula-explain|`
-`gold-sample|gold-eval`；`GET /api/tools`（28 工具規格，工具台數據源）。全部返回 JSON，結構與 CLI 一致。
+`research|paper|agent|council|chat|patient|tool|trace|herb|formula-explain|`
+`gold-sample|gold-eval|teaching-case|library/read`；`GET /api/tools`（28 工具規格，工具台數據源）。全部返回 JSON，結構與 CLI 一致。
 `POST /api/trace {"type": "clause|formula|claim|school|commentator|text",
 "ref": "…"}` 返回五類溯源鏈報告（詳見 [`docs/TRACE.md`](TRACE.md)）。
 

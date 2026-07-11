@@ -224,6 +224,41 @@ function clauseAiCard(c) {
     out,
     el("p", { class: "small muted" }, "回答中的條文編號逐一過 CitationGuard；接入真實大模型後解讀更完整。")]);
 }
+// 可復用 AI 多輪對話解讀面板（二十輪）：走 /api/chat——服務端 AgentSession
+// 續接上下文（指代解析/證據台賬），回答經 CitationGuard 核驗；local 後端
+// 同樣可用（確定性取證）。方證匹配/方證鑒別等視圖掛接此面板。
+function aiChatPanel(opts) {
+  let sessionId = "";
+  const out = el("div", {});
+  const inp = el("input", { type: "text", placeholder: opts.placeholder || "追問…（多輪對話，同一會話自動續接上下文）" });
+  async function ask(q) {
+    const loading = el("div", { class: "loading" }, "智能體取證中…");
+    out.prepend(loading);
+    let r;
+    try { r = await api.post("/api/chat", { question: q, role: opts.role || "student", session_id: sessionId }); }
+    catch (e) { r = { answer: "請求失敗：" + e.message }; }
+    loading.remove();
+    if (r.session && r.session.session_id) sessionId = r.session.session_id;
+    const card = el("div", { class: "evi", style: "margin-top:6px" }, [
+      el("div", { class: "small muted" }, "問：" + q.slice(0, 80) + (q.length > 80 ? "…" : "")),
+      el("div", { class: "answer-text", style: "font-size:13px" }, r.answer || r.message || "(無回答)")]);
+    const cr = r.citation_report;
+    if (cr) card.append(el("div", { class: "cite-banner " + (cr.ok && cr.has_any_citation ? "cite-ok" : "cite-warn") },
+      cr.ok && cr.has_any_citation ? "✓ 引用已核驗：" + (cr.verified || []).join("、")
+        : "⚠ " + ((cr.unsupported || []).length ? "未核實：" + cr.unsupported.join("、") : "無可核驗條文編號")));
+    if ((r.evidence_clause_ids || []).length) card.append(clauseChips(r.evidence_clause_ids.slice(0, 8)));
+    if (r.session && r.session.turn) card.append(el("div", { class: "small muted" }, "第 " + r.session.turn + " 輪 · 會話 " + sessionId.slice(0, 8)));
+    out.prepend(card);
+  }
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") { const q = inp.value.trim(); if (q) { ask(q); inp.value = ""; } } });
+  const seedBtn = opts.seedQuestion ? el("button", { class: "btn sm", onclick: () => { const q = opts.seedQuestion(); if (q) ask(q); } }, opts.seedLabel || "AI 解讀") : null;
+  const node = el("div", { class: "card" }, [
+    el("div", { class: "section-title" }, opts.title || "🤖 AI 智能體解讀與多輪對話（自動取證 · 引用核驗）"),
+    el("div", { class: "row" }, [seedBtn, el("div", { style: "flex:1" }, inp)]),
+    out,
+    el("p", { class: "small muted" }, opts.note || "多輪對話在同一會話中續接（可用「它/該方」等指代）；回答中的條文編號逐一過 CitationGuard；接入真實大模型後解讀更完整。")]);
+  return { node, ask };
+}
 // 非條文關係目標（異文「書:章節」/ 注文「書:pN」）→ 點閱原始段落
 function sourceRefChip(target) {
   const i = (target || "").indexOf(":");
@@ -448,6 +483,20 @@ views.match = async (main) => {
       el("div", { style: "margin-top:8px" }, (m.evidence || []).map(e => el("div", { class: "evi" }, [el("div", { class: "ct" }, e.text), el("div", { class: "meta" }, [clauseChip(e.clause_id), " " + e.chapter]) ]))),
     ])));
     if (!(r.matched_formula_patterns || []).length) out.append(el("p", { class: "muted" }, "未找到顯著匹配。"));
+    // AI 智能體解讀本次匹配（二十輪）：症狀+候選方一鍵送智能體，支持追問
+    const matched = (r.matched_formula_patterns || []).map(m => m.formula);
+    out.append(aiChatPanel({
+      title: "🤖 AI 智能體解讀匹配結果（自動取證 · 引用核驗 · 可追問）",
+      seedLabel: "AI 解讀本次匹配",
+      seedQuestion: () => {
+        const s = sym.values(), p = pul.values();
+        return "患者表現：" + (s.join("、") || "（未填症狀）")
+          + (p.length ? "；脈象：" + p.join("、") : "")
+          + (matched.length ? "。規則匹配到的候選方證為：" + matched.slice(0, 3).join("、") : "。規則層未找到顯著匹配")
+          + "。請解讀：為何指向（或不指向）這些方證、各方的關鍵指徵與相互鑒別點、還應補問哪些四診信息。";
+      },
+      placeholder: "圍繞本次匹配追問，如：若兼見口渴，判斷會變嗎？",
+    }).node);
   }
   main.append(el("div", { class: "card" }, [el("label", { class: "fld" }, [el("span", {}, "症狀"), sym.node]), el("label", { class: "fld" }, [el("span", {}, "脈象"), pul.node]), el("button", { class: "btn", onclick: run }, "匹配方證")]));
   main.append(out);
@@ -500,6 +549,14 @@ views.differential = async (main) => {
       out.append(card);
     }
     if (d.supporting_clauses) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "證據條文"), clauseChips(d.supporting_clauses)]));
+    // 多輪對話解讀（二十輪）：圍繞本鑒別對持續追問，同一會話續接上下文
+    out.append(aiChatPanel({
+      title: "🤖 多輪對話解讀（圍繞 " + d.formulas.join(" vs ") + " · 上下文續接）",
+      seedLabel: "AI 解讀本鑒別",
+      seedQuestion: () => "請解讀 " + d.formulas.join(" 與 ")
+        + " 的鑒別：各方核心指徵、最關鍵的鑒別軸、臨證易混點與辨析思路，逐條附條文依據。",
+      placeholder: "追問，如：兩方兼證如何取捨？它的服法有何不同？",
+    }).node);
   }
   main.append(el("div", { class: "card" }, [sel.node, el("button", { class: "btn", style: "margin-top:10px", onclick: run }, "生成鑒別表")]));
   main.append(out);
@@ -578,11 +635,55 @@ function quizPanel(channel) {
 
 views.mistreatment = async (main) => {
   main.innerHTML = "";
-  main.append(viewHead("誤治傳變", "誤治方式 → 變證 → 救治方 → 原文證據。"));
+  main.append(viewHead("誤治傳變", "誤治方式 → 變證 → 救治方 → 原文證據。每條路徑可一鍵生成教學案例。"));
   const r = await api.post("/api/mistreatment", {});
-  const tbl = el("table"); tbl.append(el("tr", {}, [el("th", {}, "誤治"), el("th", {}, "變證"), el("th", {}, "救治方"), el("th", {}, "證據條文"), el("th", {}, "等級")]));
-  (r.paths || []).forEach(p => tbl.append(el("tr", {}, [el("td", {}, p.mistreatment), el("td", {}, p.resulting_pattern), el("td", {}, (p.rescue_formulas || []).join("、")), el("td", {}, clauseChipsArr(p.clauses)), el("td", {}, el("span", { class: "pill" }, p.release_level))])));
-  main.append(el("div", { class: "card" }, tbl));
+  const caseOut = el("div", {});
+  // 生成教學案例（二十輪）：確定性骨架恆有；接真模型時另附敘事層病案
+  async function genCase(p, btn) {
+    btn.disabled = true;
+    caseOut.innerHTML = '<div class="loading">生成教學案例中…</div>';
+    let c;
+    try { c = await api.post("/api/teaching-case", { mistreatment: p.mistreatment, resulting_pattern: p.resulting_pattern }); }
+    catch (e) { c = { error: "請求失敗：" + e.message }; }
+    btn.disabled = false;
+    caseOut.innerHTML = "";
+    if (c.error) { caseOut.append(el("div", { class: "cite-banner cite-warn" }, c.error)); return; }
+    const k = c.case || {};
+    caseOut.append(el("div", { class: "card" }, [
+      el("div", { class: "row" }, [el("h3", {}, "📖 " + (k.title || "教學案例")), el("span", { class: "pill" }, c.channel), el("span", { class: "spacer" }), el("span", { class: "pill" }, c.release_level)]),
+      el("p", { class: "classical", style: "font-size:14px" }, k.scenario || ""),
+      (k.key_manifestations || []).length ? el("div", {}, k.key_manifestations.map(x => el("span", { class: "pill" }, x))) : null,
+      el("div", { class: "section-title" }, "教學要點"),
+      ...(k.teaching_points || []).map(t => el("div", { class: "kv small" }, [el("b", {}, "▸"), el("span", {}, t)])),
+      el("div", { class: "section-title" }, "課堂討論題"),
+      ...(k.discussion_questions || []).map((q2, i) => el("div", { class: "kv small" }, [el("b", {}, "Q" + (i + 1)), el("span", {}, q2)])),
+      el("div", { class: "section-title" }, "證據條文（逐字回源）"),
+      ...(c.evidence || []).map(e2 => el("div", { class: "evi" }, [el("div", { class: "ct" }, e2.text), el("div", { class: "meta" }, [clauseChip(e2.clause_id), " " + e2.chapter])])),
+      el("p", { class: "small muted" }, c.note || "")]));
+    const mn = c.model_narrative;
+    if (mn && !mn.error) {
+      const cr = mn.citation_report;
+      caseOut.append(el("div", { class: "card" }, [
+        el("div", { class: "section-title" }, ["模型敘事層病案 ", el("span", { class: "pill" }, mn.backend)]),
+        mn.title ? el("h3", {}, mn.title) : null,
+        el("div", { class: "answer-text", style: "font-size:13.5px" }, mn.narrative || ""),
+        el("div", { class: "section-title" }, "教學分析"),
+        el("div", { class: "answer-text", style: "font-size:13.5px" }, mn.analysis || ""),
+        ...(mn.discussion_questions || []).map(q2 => el("p", { class: "notice" }, "討論：" + q2)),
+        cr ? el("div", { class: "cite-banner " + (cr.ok ? "cite-ok" : "cite-warn") },
+          cr.ok ? "✓ 敘事層引用已全部核驗（" + (cr.verified || []).length + " 條）"
+                : "⚠ 引用核驗未全部通過：" + [...(cr.unsupported || []), ...(cr.outside_evidence || [])].join("、")) : null,
+        el("p", { class: "small muted" }, mn.note || "")]));
+    }
+    caseOut.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  const tbl = el("table"); tbl.append(el("tr", {}, [el("th", {}, "誤治"), el("th", {}, "變證"), el("th", {}, "救治方"), el("th", {}, "證據條文"), el("th", {}, "等級"), el("th", {}, "教學")]));
+  (r.paths || []).forEach(p => {
+    const btn = el("button", { class: "btn ghost sm", onclick: e => genCase(p, e.target) }, "生成教學案例");
+    tbl.append(el("tr", {}, [el("td", {}, p.mistreatment), el("td", {}, p.resulting_pattern), el("td", {}, (p.rescue_formulas || []).join("、")), el("td", {}, clauseChipsArr(p.clauses)), el("td", {}, el("span", { class: "pill" }, p.release_level)), el("td", {}, btn)]));
+  });
+  main.append(el("div", { class: "card" }, el("div", { class: "tbl-scroll" }, tbl)));
+  main.append(caseOut);
 };
 
 views.research = async (main) => {
@@ -784,6 +885,40 @@ function libCandidateCard(h) {
   } }, [el("b", {}, "▸ " + h.title), el("span", {}, (h.author || "") + "·" + (h.dynasty || "") + (h.section ? " §" + h.section : "") + "　"),
     h.excerpt ? el("span", { class: "muted" }, "…" + h.excerpt.slice(0, 40) + "…") : null]);
   return el("div", {}, [head, body]);
+}
+// 章節全文點閱（二十輪）：全文命中標題點擊 → 右側抽屜分頁讀取該章節
+// （或全書）原文；左側界面保持可滾動（抽屜非模態）
+function openLibraryChapter(h) {
+  const body = $("#drawer-body");
+  $("#drawer").classList.add("open"); $("#drawer-scrim").classList.add("open");
+  drawerHistory.length = 0; currentClauseRef = null; updateBackBtn();
+  $("#drawer-title").textContent = "《" + (h.title || h.book_id) + "》" + (h.section ? " · " + h.section : " · 全書");
+  body.innerHTML = "";
+  const pre = el("pre", { class: "md", style: "max-height:none;font-size:13px" }, "");
+  const info = el("div", { class: "small muted", style: "margin-top:6px" }, "");
+  let start = 0;
+  const more = el("button", { class: "btn ghost sm", style: "display:none;margin-top:8px", onclick: () => load() }, "載入更多");
+  async function load() {
+    more.disabled = true;
+    const loading = el("div", { class: "loading" }, "讀取全文…");
+    body.append(loading);
+    try {
+      const r = await api.post("/api/library/read", { book: h.book_id || h.title, section: h.section || "", start });
+      loading.remove();
+      if (r.error) {
+        body.append(el("p", { class: "muted small" }, r.error + ((r.toc || []).length ? "　可用章節：" + r.toc.slice(0, 8).join("、") : "")));
+        more.style.display = "none";
+        return;
+      }
+      pre.textContent += r.text || "";
+      start = (r.offset || 0) + (r.text || "").length;
+      info.textContent = "已載入 " + start + " / " + r.total_chars + " 字　·　" + (r.evidence_layer || "");
+      more.style.display = r.truncated ? "" : "none";
+      more.disabled = false;
+    } catch (e) { loading.textContent = "讀取失敗：" + e.message; }
+  }
+  body.append(el("div", { class: "small muted", style: "margin-bottom:6px" }, (h.author || "") + (h.dynasty ? "·" + h.dynasty : "")), pre, info, more);
+  load();
 }
 // 歷代引用可點閱：點擊書名展開該書對相關條文的引用段落（分頁續讀）
 function citingBookRow(b, citedIds, label) {
@@ -997,14 +1132,33 @@ views.bianzheng = async (main) => {
   main.append(viewHead("辨證閉環", "四診採集（信息整理）→ 多假設裁決 → 方證衝突審計。醫師/教學輔助，不替代臨床。"));
   const txt = el("textarea", { rows: 2, placeholder: "自然敘述，如：发热，怕冷，出汗，头痛，服退烧药后腹泻" });
   const out = el("div", {});
-  async function runIntake() {
+  // 多輪追問（二十輪）：每輪回答併入敘述重新整理——閉環到「信息採集→
+  // 追問→補充→再整理」，仍是患者端安全口徑（只整理不診斷）
+  const intakeParts = [];
+  async function runIntake(extra) {
+    if (extra != null) { if (extra.trim()) intakeParts.push(extra.trim()); }
+    else { intakeParts.length = 0; if (txt.value.trim()) intakeParts.push(txt.value.trim()); }
+    const combined = intakeParts.join("；");
+    if (!combined) { out.innerHTML = '<p class="muted">請先輸入敘述。</p>'; return; }
     out.innerHTML = '<div class="loading">整理中…</div>';
-    const r = await api.post("/api/intake", { text: txt.value });
+    let r;
+    try { r = await api.post("/api/intake", { text: combined }); }
+    catch (e) { out.innerHTML = ""; out.append(el("div", { class: "cite-banner cite-warn" }, "整理失敗：" + e.message)); return; }
     out.innerHTML = "";
+    if (intakeParts.length > 1) out.append(el("div", { class: "card" }, [
+      el("div", { class: "section-title" }, "敘述累積（" + intakeParts.length + " 輪 · 追問回答已併入整理）"),
+      ...intakeParts.map((p, i) => el("div", { class: "kv small" }, [el("b", {}, "第" + (i + 1) + "輪"), el("span", { class: i === intakeParts.length - 1 ? "" : "muted" }, p)]))]));
     const rows = [["主訴", r.chief_complaint], ["病程", (r.timeline || []).join("、")], ["寒熱", (r.cold_heat || []).join("、")], ["汗", (r.sweating || []).join("、")], ["渴飲", (r.thirst_drinking || []).join("、")], ["二便", (r.stool_urine || []).join("、")], ["胸脅", (r.chest_hypochondrium || []).join("、")], ["心腹", (r.epigastrium_abdomen || []).join("、")], ["痛", (r.pain_location || []).join("、")], ["眠", (r.sleep || []).join("、")], ["脈", (r.pulse || []).join("、")], ["誤治史", (r.prior_mistreatment || []).join("、")], ["藥後", (r.medication_response || []).join("、")]];
     const tbl = el("table"); rows.forEach(([k, v]) => tbl.append(el("tr", {}, [el("th", {}, k), el("td", {}, v || "—")])));
     out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "結構化四診表"), el("div", { class: "tbl-scroll" }, tbl)]));
-    out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "缺失關鍵信息 → 追問"), ...(r.next_questions || []).map(q => el("div", { class: "kv small" }, [el("b", {}, "?"), el("span", {}, q)]))]));
+    const fu = el("input", { type: "text", placeholder: "回答追問，如：無汗，口不渴，脈浮緊（回車或按鈕提交，併入敘述重新整理）" });
+    const submitFu = () => { const v = fu.value.trim(); if (v) runIntake(v); };
+    fu.addEventListener("keydown", e => { if (e.key === "Enter") submitFu(); });
+    out.append(el("div", { class: "card" }, [
+      el("div", { class: "section-title" }, "缺失關鍵信息 → 追問（多輪：回答後自動重新整理）"),
+      ...(r.next_questions || []).map(q => el("div", { class: "kv small" }, [el("b", {}, "?"), el("span", {}, q)])),
+      (r.next_questions || []).length ? null : el("p", { class: "small muted" }, "四診關鍵信息已齊備——可繼續補充，或送入多假設裁決。"),
+      el("div", { class: "row", style: "margin-top:6px" }, [el("div", { style: "flex:1" }, fu), el("button", { class: "btn sm", onclick: submitFu }, "補充並重新整理")])]));
     // 模型輔助抽取（十七輪：規則詞表之上的語義層，逐詞回驗敘述原文）
     const mx = r.model_extraction;
     if (mx && !mx.error) {
@@ -1022,8 +1176,15 @@ views.bianzheng = async (main) => {
     if (allSyms.length) out.append(el("button", { class: "btn", onclick: () => runAdj(allSyms, (r.pulse && r.pulse.length ? r.pulse : (mx && mx.model_pulse) || [])) }, "→ 送入多假設裁決（醫師端）"));
   }
   async function runAdj(symptoms, pulse) {
-    out.append(el("div", { class: "loading" }, "裁決中…"));
-    const r = await api.post("/api/adjudicate", { symptoms, pulse });
+    // 十九輪遺留修復：loading 元素此前從不移除——裁決返回後頁面仍顯示
+    // 「裁決中…」；現在響應（含失敗）一律先移除再渲染
+    const loading = el("div", { class: "loading" }, "裁決中…");
+    out.append(loading);
+    let r;
+    try { r = await api.post("/api/adjudicate", { symptoms, pulse }); }
+    catch (e) { loading.remove(); out.append(el("div", { class: "cite-banner cite-warn" }, "裁決請求失敗：" + e.message)); return; }
+    loading.remove();
+    if (r.error) { out.append(el("div", { class: "cite-banner cite-warn" }, "裁決失敗：" + r.error)); return; }
     out.append(el("div", { class: "cite-banner " + (r.verdict && r.verdict.startsWith("傾向") ? "cite-ok" : "cite-warn") }, "裁決：" + r.verdict + " —— " + r.rationale));
     // 推薦處方列表（十九輪）：推薦度 + 支持/反證/缺失 + 該方專屬追問
     (r.recommendations || []).forEach(h => out.append(el("div", { class: "card" }, [
@@ -1068,7 +1229,7 @@ views.bianzheng = async (main) => {
     if ((r.reassign_candidates || []).length) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "改判候選（定位提示）"), ...r.reassign_candidates.map(a => el("div", { class: "kv small" }, [el("b", {}, a.candidate), el("span", {}, "因「" + a.conflict + "」")]))]));
     (r.should_ask || []).forEach(q => out.append(el("p", { class: "notice" }, "應補問：" + q)));
   }
-  main.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "① 四診信息採集（患者端安全：只整理不診斷）"), txt, el("div", { class: "row", style: "margin-top:8px" }, [el("span", { class: "spacer" }), el("button", { class: "btn", onclick: runIntake }, "整理四診表")])]));
+  main.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "① 四診信息採集（患者端安全：只整理不診斷 · 支持多輪追問）"), txt, el("div", { class: "row", style: "margin-top:8px" }, [el("span", { class: "spacer" }), el("button", { class: "btn", onclick: () => runIntake() }, "整理四診表")])]));
   main.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "② 方證衝突審計（醫師端）"), el("div", { class: "row" }, [cf, el("div", { style: "flex:1" }, cs), el("button", { class: "btn", onclick: runConflict }, "審計")])]));
   main.append(out);
 };
@@ -1112,8 +1273,10 @@ views.tools = async (main) => {
     out.innerHTML = "";
     if (r.available === false) { out.append(el("div", { class: "cite-banner cite-warn" }, r.hint || "全庫未下載")); return; }
     (r.catalog_hits || []).length && out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "編目命中"), ...r.catalog_hits.map(h => el("div", { class: "kv small" }, [el("b", {}, h.id), el("span", {}, (h.author || "") + "·" + (h.dynasty || "") + " [" + (h.category || "") + "]")]))]));
-    (r.text_hits || []).length && out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "全文命中（" + r.n_text_hits + " · ▸ 點擊查閱該節全文）"), ...r.text_hits.map(h => el("div", {}, [
-      el("div", { class: "evi" }, [el("div", { class: "ct" }, "…" + h.excerpt + "…"), el("div", { class: "meta" }, "《" + h.title + "》" + (h.author || "") + "·" + (h.dynasty || "") + " §" + h.section)]),
+    (r.text_hits || []).length && out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "全文命中（" + r.n_text_hits + " · 點標題→抽屜讀該章節全文；▸ 行內節選）"), ...r.text_hits.map(h => el("div", {}, [
+      el("div", { class: "evi" }, [el("div", { class: "ct" }, "…" + h.excerpt + "…"), el("div", { class: "meta" }, [
+        el("span", { class: "clause-chip", title: "點擊在右側抽屜查閱該章節全文（分頁續讀）", onclick: () => openLibraryChapter(h) }, "⌖ 《" + h.title + "》§" + h.section),
+        el("span", {}, "　" + (h.author || "") + "·" + (h.dynasty || ""))])]),
       libCandidateCard({ book_id: h.book_id, title: h.title, author: h.author, dynasty: h.dynasty, section: h.section })]))]));
     out.append(el("p", { class: "notice" }, r.evidence_layer || ""));
   }
@@ -1194,6 +1357,11 @@ async function boot() {
   });
   $("#drawer-close").addEventListener("click", closeDrawer);
   $("#drawer-scrim").addEventListener("click", closeDrawer);
+  // 一鍵跳到抽屜最下方（直達「AI 解讀與對話」卡）
+  const db = $("#drawer-body");
+  $("#drawer-bottom").addEventListener("click", () => db.scrollTo({ top: db.scrollHeight, behavior: "smooth" }));
+  // 抽屜非模態化後左側不再有可點擊遮罩——Esc 亦可關閉
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#drawer").classList.contains("open")) closeDrawer(); });
   $("#drawer-back").addEventListener("click", () => {
     const prev = drawerHistory.pop();
     if (prev != null) { currentClauseRef = null; openClause(prev, false); }
