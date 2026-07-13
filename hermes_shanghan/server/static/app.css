@@ -168,6 +168,13 @@ select#lang-select{cursor:pointer;font-size:12px;padding:3px 6px;border-radius:1
   color:var(--muted);font-size:12px;text-align:center;letter-spacing:.4px}
 .footbar b{color:var(--ink2)}
 
+/* 鑒別表可追問單元格 / 勘誤原文句段（二十一輪） */
+.cell-ask{cursor:pointer;transition:.12s}
+td.cell-ask:hover{background:#eef4f3;box-shadow:inset 0 0 0 1px #cfe2df}
+.kv.cell-ask:hover{background:rgba(47,111,106,.07);border-radius:6px}
+.errata-seg{cursor:pointer;border-radius:4px;transition:.12s}
+.errata-seg:hover{background:#f3ead6;box-shadow:0 1px 0 var(--gold)}
+
 /* trace workbench */
 .seg.wrap{flex-wrap:wrap}
 .frag{border-left:4px solid var(--border2)}

@@ -106,7 +106,10 @@ class TestResearchPayload(unittest.TestCase):
         self.assertGreater(len(fq["symptom_frequency"]), 10)
         self.assertGreater(len(fq["channel_formula"]), 5)
         ft = r["family_tree"]
-        self.assertGreater(ft["n_families"], 3)
+        # 二十一輪起 n_families=聚焦視圖計數（全書計數另見
+        # n_families_whole_book）——不同主題產出不同家族樹
+        self.assertGreater(ft["n_families"], 0)
+        self.assertGreater(ft["n_families_whole_book"], 3)
         self.assertTrue(any(f["base"] == "桂枝湯" for f in ft["families"]))
         self.assertIn("sections", r["paper_outline"])
 
@@ -600,3 +603,149 @@ class TestModernizeLongestFirst(unittest.TestCase):
         r = intake_parse("发热，怕冷，不出汗，身疼痛")
         self.assertIn("無汗", r["sweating"])
         self.assertNotIn("汗出", r["sweating"])
+
+
+# ---------------------------------------------------------------------------
+# 二十一輪：審校正產出點校 · 空輸出不冒充 pass · 模型主題解析 ·
+# 家族樹無回退 · 模型抽取併入四診表
+# ---------------------------------------------------------------------------
+def _litellm_client(*responses):
+    client = LLMClient(provider=ScriptedProvider(list(responses)))
+    client._backend = "litellm"
+    client.settings.cache = False
+    return client
+
+
+class TestModelReviewRound21(unittest.TestCase):
+    def test_empty_model_output_not_silent_pass(self):
+        # 「litellm·pass 卻無點校內容」根因：空 JSON 曾靜默判 pass
+        from hermes_shanghan.apps.differential_audit import model_review
+        d = _diff_dict("桂枝湯", "麻黃湯")
+        out = model_review(d, ART.formula_rules, ART.clause_store(),
+                           _litellm_client())          # 隊列空 → content ""
+        self.assertEqual(out["verdict"], "warn")
+        self.assertTrue(out["model_output_empty"])
+        self.assertIn("未返回有效 JSON", out["summary"])
+
+    def test_confirmations_guarded_and_pass_has_content(self):
+        from hermes_shanghan.apps.differential_audit import model_review
+        d = _diff_dict("桂枝湯", "麻黃湯")
+        support = set()
+        for r in ART.formula_rules:
+            if r.formula in d["formulas"]:
+                support |= set(r.supporting_clauses)
+        good, fake = sorted(support)[0], "SHL_SONGBEN_9999"
+        client = _litellm_client(json.dumps({
+            "verdict": "pass", "issues": [],
+            "confirmations": [{"axis": "汗之有無",
+                               "comment": "鑒別成立",
+                               "clause_ids": [good, fake]}],
+            "missing_axes": ["渴之有無"],
+            "summary": ""}, ensure_ascii=False))
+        out = model_review(d, ART.formula_rules, ART.clause_store(), client)
+        self.assertEqual(out["verdict"], "pass")
+        cf = out["confirmations"][0]
+        self.assertIn(good, cf["clause_ids"])
+        self.assertIn(fake, cf["unverified_clause_ids"])
+        self.assertEqual(out["missing_axes"], ["渴之有無"])
+        self.assertTrue(out["summary"], "pass 時 summary 也不得為空")
+
+
+class TestResearchRound21(unittest.TestCase):
+    def _miner(self):
+        from hermes_shanghan.apps.research import ResearchMiner
+        return ResearchMiner(ART.clauses, ART.formula_rules,
+                             ART.mistreatment_rules)
+
+    def test_family_tree_no_fallback_when_scoped_empty(self):
+        # 舊行為：主題域過濾為空 → 回退全書列表（首族恆為桂枝湯類）；
+        # 新行為：如實空列表 + 說明
+        svc = ServiceContext()
+        r = svc.research("小柴胡湯")
+        ft = r["family_tree"]
+        self.assertTrue(r["topic_analysis"]["scoped"])
+        self.assertEqual(ft["families"], [])
+        self.assertEqual(ft["n_families"], 0)
+        self.assertGreater(ft["n_families_whole_book"], 3)
+        self.assertIn("主題域內無加減方家族", ft["note"])
+
+    def test_family_tree_differs_by_topic(self):
+        svc = ServiceContext()
+        gz = [f["base"] for f in
+              svc.research("桂枝湯")["family_tree"]["families"]]
+        wl = [f["base"] for f in
+              svc.research("五苓散")["family_tree"]["families"]]
+        self.assertIn("桂枝湯", gz)
+        self.assertNotEqual(gz, wl, "不同主題不得產出相同家族樹")
+
+    def test_parse_topic_llm_validates_against_vocab(self):
+        miner = self._miner()
+        client = _litellm_client(json.dumps({
+            "formulas": ["四逆湯", "不存在方"],
+            "symptoms": ["發熱", "假症狀"],
+            "pulses": [], "channels": ["太陽病"], "herbs": []},
+            ensure_ascii=False))
+        parsed = miner.parse_topic_llm("误用攻下后的救治规律", client)
+        self.assertEqual(parsed["formulas"], ["四逆湯"])
+        self.assertEqual(parsed["symptoms"], ["發熱"])
+        self.assertEqual(parsed["channels"], ["太陽病"])
+
+    def test_run_topic_uses_model_parser_when_lexicon_misses(self):
+        miner = self._miner()
+        client = _litellm_client(json.dumps(
+            {"formulas": ["四逆湯"], "symptoms": [], "pulses": [],
+             "channels": [], "herbs": []}, ensure_ascii=False))
+        out = miner.run_topic("误用攻下后的救治规律", llm=client)
+        ta = out["topic_analysis"]
+        self.assertEqual(ta["parser"], "model")
+        self.assertEqual(ta["formulas"], ["四逆湯"])
+        self.assertTrue(ta["scoped"])
+        self.assertIn("模型從限定詞表選詞", ta["note"])
+
+    def test_run_topic_without_llm_keeps_fallback(self):
+        out = self._miner().run_topic("误用攻下后的救治规律")
+        ta = out["topic_analysis"]
+        self.assertEqual(ta["parser"], "lexicon")
+        self.assertFalse(ta["scoped"])
+
+
+class TestIntakeMergeRound21(unittest.TestCase):
+    NARRATIVE = "发热，怕冷，鼻塞，头痛，脉浮紧"
+
+    def _svc(self, *responses):
+        svc = ServiceContext()
+        svc._llm = _litellm_client(*responses)
+        return svc
+
+    def test_verified_findings_merged_into_table(self):
+        # 鼻塞：詞表外表現、敘述逐字可驗 → 必須併入四診表本體
+        svc = self._svc(json.dumps({
+            "findings": ["鼻塞", "潮熱譫語"], "pulse": [],
+            "notes": "測試"}, ensure_ascii=False))
+        r = svc.intake(self.NARRATIVE)
+        self.assertIn("鼻塞", r["other_findings"])
+        mx = r["model_extraction"]
+        self.assertIn("鼻塞", mx["merged_into_table"].get("other_findings",
+                                                          []))
+        self.assertIn("潮熱譫語", mx["unverified"])
+        self.assertNotIn("潮熱譫語", str(mx["merged_into_table"]))
+
+    def test_model_pulse_canonicalized_no_duplicate(self):
+        # 規則層已出「脈浮緊」，模型再給「浮緊」→ 規範同口徑後去重
+        svc = self._svc(json.dumps({
+            "findings": [], "pulse": ["浮緊"], "notes": ""},
+            ensure_ascii=False))
+        r = svc.intake(self.NARRATIVE)
+        self.assertEqual(r["pulse"].count("脈浮緊"), 1)
+        self.assertNotIn("浮緊", r["pulse"])
+        self.assertEqual(r["model_extraction"]["merged_pulse"], [])
+
+    def test_missing_axes_recomputed_after_merge(self):
+        # 敘述無渴飲信息，模型驗證通過的「口渴」併入後追問不再問渴
+        svc = self._svc(json.dumps({
+            "findings": ["口渴"], "pulse": [], "notes": ""},
+            ensure_ascii=False))
+        r = svc.intake("发热，怕冷，口渴，鼻塞")
+        if "口渴" in (r["model_extraction"]["merged_into_table"]
+                      .get("thirst_drinking", [])):
+            self.assertNotIn("thirst_drinking", r["missing_key_findings"])

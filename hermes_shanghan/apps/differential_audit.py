@@ -161,6 +161,8 @@ def model_review(diff: Dict, formula_rules, clause_store, llm,
         return {"backend": "local",
                 "verdict": "warn" if issues else "pass",
                 "issues": issues,
+                "confirmations": [],
+                "missing_axes": [],
                 "summary": (f"確定性審校：{verification['n_checked']} 項核驗，"
                             f"{len(issues)} 項存疑（未接真實模型；"
                             "接入後將由大模型作語義級對抗審校）。"),
@@ -178,21 +180,51 @@ def model_review(diff: Dict, formula_rules, clause_store, llm,
                                                 clause_store)),
         task="critic",
         context={"formulas": formulas})
-    issues = []
+    # 二十一輪：模型返回空/不可解析 JSON 時不再靜默 pass——「litellm·pass
+    # 卻無任何點校內容」的根因即在此。如實標 warn 並說明審校不可用。
+    if not out:
+        return {"backend": getattr(llm, "backend", "litellm"),
+                "verdict": "warn",
+                "issues": [],
+                "confirmations": [],
+                "missing_axes": [],
+                "model_output_empty": True,
+                "summary": "模型審校未返回有效 JSON——本次語義級審校不可用"
+                           "（已如實標記，未冒充 pass）；可重試或檢查模型後端。",
+                "citation_report": None,
+                "note": "模型審校屬 E 層；所引 clause_id 已逐一核驗，"
+                        "unverified_clause_ids 中的編號請勿採信。"}
     guard = CitationGuard(clause_store)
-    for it in (out.get("issues") or [])[:12]:
-        if not isinstance(it, dict):
-            continue
-        cids = [c for c in (it.get("clause_ids") or []) if isinstance(c, str)]
-        rep = guard.check("、".join(cids), allowed_ids=allowed)
-        issues.append({"formula": str(it.get("formula", ""))[:24],
-                       "axis": str(it.get("axis", ""))[:24],
-                       "problem": str(it.get("problem", ""))[:200],
-                       "clause_ids": rep.verified_ids,
-                       "unverified_clause_ids": (rep.unsupported_ids
-                                                 + rep.outside_evidence_ids),
-                       "source": "model"})
+
+    def _guarded_rows(rows, text_key, extra_keys=()):
+        parsed = []
+        for it in rows[:12]:
+            if not isinstance(it, dict):
+                continue
+            cids = [c for c in (it.get("clause_ids") or [])
+                    if isinstance(c, str)]
+            rep = guard.check("、".join(cids), allowed_ids=allowed)
+            row = {k: str(it.get(k, ""))[:24] for k in extra_keys}
+            row[text_key] = str(it.get(text_key, ""))[:220]
+            row["clause_ids"] = rep.verified_ids
+            row["unverified_clause_ids"] = (rep.unsupported_ids
+                                            + rep.outside_evidence_ids)
+            row["source"] = "model"
+            parsed.append(row)
+        return parsed
+
+    issues = _guarded_rows(out.get("issues") or [], "problem",
+                           extra_keys=("formula", "axis"))
+    # 正產出點校（二十一輪）：pass 時同樣逐軸給出鑒別成立依據——
+    # 審校不只在找錯時才有內容
+    confirmations = _guarded_rows(out.get("confirmations") or [], "comment",
+                                  extra_keys=("axis",))
+    missing_axes = [str(x)[:30] for x in (out.get("missing_axes") or [])[:6]
+                    if isinstance(x, str)]
     summary = str(out.get("summary", ""))[:600]
+    if not summary:
+        summary = (f"模型審校完成：{len(confirmations)} 項鑒別點覆核成立、"
+                   f"{len(issues)} 項存疑（模型未給總評，此句為統計拼裝）。")
     srep = guard.check(summary, allowed_ids=allowed)
     verdict = out.get("verdict", "")
     if verdict not in ("pass", "warn", "fail"):
@@ -200,6 +232,8 @@ def model_review(diff: Dict, formula_rules, clause_store, llm,
     return {"backend": getattr(llm, "backend", "litellm"),
             "verdict": verdict,
             "issues": issues,
+            "confirmations": confirmations,
+            "missing_axes": missing_axes,
             "summary": summary,
             "citation_report": srep.to_dict(),
             "note": "模型審校屬 E 層；所引 clause_id 已逐一核驗，"
