@@ -145,10 +145,16 @@ def diff_review_user_prompt(table_json: str, evidence_block: str) -> str:
     {{"formula": "方名", "axis": "鑒別軸", "problem": "問題描述（引用原文）",
       "clause_ids": ["支持該判定的條文編號"]}}
   ],
+  "confirmations": [
+    {{"axis": "鑒別軸", "comment": "本軸點校：鑒別為何成立、臨證要點（引用原文）",
+      "clause_ids": ["支持條文編號"]}}
+  ],
   "missing_axes": ["條文明載但表中缺失的鑒別軸", ...],
   "summary": "總體審校意見（每處論斷附 clause_id）"
 }}
-無問題時 issues 為空數組、verdict=pass。"""
+無問題時 issues 為空數組、verdict=pass；但 **confirmations 與 summary
+在 pass 時同樣不得為空**——逐軸給出鑒別成立的原文依據與臨證點校，
+這是審校的正產出，不是僅在找到錯誤時才輸出。"""
 
 
 def trace_synth_system_prompt() -> str:
@@ -223,6 +229,27 @@ def adjudicate_review_user_prompt(adjudication_json: str,
   "additional_questions": ["規則未提出但關鍵的追問", ...]
 }}
 無補充時 missed_patterns/additional_questions 為空數組。"""
+
+
+def topic_parse_system_prompt() -> str:
+    return (EVIDENCE_CONTRACT + "\n\n任務：把一個自由文本研究主題解析為"
+            "《傷寒論》檢索詞，供計量挖掘界定統計域。鐵律：\n"
+            "1. 只選主題**語義明確涉及**的詞，不作聯想擴展"
+            "（「出汗異常」→ 汗出/無汗/自汗 是語義等值，可選；"
+            "「太陽病」→ 桂枝湯 是聯想，不可選）；\n"
+            "2. 輸出的每個詞必須從【可用詞表】中**逐字選取**，不得自造、"
+            "不得改寫；\n"
+            "3. 主題與詞表完全無關時輸出空數組，不要湊詞。嚴格輸出 JSON。")
+
+
+def topic_parse_user_prompt(topic: str, vocab_block: str) -> str:
+    return f"""研究主題：{topic}
+
+【可用詞表（只能從中逐字選取）】
+{vocab_block}
+
+請輸出 JSON：
+{{"formulas": [], "symptoms": [], "pulses": [], "channels": [], "herbs": []}}"""
 
 
 def teaching_case_system_prompt() -> str:

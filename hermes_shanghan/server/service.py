@@ -367,7 +367,12 @@ class ServiceContext:
         from ..apps.research import ResearchMiner
         miner = ResearchMiner(self.art.clauses, self.art.formula_rules,
                               self.art.mistreatment_rules)
-        return miner.run_topic(topic, outputs=outputs or ["rules", "network", "paper_outline"])
+        # llm 供模型輔助主題解析（二十一輪）：詞表直匹配失敗的自由主題
+        # 由模型從限定詞表選詞（逐字校驗在表）
+        return miner.run_topic(topic,
+                               outputs=outputs or ["rules", "network",
+                                                   "paper_outline"],
+                               llm=self.llm)
 
     def paper(self, paper_type: str = "formula_pattern", topic: str = "",
               use_llm: bool = True) -> Dict:
@@ -758,12 +763,14 @@ class ServiceContext:
             base["model_extraction"] = {"backend": "error",
                                         "error": type(exc).__name__}
             return base
+        from ..apps.bianzheng import _AXIS_KEYS, _MISSING_QUESTIONS
         haystack = fold_variants(modernize(text)) + "\n" + fold_variants(
             normalize_query(text))
-        already = {fold_variants(s) for key in
-                   ("cold_heat", "sweating", "thirst_drinking", "stool_urine",
-                    "chest_hypochondrium", "epigastrium_abdomen",
-                    "pain_location", "sleep", "tongue", "other_findings")
+        table_keys = ("cold_heat", "sweating", "thirst_drinking",
+                      "stool_urine", "chest_hypochondrium",
+                      "epigastrium_abdomen", "pain_location", "sleep",
+                      "tongue", "other_findings")
+        already = {fold_variants(s) for key in table_keys
                    for s in (base.get(key) or [])}
         added, unverified = [], []
         for t in (out.get("findings") or [])[:16]:
@@ -775,18 +782,59 @@ class ServiceContext:
             # 驗證線：模型詞須逐字在敘述中，或其肯定/否定核在敘述中
             core = tf.lstrip("無不")
             if tf in haystack or (len(core) >= 2 and core in haystack):
-                added.append(t)
+                added.append(normalize_query(t))
             else:
                 unverified.append(t)
+        # 二十一輪：驗證通過的模型表現**併入四診表本體**（此前只列側欄，
+        # 純規則表會丟數據）；按軸詞歸位，缺失軸與追問隨之重算
+        merged_axes: Dict[str, List[str]] = {}
+        for t in added:
+            axis = next((k for k, keys in _AXIS_KEYS.items()
+                         if any(x in t for x in keys)), None)
+            key = axis or "other_findings"
+            base.setdefault(key, []).append(t)
+            merged_axes.setdefault(key, []).append(t)
+            already.add(fold_variants(t))
+        # 脈象同一驗證線：逐字（含折疊）在敘述中才併入；統一規範為
+        # 「脈X」口徑後去重（規則層產出即此口徑，防「浮緊/脈浮緊」重複）
+        model_pulse, merged_pulse = [], []
+        existing_pulse = {fold_variants(p) for p in (base.get("pulse") or [])}
+        for p in (out.get("pulse") or [])[:4]:
+            if not isinstance(p, str) or not p.strip():
+                continue
+            pn = normalize_query(p)
+            model_pulse.append(pn)
+            canon = pn if pn.startswith("脈") else "脈" + pn
+            pf = fold_variants(canon)
+            bare = fold_variants(pn.lstrip("脈"))
+            if pf not in existing_pulse and (
+                    pf in haystack or (len(bare) >= 1 and bare in haystack)):
+                base.setdefault("pulse", []).append(canon)
+                merged_pulse.append(canon)
+                existing_pulse.add(pf)
+        if merged_axes or merged_pulse:
+            missing = [k for k in ("cold_heat", "sweating",
+                                   "thirst_drinking", "stool_urine")
+                       if not base.get(k)]
+            if not base.get("pulse"):
+                missing.append("pulse")
+            if not base.get("tongue"):
+                missing.append("tongue")
+            base["missing_key_findings"] = missing
+            base["next_questions"] = [_MISSING_QUESTIONS[k] for k in missing
+                                      if k in _MISSING_QUESTIONS][:4]
         base["model_extraction"] = {
             "backend": self.llm.backend,
             "added_findings": added,
+            "merged_into_table": merged_axes,
+            "merged_pulse": merged_pulse,
             "unverified": unverified,
-            "model_pulse": [p for p in (out.get("pulse") or [])[:4]
-                            if isinstance(p, str)],
+            "model_pulse": model_pulse,
             "notes": str(out.get("notes", ""))[:200],
             "note": "模型抽取須逐詞回驗患者敘述（含口語→古籍映射）；"
-                    "unverified 中的表現敘述裡找不到依據，未併入四診表。"}
+                    "驗證通過的表現已按軸併入上方四診表（併入項見 "
+                    "merged_into_table），缺失軸與追問已重算；"
+                    "unverified 中的表現敘述裡找不到依據，未併入。"}
         return base
 
     def adjudicate(self, symptoms: List[str], pulse: List[str] = None,
