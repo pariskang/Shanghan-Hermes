@@ -174,13 +174,24 @@ async function openClause(ref, push = true) {
 }
 // 勘誤提交（十九輪）：用戶對原文/轉寫錯誤的反饋閉環（落盤待人工複核）
 function errataCard(c) {
-  const quote = el("input", { type: "text", placeholder: "有疑誤的原文片段（逐字）" });
+  const quote = el("input", { type: "text", placeholder: "有疑誤的原文片段（逐字，可點上方句段填入）" });
   const sugg = el("input", { type: "text", placeholder: "勘誤建議（正確寫法或依據版本）" });
   const note = el("input", { type: "text", placeholder: "備註/依據（可選）" });
   const out = el("div", {});
+  // 原文再現（二十一輪）：勘誤前先重讀原文——按標點切成句段，點擊句段
+  // 自動填入「原文片段」輸入框（逐字，方便定位核驗）
+  const segs = String(c.text || "").split(/(?<=[，。；：？！、])/).filter(s => s.trim());
+  const origBox = el("div", {}, [
+    el("div", { class: "small muted" }, "原文（點擊句段填入下方「原文片段」）"),
+    el("p", { class: "classical", style: "font-size:13.5px;margin:4px 0 8px" },
+      segs.map(s => el("span", { class: "errata-seg", title: "點擊填入原文片段", onclick: () => {
+        quote.value = s.trim();
+        quote.focus();
+      } }, s)))]);
   return el("div", { class: "card" }, [
     el("details", {}, [
       el("summary", { class: "section-title", style: "cursor:pointer" }, "✎ 原文勘誤提交"),
+      origBox,
       el("div", { class: "fld" }, quote), el("div", { class: "fld" }, sugg), el("div", { class: "fld" }, note),
       el("button", { class: "btn sm", onclick: async () => {
         out.innerHTML = "";
@@ -515,10 +526,27 @@ views.differential = async (main) => {
     out.innerHTML = "";
     if (r.error) { out.append(el("p", { class: "muted" }, r.error)); return; }
     const d = r.differential;
+    // 多輪對話面板先建（二十一輪）：首問注入**本次生成的鑒別表全文**——
+    // 會話不再丟失表格上下文；表格單元格/鑒別點點擊即成追問送入同一會話
+    const tableText = (d.contrast_table || []).map(row => row.axis + "：" + d.formulas.map(f => f + "=" + (row[f] || "—")).join("；")).join("\n");
+    const panel = aiChatPanel({
+      title: "🤖 多輪對話解讀（已載入本鑒別表上下文 · 點表格任意格可追問）",
+      seedLabel: "AI 解讀本鑒別",
+      seedQuestion: () => "已生成 " + d.formulas.join(" vs ") + " 鑒別表：\n" + tableText
+        + ((d.key_discriminators || []).length ? "\n關鍵鑒別點：" + d.key_discriminators.join("；") : "")
+        + "\n請基於此表解讀：各方核心指徵、最關鍵的鑒別軸、臨證取捨與易混點，逐條附條文依據。",
+      placeholder: "追問，或直接點擊表格單元格/鑒別點生成追問…",
+    });
+    const cellAsk = q => { panel.ask(q); panel.node.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
     const tbl = el("table"); const head = el("tr", {}, [el("th", {}, "鑒別軸"), ...d.formulas.map(f => el("th", {}, f))]); tbl.append(head);
-    (d.contrast_table || []).forEach(row => tbl.append(el("tr", {}, [el("td", {}, el("b", {}, row.axis)), ...d.formulas.map(f => el("td", {}, row[f] || "—"))])));
-    out.append(el("div", { class: "card" }, [el("h3", {}, d.formulas.join(" vs ")), tbl]));
-    if (d.key_discriminators) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "關鍵鑒別點"), ...d.key_discriminators.map(x => el("div", { class: "kv" }, [el("b", {}, "▸"), el("span", {}, x)]))]));
+    (d.contrast_table || []).forEach(row => tbl.append(el("tr", {}, [el("td", {}, el("b", {}, row.axis)), ...d.formulas.map(f => {
+      const v = row[f] || "—";
+      if (v === "—") return el("td", {}, v);
+      return el("td", { class: "cell-ask", title: "點擊就此格向智能體追問（同一會話續接上下文）",
+        onclick: () => cellAsk("在剛才生成的 " + d.formulas.join(" vs ") + " 鑒別表中，" + f + " 的「" + row.axis + "」一欄為「" + v + "」。請解讀該鑒別點：原文依據、臨證意義、與另一方在此軸上的對照。") }, v);
+    })])));
+    out.append(el("div", { class: "card" }, [el("h3", {}, d.formulas.join(" vs ")), el("div", { class: "tbl-scroll" }, tbl), el("p", { class: "small muted" }, "點擊任意單元格→自動生成該格的智能體追問（對話面板在下方）")]));
+    if (d.key_discriminators) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "關鍵鑒別點（點擊可追問）"), ...d.key_discriminators.map(x => el("div", { class: "kv cell-ask", title: "點擊向智能體追問", onclick: () => cellAsk("請展開解讀 " + d.formulas.join(" vs ") + " 的鑒別點「" + x + "」：原文依據與臨證運用。") }, [el("b", {}, "▸"), el("span", {}, x)]))]));
     // 十六輪：逐格回源核驗（規則歸類可錯——不再默認規則即正確）
     const v = r.verification;
     if (v) {
@@ -541,22 +569,22 @@ views.differential = async (main) => {
       const card = el("div", { class: "card" }, [
         el("div", { class: "section-title" }, ["模型審校 ", el("span", { class: "pill" }, mr.backend), el("span", { class: "pill " + (mr.verdict === "pass" ? "" : "warn") }, mr.verdict)]),
         el("p", { class: "small" }, mr.summary || "")]);
+      if (mr.model_output_empty) card.append(el("div", { class: "cite-banner cite-warn" }, "⚠ 模型未返回有效審校內容（未冒充 pass），可點「生成鑒別表」重試"));
+      // 正產出點校（二十一輪）：pass 時同樣逐軸展示鑒別成立依據
+      (mr.confirmations || []).forEach(cf => card.append(el("div", { class: "evi" }, [
+        el("div", { class: "ct", style: "font-size:13px" }, "✓ " + (cf.axis ? cf.axis + "：" : "") + cf.comment),
+        el("div", { class: "meta" }, [...(cf.clause_ids || []).map(clauseChip),
+          (cf.unverified_clause_ids || []).length ? el("span", { class: "pill warn" }, "未核實引用：" + cf.unverified_clause_ids.join("、")) : null])])));
       (mr.issues || []).forEach(it => card.append(el("div", { class: "evi" }, [
-        el("div", { class: "ct", style: "font-size:13px" }, (it.formula ? it.formula + " · " : "") + (it.axis ? it.axis + "：" : "") + it.problem),
+        el("div", { class: "ct", style: "font-size:13px" }, "⚠ " + (it.formula ? it.formula + " · " : "") + (it.axis ? it.axis + "：" : "") + it.problem),
         el("div", { class: "meta" }, [...(it.clause_ids || []).map(clauseChip),
           (it.unverified_clause_ids || []).length ? el("span", { class: "pill warn" }, "未核實引用：" + it.unverified_clause_ids.join("、")) : null])])));
+      if ((mr.missing_axes || []).length) card.append(el("div", { class: "cite-banner cite-warn" }, "模型指出表中缺失鑒別軸：" + mr.missing_axes.join("、")));
       if (mr.note) card.append(el("p", { class: "small muted" }, mr.note));
       out.append(card);
     }
     if (d.supporting_clauses) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "證據條文"), clauseChips(d.supporting_clauses)]));
-    // 多輪對話解讀（二十輪）：圍繞本鑒別對持續追問，同一會話續接上下文
-    out.append(aiChatPanel({
-      title: "🤖 多輪對話解讀（圍繞 " + d.formulas.join(" vs ") + " · 上下文續接）",
-      seedLabel: "AI 解讀本鑒別",
-      seedQuestion: () => "請解讀 " + d.formulas.join(" 與 ")
-        + " 的鑒別：各方核心指徵、最關鍵的鑒別軸、臨證易混點與辨析思路，逐條附條文依據。",
-      placeholder: "追問，如：兩方兼證如何取捨？它的服法有何不同？",
-    }).node);
+    out.append(panel.node);
   }
   main.append(el("div", { class: "card" }, [sel.node, el("button", { class: "btn", style: "margin-top:10px", onclick: run }, "生成鑒別表")]));
   main.append(out);
@@ -698,7 +726,8 @@ views.research = async (main) => {
     // 主題解析（十九輪：挖掘按題收斂，不再恆為全書榜單）
     const ta = r.topic_analysis || {};
     out.append(el("div", { class: "card" }, [
-      el("div", { class: "section-title" }, "主題解析" + (ta.scoped ? "（統計域 " + ta.n_scope_clauses + " 條）" : "")),
+      el("div", { class: "section-title" }, ["主題解析" + (ta.scoped ? "（統計域 " + ta.n_scope_clauses + " 條）" : ""),
+        ta.parser === "model" ? el("span", { class: "pill" }, "模型解析（詞表校驗）") : null]),
       el("div", {}, [
         ...(ta.formulas || []).map(x => el("span", { class: "pill" }, "方·" + x)),
         ...(ta.symptoms || []).map(x => el("span", { class: "pill" }, "證·" + x)),
@@ -735,16 +764,19 @@ views.research = async (main) => {
       if ((nw.top_pulse_edges || []).length) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "方-脈共現（Top）"),
         el("div", {}, nw.top_pulse_edges.slice(0, 16).map(e2 => el("span", { class: "pill" }, e2.formula + "×" + e2.pulse + " " + e2.weight)))]));
     }
-    // 家族樹（加減方演化）
+    // 家族樹（加減方演化）：主題域過濾為空時如實顯示空態（不再回退全書）
     const ft = r.family_tree || {};
     if ((ft.families || []).length) out.append(el("div", { class: "card" }, [
-      el("div", { class: "section-title" }, "方劑家族樹（" + ft.n_families + " 族" + (nw.focus_formulas ? " · 聚焦視圖" : "") + "）"),
+      el("div", { class: "section-title" }, "方劑家族樹（" + ft.n_families + " 族" + (nw.focus_formulas ? " · 聚焦視圖" : "") + (ft.n_families_whole_book && ft.n_families !== ft.n_families_whole_book ? " · 全書共 " + ft.n_families_whole_book + " 族" : "") + "）"),
       ...ft.families.map(fam => el("div", { style: "margin:6px 0" }, [
         el("b", {}, fam.base),
         ...(fam.modifications || []).map(m => el("div", { class: "kv small", style: "padding-left:14px" }, [
           el("b", {}, "└ " + m.modified_formula),
           el("span", { class: "muted" }, (m.added_herbs ? "＋" + m.added_herbs : "") + (m.removed_herbs ? "　－" + m.removed_herbs : "") || m.relation)]))])),
       el("p", { class: "small muted" }, ft.note || "")]));
+    else if (ft.note) out.append(el("div", { class: "card" }, [
+      el("div", { class: "section-title" }, "方劑家族樹"),
+      el("p", { class: "small muted" }, ft.note)]));
     if (r.paper_outline) out.append(el("div", { class: "card" }, [el("div", { class: "section-title" }, "論文大綱：" + r.paper_outline.title),
       ...(r.paper_outline.sections || []).map(s => el("div", { class: "small" }, s)),
       el("p", { class: "small muted" }, "圖：" + (r.paper_outline.figures || []).join("、")),
@@ -1164,15 +1196,14 @@ views.bianzheng = async (main) => {
     if (mx && !mx.error) {
       out.append(el("div", { class: "card" }, [
         el("div", { class: "section-title" }, ["模型輔助抽取 ", el("span", { class: "pill" }, mx.backend)]),
-        (mx.added_findings || []).length ? el("div", { class: "kv small" }, [el("b", {}, "補充表現"), el("span", {}, mx.added_findings.map(secBadge))]) : el("p", { class: "small muted" }, "無規則詞表之外的補充"),
-        (mx.model_pulse || []).length ? el("div", { class: "kv small" }, [el("b", {}, "脈象"), el("span", {}, mx.model_pulse.join("、"))]) : null,
+        (mx.added_findings || []).length ? el("div", { class: "kv small" }, [el("b", {}, "補充表現"), el("span", {}, [...mx.added_findings.map(secBadge), el("span", { class: "muted" }, "　已按軸併入上方四診表")])]) : el("p", { class: "small muted" }, "無規則詞表之外的補充"),
+        (mx.model_pulse || []).length ? el("div", { class: "kv small" }, [el("b", {}, "脈象"), el("span", {}, mx.model_pulse.join("、") + ((mx.merged_pulse || []).length ? "（已併入）" : ""))]) : null,
         (mx.unverified || []).length ? el("div", { class: "cite-banner cite-warn" }, "⚠ 敘述中找不到依據、未併入：" + mx.unverified.join("、")) : null,
         el("p", { class: "small muted" }, mx.note || "")]));
     }
     out.append(el("p", { class: "notice" }, r.note || ""));
-    // 醫師端一鍵送裁決（含模型補充的已驗證表現）
-    const allSyms = ["cold_heat", "sweating", "thirst_drinking", "stool_urine", "chest_hypochondrium", "epigastrium_abdomen", "pain_location", "sleep", "other_findings"].flatMap(k => r[k] || [])
-      .concat((mx && mx.added_findings) || []);
+    // 醫師端一鍵送裁決（模型驗證通過的表現已由服務端併入表本體，去重後直取）
+    const allSyms = [...new Set(["cold_heat", "sweating", "thirst_drinking", "stool_urine", "chest_hypochondrium", "epigastrium_abdomen", "pain_location", "sleep", "other_findings"].flatMap(k => r[k] || []))];
     if (allSyms.length) out.append(el("button", { class: "btn", onclick: () => runAdj(allSyms, (r.pulse && r.pulse.length ? r.pulse : (mx && mx.model_pulse) || [])) }, "→ 送入多假設裁決（醫師端）"));
   }
   async function runAdj(symptoms, pulse) {

@@ -55,6 +55,47 @@ class ResearchMiner:
         return {"formulas": formulas, "symptoms": symptoms, "pulses": pulses,
                 "channels": channels, "herbs": herbs}
 
+    def parse_topic_llm(self, topic: str, llm) -> Optional[Dict[str, List[str]]]:
+        """模型輔助主題解析（二十一輪）：詞表直匹配失敗時（口語/意譯/
+        抽象主題），讓模型從**限定詞表**中選詞。模型選出的每個詞仍逐字
+        校驗在表，不在表即丟棄——解析層智能化，證據契約不變。"""
+        from .. import lexicon
+        from ..llm.prompts import (topic_parse_system_prompt,
+                                   topic_parse_user_prompt)
+        formulas_all = sorted({r.formula for r in self.formula_rules
+                               if r.formula})
+        symptoms_all = [s for s in lexicon.SYMPTOMS if len(s) >= 2]
+        pulses_all = list(lexicon.PULSE_NAMED_PATTERNS)
+        channels_all = ["太陽病", "陽明病", "少陽病",
+                        "太陰病", "少陰病", "厥陰病"]
+        herbs_all = sorted({h for c in self.clauses
+                            for h in (c.herbs or []) if len(h) >= 2})
+        vocab = ("方劑：" + "、".join(formulas_all)
+                 + "\n症狀：" + "、".join(symptoms_all[:220])
+                 + "\n脈象：" + "、".join(pulses_all[:60])
+                 + "\n六經：" + "、".join(channels_all)
+                 + "\n藥物：" + "、".join(herbs_all[:90]))
+        try:
+            out = llm.json_complete(topic_parse_system_prompt(),
+                                    topic_parse_user_prompt(topic, vocab),
+                                    task="extract_rule")
+        except Exception:
+            return None
+        if not isinstance(out, dict):
+            return None
+
+        def _keep(cands, allowed, cap=8):
+            al = set(allowed)
+            return sorted({str(x) for x in (cands or [])
+                           if isinstance(x, str) and str(x) in al})[:cap]
+
+        parsed = {"formulas": _keep(out.get("formulas"), formulas_all),
+                  "symptoms": _keep(out.get("symptoms"), symptoms_all),
+                  "pulses": _keep(out.get("pulses"), pulses_all),
+                  "channels": _keep(out.get("channels"), channels_all),
+                  "herbs": _keep(out.get("herbs"), herbs_all)}
+        return parsed if any(parsed.values()) else None
+
     def scope_clauses(self, parsed: Dict[str, List[str]]):
         """主題域條文子集：命中任一解析詞的條文（並集）。"""
         from ..textutil import fold_variants
@@ -132,7 +173,7 @@ class ResearchMiner:
 
     # ------------------------------------------------------------------
     def run_topic(self, topic: str, scope: str = "傷寒論",
-                  outputs: Optional[List[str]] = None) -> Dict:
+                  outputs: Optional[List[str]] = None, llm=None) -> Dict:
         outputs = outputs or ["rules", "network", "paper_outline"]
         config.ensure_dirs()
         payload: Dict = {"research_topic": topic, "scope": scope,
@@ -167,6 +208,15 @@ class ResearchMiner:
         # 主題感知（十九輪）：解析方/證/脈/藥/六經詞，統計域收斂到主題
         # 條文子集——不再不論輸入為何都返回全書榜單
         parsed = self.parse_topic(topic)
+        parser = "lexicon"
+        # 二十一輪：詞表直匹配失敗 → 模型從限定詞表解析（自由主題智能
+        # 挖掘；所選詞逐字校驗在表，未接真模型時保持原回退口徑）
+        if not any(parsed.values()) and llm is not None \
+                and getattr(llm, "available", False):
+            model_parsed = self.parse_topic_llm(topic, llm)
+            if model_parsed:
+                parsed = model_parsed
+                parser = "model"
         scoped_clauses = self.scope_clauses(parsed)
         scoped = bool(scoped_clauses)
         dom = scoped_clauses if scoped else self.clauses
@@ -175,13 +225,20 @@ class ResearchMiner:
         s_freq = self.frequency_tables(dom) if scoped else freq
         payload["topic_analysis"] = {
             **parsed,
+            "parser": parser,
             "n_scope_clauses": len(scoped_clauses),
             "scope_clause_ids": [c.clause_id for c in scoped_clauses][:40],
             "scoped": scoped,
-            "note": ("統計域＝主題命中條文子集（並集）"
+            "note": (("統計域＝主題命中條文子集（並集）"
+                      if parser == "lexicon" else
+                      "詞表直匹配未命中，主題由**模型從限定詞表選詞**解析"
+                      "（所選詞已逐字校驗在表）；統計域＝解析詞命中條文子集")
                      if scoped else
-                     "主題未解析出方/證/脈/藥/六經詞——已回退全書口徑，"
-                     "請在主題中包含具體方名或證候詞"),
+                     ("主題未解析出方/證/脈/藥/六經詞——已回退全書口徑，"
+                      "請在主題中包含具體方名或證候詞"
+                      + ("" if llm is not None
+                         and getattr(llm, "available", False)
+                         else "；接入真實模型後可對口語/抽象主題作智能解析"))),
         }
         focus = parsed["formulas"]
 
@@ -213,17 +270,24 @@ class ResearchMiner:
         fam = tree["families"]
         scope_formulas = ({f for c in scoped_clauses for f in c.formula_names}
                           if scoped else set())
-        if focus or scope_formulas:
+        focused_tree = bool(focus or scope_formulas)
+        if focused_tree:
             keys = set(focus) | scope_formulas
+            # 二十一輪：過濾為空時**不再回退全書列表**——「不論輸入什麼
+            # 都是桂枝湯」的根因即此回退；如實返回空列表並說明
             fam = [f for f in fam
                    if f["base"] in keys
                    or any(m.get("modified_formula", "") in keys
-                          for m in f["modifications"])] or tree["families"]
+                          for m in f["modifications"])]
         payload["family_tree"] = {
-            "n_families": len(tree["families"]),
+            "n_families": len(fam) if focused_tree else len(tree["families"]),
+            "n_families_whole_book": len(tree["families"]),
             "families": fam[:20],
-            "note": "加減方家族樹（modification_relations，D 層歸納"
-                    + ("，已按主題域過濾" if scoped else "") + "）",
+            "note": ("加減方家族樹（modification_relations，D 層歸納"
+                     + ("，已按主題域過濾" if focused_tree else "") + "）"
+                     + ("；主題域內無加減方家族——該主題所涉方劑在庫中"
+                        "無加減演化關係，未以全書列表冒充"
+                        if focused_tree and not fam else "")),
         }
         if "rules" in outputs:
             topic_formulas = [r for r in self.formula_rules
